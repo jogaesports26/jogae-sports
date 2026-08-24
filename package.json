@@ -1,0 +1,12 @@
+{
+  "name": "jogae-sports",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run start:dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend"
+  }
+}
