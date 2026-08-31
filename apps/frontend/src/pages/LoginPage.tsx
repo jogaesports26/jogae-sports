@@ -1,5 +1,17 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type CSSProperties } from 'react'
 import './LoginPage.css'
+import {
+  SoccerBall,
+  Basketball,
+  Volleyball,
+  TennisBall,
+  TennisRacket,
+  BadmintonRacket,
+  Whistle,
+  Trophy,
+  Stopwatch,
+  BoxingGlove,
+} from './SportIcons'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
 
@@ -25,6 +37,40 @@ function validate(email: string, password: string): FormErrors {
 
   return errors
 }
+
+interface SportIconPlacement {
+  Icon: typeof SoccerBall
+  top: string
+  left: string
+  size: number
+  rotate: number
+  opacity: number
+  behindCard?: boolean
+}
+
+const SPORT_ICON_LAYOUT: SportIconPlacement[] = [
+  { Icon: TennisRacket, top: '4%', left: '10%', size: 70, rotate: -22, opacity: 0.9 },
+  { Icon: SoccerBall, top: '-6%', left: '38%', size: 90, rotate: 8, opacity: 0.55, behindCard: true },
+  { Icon: Whistle, top: '2%', left: '68%', size: 64, rotate: -8, opacity: 0.85 },
+  { Icon: Basketball, top: '20%', left: '88%', size: 76, rotate: 12, opacity: 0.9 },
+  { Icon: TennisBall, top: '10%', left: '-4%', size: 46, rotate: -10, opacity: 0.8 },
+  { Icon: Volleyball, top: '32%', left: '4%', size: 58, rotate: 15, opacity: 0.5, behindCard: true },
+  { Icon: Trophy, top: '38%', left: '86%', size: 60, rotate: -6, opacity: 0.9 },
+  { Icon: BadmintonRacket, top: '58%', left: '-3%', size: 68, rotate: 24, opacity: 0.85 },
+  { Icon: Stopwatch, top: '68%', left: '82%', size: 58, rotate: 10, opacity: 0.85 },
+  { Icon: BoxingGlove, top: '80%', left: '6%', size: 64, rotate: -14, opacity: 0.9 },
+  { Icon: TennisBall, top: '86%', left: '58%', size: 40, rotate: 6, opacity: 0.6, behindCard: true },
+  { Icon: SoccerBall, top: '78%', left: '92%', size: 68, rotate: -10, opacity: 0.85 },
+  { Icon: Basketball, top: '92%', left: '30%', size: 50, rotate: 18, opacity: 0.75 },
+  { Icon: Volleyball, top: '-4%', left: '90%', size: 54, rotate: -18, opacity: 0.7 },
+]
+
+const MOBILE_SPORT_ICON_LAYOUT: Omit<SportIconPlacement, 'behindCard'>[] = [
+  { Icon: TennisBall, top: '6%', left: '80%', size: 22, rotate: -10, opacity: 0.9 },
+  { Icon: SoccerBall, top: '4%', left: '4%', size: 26, rotate: 8, opacity: 0.9 },
+  { Icon: TennisRacket, top: '48%', left: '90%', size: 32, rotate: 24, opacity: 0.9 },
+  { Icon: Trophy, top: '55%', left: '2%', size: 26, rotate: -10, opacity: 0.85 },
+]
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -116,6 +162,33 @@ export default function LoginPage() {
       </div>
 
       <div className="login-page__panel login-page__panel--illustration">
+        <div className="login-page__sport-icons login-page__sport-icons--desktop">
+          {SPORT_ICON_LAYOUT.map(({ Icon, top, left, size, rotate, opacity, behindCard }, index) => {
+            const style: CSSProperties = {
+              top,
+              left,
+              width: size,
+              opacity,
+              transform: `rotate(${rotate}deg)`,
+              zIndex: behindCard ? 0 : 2,
+            }
+            return <Icon key={index} className="login-page__sport-icon" style={style} />
+          })}
+        </div>
+
+        <div className="login-page__sport-icons login-page__sport-icons--mobile">
+          {MOBILE_SPORT_ICON_LAYOUT.map(({ Icon, top, left, size, rotate, opacity }, index) => {
+            const style: CSSProperties = {
+              top,
+              left,
+              width: size,
+              opacity,
+              transform: `rotate(${rotate}deg)`,
+            }
+            return <Icon key={index} className="login-page__sport-icon" style={style} />
+          })}
+        </div>
+
         <div className="login-page__illustration-card">
           <svg
             className="login-page__icon"
