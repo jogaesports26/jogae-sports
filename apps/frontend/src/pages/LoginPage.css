@@ -163,15 +163,55 @@
 
   .login-page__panel--illustration {
     order: -1;
-    padding: 40px 5vw;
-    min-height: 220px;
+    flex: 0 0 auto;
+    padding: 28px 6vw;
   }
 
   .login-page__illustration-card {
-    padding: 28px;
+    max-width: none;
+    width: 100%;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .login-page__icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .login-page__illustration-card h2 {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+
+  .login-page__illustration-card p {
+    display: none;
   }
 
   .login-page__panel--form {
-    padding: 40px 6vw;
+    padding: 32px 6vw 40px;
+  }
+
+  .login-page__brand {
+    margin-bottom: 28px;
+  }
+
+  .login-page__form h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 400px) {
+  .login-page__illustration-card {
+    gap: 12px;
+    padding: 16px 20px;
+  }
+
+  .login-page__illustration-card h2 {
+    font-size: 17px;
   }
 }
