@@ -158,7 +158,7 @@ export default function RegisterPage() {
       </form>
 
       <div className="auth__footer">
-        Já tem conta? <Link to="/">Entrar</Link>
+        Já tem conta? <Link to="/login">Entrar</Link>
       </div>
     </AuthLayout>
   )
