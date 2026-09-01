@@ -4,12 +4,25 @@ import AuthLayout from './AuthLayout'
 import { API_URL, parseApiError, saveSession, type AuthResponse } from '../lib/api'
 
 interface FormErrors {
+  name?: string
   email?: string
   password?: string
+  confirmPassword?: string
 }
 
-function validate(email: string, password: string): FormErrors {
+function validate(
+  name: string,
+  email: string,
+  password: string,
+  confirmPassword: string,
+): FormErrors {
   const errors: FormErrors = {}
+
+  if (!name.trim()) {
+    errors.name = 'Informe seu nome'
+  } else if (name.trim().length < 2) {
+    errors.name = 'Nome muito curto'
+  }
 
   if (!email.trim()) {
     errors.email = 'Informe seu e-mail'
@@ -18,18 +31,24 @@ function validate(email: string, password: string): FormErrors {
   }
 
   if (!password) {
-    errors.password = 'Informe sua senha'
+    errors.password = 'Informe uma senha'
   } else if (password.length < 6) {
     errors.password = 'A senha deve ter pelo menos 6 caracteres'
+  }
+
+  if (confirmPassword !== password) {
+    errors.confirmPassword = 'As senhas não coincidem'
   }
 
   return errors
 }
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate()
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -38,27 +57,27 @@ export default function LoginPage() {
     event.preventDefault()
     setFormError(null)
 
-    const errors = validate(email, password)
+    const errors = validate(name, email, password, confirmPassword)
     setFieldErrors(errors)
     if (Object.keys(errors).length > 0) return
 
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       })
 
       if (!response.ok) {
-        throw new Error(await parseApiError(response, 'E-mail ou senha inválidos'))
+        throw new Error(await parseApiError(response, 'Não foi possível criar sua conta'))
       }
 
       const data: AuthResponse = await response.json()
       saveSession(data)
       navigate('/painel')
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Não foi possível fazer login')
+      setFormError(err instanceof Error ? err.message : 'Não foi possível criar sua conta')
     } finally {
       setIsSubmitting(false)
     }
@@ -66,17 +85,30 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      headline="Gestão completa para sua quadra"
-      subtitle="Agenda online, controle de reservas, pagamentos e muito mais. Tudo em um só lugar."
+      headline="Comece a gerenciar sua quadra hoje"
+      subtitle="Crie sua conta e organize agenda, reservas e pagamentos em um só lugar."
     >
       <div className="auth__brand">Jogaê Sports - Gestão</div>
 
-      <h1>Bem-vindo de volta</h1>
-      <p className="auth__subtitle">Entre para administrar sua quadra</p>
+      <h1>Criar conta</h1>
+      <p className="auth__subtitle">Cadastro do responsável pelo estabelecimento</p>
 
       {formError && <div className="auth__error">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
+        <div className="auth__field">
+          <label htmlFor="name">Nome completo</label>
+          <input
+            id="name"
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Seu nome"
+          />
+          {fieldErrors.name && <span className="auth__field-error">{fieldErrors.name}</span>}
+        </div>
+
         <div className="auth__field">
           <label htmlFor="email">E-mail</label>
           <input
@@ -95,23 +127,38 @@ export default function LoginPage() {
           <input
             id="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="Mínimo 6 caracteres"
           />
           {fieldErrors.password && (
             <span className="auth__field-error">{fieldErrors.password}</span>
           )}
         </div>
 
+        <div className="auth__field">
+          <label htmlFor="confirmPassword">Confirmar senha</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Repita a senha"
+          />
+          {fieldErrors.confirmPassword && (
+            <span className="auth__field-error">{fieldErrors.confirmPassword}</span>
+          )}
+        </div>
+
         <button type="submit" className="auth__submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Entrando...' : 'Entrar'}
+          {isSubmitting ? 'Criando conta...' : 'Criar conta'}
         </button>
       </form>
 
       <div className="auth__footer">
-        Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
+        Já tem conta? <Link to="/">Entrar</Link>
       </div>
     </AuthLayout>
   )
