@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import DeviceMockup from './DeviceMockup'
-import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy, Whistle } from './SportIcons'
+import Hero from '../components/landing/Hero'
+import HowItWorks from '../components/landing/HowItWorks'
+import Comparison from '../components/landing/Comparison'
+import FAQ from '../components/landing/FAQ'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 import './LandingPage.css'
 
-const ACCENT = '#1E88E5'
-
 function IconAgenda() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <rect x="3" y="6" width="30" height="26" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -16,6 +18,7 @@ function IconAgenda() {
 }
 
 function IconReservas() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <circle cx="18" cy="18" r="15" stroke={ACCENT} strokeWidth="2.2" />
@@ -25,6 +28,7 @@ function IconReservas() {
 }
 
 function IconPagamentos() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 28" fill="none" aria-hidden="true">
       <rect x="2" y="4" width="32" height="20" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -35,6 +39,7 @@ function IconPagamentos() {
 }
 
 function IconEsportes() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <circle cx="18" cy="18" r="15" stroke={ACCENT} strokeWidth="2.2" />
@@ -49,6 +54,7 @@ function IconEsportes() {
 }
 
 function IconPainel() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 32" fill="none" aria-hidden="true">
       <rect x="2" y="2" width="32" height="24" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -61,6 +67,7 @@ function IconPainel() {
 }
 
 function IconChatbot() {
+  const ACCENT = '#1E88E5'
   return (
     <svg viewBox="0 0 36 34" fill="none" aria-hidden="true">
       <path
@@ -109,6 +116,32 @@ const FEATURES = [
   },
 ]
 
+function Features() {
+  const gridRef = useScrollReveal<HTMLDivElement>()
+
+  return (
+    <section className="landing__features" id="funcionalidades">
+      <h2>Tudo que você precisa pra administrar sua quadra</h2>
+      <p className="landing__features-subtitle">
+        O Jogaê Sports reúne as ferramentas essenciais pra você parar de perder tempo com
+        planilha e WhatsApp.
+      </p>
+
+      <div className="landing__features-grid reveal-stagger" ref={gridRef}>
+        {FEATURES.map(({ Icon, title, description }) => (
+          <div className="landing__feature-card" key={title}>
+            <div className="landing__feature-icon">
+              <Icon />
+            </div>
+            <h3>{title}</h3>
+            <p>{description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function LandingPage() {
   return (
     <div className="landing">
@@ -125,54 +158,11 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      <section className="landing__hero">
-        <div className="landing__hero-icons">
-          <SoccerBall className="landing__hero-icon landing__hero-icon--1" />
-          <Basketball className="landing__hero-icon landing__hero-icon--2" />
-          <Volleyball className="landing__hero-icon landing__hero-icon--3" />
-          <TennisBall className="landing__hero-icon landing__hero-icon--4" />
-          <Trophy className="landing__hero-icon landing__hero-icon--5" />
-          <Whistle className="landing__hero-icon landing__hero-icon--6" />
-        </div>
-
-        <div className="landing__hero-content">
-          <h1>Gestão completa para sua quadra esportiva</h1>
-          <p>
-            Agenda online, reservas, pagamentos e muito mais. Tudo em um só lugar, feito pra donos
-            de quadra que querem simplicidade e controle.
-          </p>
-          <div className="landing__hero-actions">
-            <Link to="/cadastro" className="landing__button landing__button--primary">
-              Criar conta grátis
-            </Link>
-            <Link to="/login" className="landing__button landing__button--ghost">
-              Já tenho conta
-            </Link>
-          </div>
-        </div>
-
-        <DeviceMockup className="landing__hero-mockup" />
-      </section>
-
-      <section className="landing__features" id="funcionalidades">
-        <h2>Tudo que você precisa pra administrar sua quadra</h2>
-        <p className="landing__features-subtitle">
-          O Jogaê Sports reúne as ferramentas essenciais pra você parar de perder tempo com
-          planilha e WhatsApp.
-        </p>
-
-        <div className="landing__features-grid">
-          {FEATURES.map(({ Icon, title, description }) => (
-            <div className="landing__feature-card" key={title}>
-              <div className="landing__feature-icon">
-                <Icon />
-              </div>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Hero />
+      <HowItWorks />
+      <Features />
+      <Comparison />
+      <FAQ />
 
       <section className="landing__cta">
         <h2>Comece a gerenciar sua quadra hoje</h2>
