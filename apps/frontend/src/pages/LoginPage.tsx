@@ -7,10 +7,18 @@ import {
   TennisBall,
   TennisRacket,
   BadmintonRacket,
+  BeachTennisRacket,
+  Shuttlecock,
+  VolleyballNet,
+  Sneaker,
+  Skateboard,
   Whistle,
   Trophy,
   Stopwatch,
   BoxingGlove,
+  ClockIcon,
+  CalendarIcon,
+  FilterIcon,
 } from './SportIcons'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
@@ -49,20 +57,35 @@ interface SportIconPlacement {
 }
 
 const SPORT_ICON_LAYOUT: SportIconPlacement[] = [
-  { Icon: TennisRacket, top: '4%', left: '10%', size: 70, rotate: -22, opacity: 0.9 },
-  { Icon: SoccerBall, top: '-6%', left: '38%', size: 90, rotate: 8, opacity: 0.55, behindCard: true },
-  { Icon: Whistle, top: '2%', left: '68%', size: 64, rotate: -8, opacity: 0.85 },
-  { Icon: Basketball, top: '20%', left: '88%', size: 76, rotate: 12, opacity: 0.9 },
-  { Icon: TennisBall, top: '10%', left: '-4%', size: 46, rotate: -10, opacity: 0.8 },
-  { Icon: Volleyball, top: '32%', left: '4%', size: 58, rotate: 15, opacity: 0.5, behindCard: true },
-  { Icon: Trophy, top: '38%', left: '86%', size: 60, rotate: -6, opacity: 0.9 },
-  { Icon: BadmintonRacket, top: '58%', left: '-3%', size: 68, rotate: 24, opacity: 0.85 },
-  { Icon: Stopwatch, top: '68%', left: '82%', size: 58, rotate: 10, opacity: 0.85 },
-  { Icon: BoxingGlove, top: '80%', left: '6%', size: 64, rotate: -14, opacity: 0.9 },
-  { Icon: TennisBall, top: '86%', left: '58%', size: 40, rotate: 6, opacity: 0.6, behindCard: true },
-  { Icon: SoccerBall, top: '78%', left: '92%', size: 68, rotate: -10, opacity: 0.85 },
-  { Icon: Basketball, top: '92%', left: '30%', size: 50, rotate: 18, opacity: 0.75 },
-  { Icon: Volleyball, top: '-4%', left: '90%', size: 54, rotate: -18, opacity: 0.7 },
+  // grandes, cortando as bordas — camada de fundo
+  { Icon: Basketball, top: '-10%', left: '-6%', size: 150, rotate: -8, opacity: 0.35, behindCard: true },
+  { Icon: SoccerBall, top: '68%', left: '78%', size: 170, rotate: 10, opacity: 0.3, behindCard: true },
+  { Icon: Volleyball, top: '82%', left: '-8%', size: 130, rotate: 14, opacity: 0.3, behindCard: true },
+  { Icon: Skateboard, top: '-4%', left: '55%', size: 150, rotate: -6, opacity: 0.28, behindCard: true },
+
+  // camada intermediária, atrás do card
+  { Icon: SoccerBall, top: '-6%', left: '38%', size: 90, rotate: 8, opacity: 0.5, behindCard: true },
+  { Icon: TennisBall, top: '86%', left: '56%', size: 44, rotate: 6, opacity: 0.55, behindCard: true },
+  { Icon: VolleyballNet, top: '4%', left: '2%', size: 130, rotate: -3, opacity: 0.4, behindCard: true },
+
+  // camada principal, na frente
+  { Icon: TennisRacket, top: '4%', left: '10%', size: 66, rotate: -22, opacity: 0.95 },
+  { Icon: BeachTennisRacket, top: '10%', left: '82%', size: 58, rotate: 16, opacity: 0.9 },
+  { Icon: Whistle, top: '0%', left: '66%', size: 56, rotate: -8, opacity: 0.85 },
+  { Icon: Basketball, top: '22%', left: '90%', size: 70, rotate: 12, opacity: 0.9 },
+  { Icon: TennisBall, top: '12%', left: '-5%', size: 42, rotate: -10, opacity: 0.85 },
+  { Icon: Shuttlecock, top: '30%', left: '46%', size: 40, rotate: -12, opacity: 0.75 },
+  { Icon: Trophy, top: '40%', left: '86%', size: 54, rotate: -6, opacity: 0.9 },
+  { Icon: BadmintonRacket, top: '58%', left: '-4%', size: 62, rotate: 24, opacity: 0.9 },
+  { Icon: Sneaker, top: '4%', left: '22%', size: 62, rotate: 4, opacity: 0.7 },
+  { Icon: Stopwatch, top: '68%', left: '82%', size: 52, rotate: 10, opacity: 0.85 },
+  { Icon: BoxingGlove, top: '78%', left: '4%', size: 58, rotate: -14, opacity: 0.9 },
+  { Icon: SoccerBall, top: '76%', left: '92%', size: 60, rotate: -10, opacity: 0.85 },
+  { Icon: Basketball, top: '92%', left: '32%', size: 46, rotate: 18, opacity: 0.75 },
+  { Icon: Volleyball, top: '-5%', left: '92%', size: 48, rotate: -18, opacity: 0.75 },
+  { Icon: ClockIcon, top: '48%', left: '3%', size: 34, rotate: 0, opacity: 0.7 },
+  { Icon: CalendarIcon, top: '58%', left: '92%', size: 34, rotate: -4, opacity: 0.7 },
+  { Icon: FilterIcon, top: '90%', left: '68%', size: 36, rotate: 0, opacity: 0.65 },
 ]
 
 const MOBILE_SPORT_ICON_LAYOUT: Omit<SportIconPlacement, 'behindCard'>[] = [
