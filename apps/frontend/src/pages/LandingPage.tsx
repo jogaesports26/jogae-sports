@@ -7,7 +7,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 import './LandingPage.css'
 
 function IconAgenda() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <rect x="3" y="6" width="30" height="26" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -18,7 +18,7 @@ function IconAgenda() {
 }
 
 function IconReservas() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <circle cx="18" cy="18" r="15" stroke={ACCENT} strokeWidth="2.2" />
@@ -28,7 +28,7 @@ function IconReservas() {
 }
 
 function IconPagamentos() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 28" fill="none" aria-hidden="true">
       <rect x="2" y="4" width="32" height="20" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -39,7 +39,7 @@ function IconPagamentos() {
 }
 
 function IconEsportes() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <circle cx="18" cy="18" r="15" stroke={ACCENT} strokeWidth="2.2" />
@@ -54,7 +54,7 @@ function IconEsportes() {
 }
 
 function IconPainel() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 32" fill="none" aria-hidden="true">
       <rect x="2" y="2" width="32" height="24" rx="4" stroke={ACCENT} strokeWidth="2.2" />
@@ -67,7 +67,7 @@ function IconPainel() {
 }
 
 function IconChatbot() {
-  const ACCENT = '#1E88E5'
+  const ACCENT = '#ACEC00'
   return (
     <svg viewBox="0 0 36 34" fill="none" aria-hidden="true">
       <path

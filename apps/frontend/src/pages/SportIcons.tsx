@@ -1,4 +1,4 @@
-const STROKE = '#25D366'
+const STROKE = '#ACEC00'
 
 type IconProps = { className?: string; style?: React.CSSProperties }
 
