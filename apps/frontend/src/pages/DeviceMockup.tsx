@@ -73,8 +73,8 @@ export default function DeviceMockup({ className }: { className?: string }) {
       <rect x="372" y="122" width="72" height="26" rx="5" fill="#FFFFFF" stroke="#1A237E" strokeOpacity="0.12" />
       <rect x="378" y="128" width="34" height="4" rx="2" fill="#1A237E" fillOpacity="0.4" />
       <rect x="378" y="136" width="50" height="4" rx="2" fill="#1A237E" fillOpacity="0.2" />
-      <circle cx="432" cy="135" r="6" fill="#25D366" fillOpacity="0.25" />
-      <path d="M429 135l2 2 4-4" stroke="#25D366" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="432" cy="135" r="6" fill="#ACEC00" fillOpacity="0.35" />
+      <path d="M429 135l2 2 4-4" stroke="#00182E" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
 
       <rect x="372" y="154" width="72" height="26" rx="5" fill="#FFFFFF" stroke="#1A237E" strokeOpacity="0.12" />
       <rect x="378" y="160" width="34" height="4" rx="2" fill="#1A237E" fillOpacity="0.4" />

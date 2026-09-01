@@ -1,21 +1,27 @@
 .landing {
-  /* Identidade visual da landing (neo-brutalismo sport-tech) — escopada
-     aqui pra não afetar login/cadastro/painel, que mantêm navy + serif. */
-  --color-primary: #1e45fb;
-  --color-accent: #cdf22b;
-  --color-dark: #111111;
-  --color-background: #ffffff;
-  --color-surface: #f8f9fc;
-  --color-border: rgba(17, 17, 17, 0.1);
-  --border-subtle: 1px solid rgba(17, 17, 17, 0.08);
-  --font-heading: 'Cabinet Grotesk', 'Clash Display', 'Inter Tight', sans-serif;
+  /* Identidade visual oficial da landing (Jogaê Sports) — escopada aqui
+     pra não afetar login/cadastro/painel, que mantêm navy + serif. */
+  --color-primary: #013ff6;
+  --color-accent-green: #acec00;
+  --color-dark-navy: #00182e;
+  --color-white: #ffffff;
+  --color-surface: rgba(255, 255, 255, 0.95);
+  --color-surface-dark: #00182e;
+  --color-border: rgba(0, 24, 46, 0.1);
+  --border-subtle: 1px solid var(--color-border);
+  --font-heading: 'Inter Tight', 'Syne', sans-serif;
 
-  --radius-sm: 8px;
   --radius-card: 20px;
   --radius-pill: 9999px;
 
-  --shadow-subtle: 0 4px 20px rgba(30, 69, 251, 0.06);
-  --shadow-neo: 4px 4px 0px var(--color-dark);
+  --shadow-neo: 4px 4px 0px var(--color-dark-navy);
+
+  /* aliases: mantêm os nomes genéricos já usados nos componentes
+     apontando pra paleta oficial acima, sem precisar reescrever cada regra */
+  --color-accent: var(--color-accent-green);
+  --color-dark: var(--color-dark-navy);
+  --color-background: var(--color-white);
+  --radius-sm: 8px;
 
   overflow-x: hidden;
   background: var(--color-background);
@@ -97,8 +103,9 @@
 }
 
 .landing__button--primary {
-  background: var(--color-accent);
-  color: var(--color-dark);
+  background: var(--color-accent-green, var(--color-accent));
+  color: var(--color-dark-navy, var(--color-dark));
+  font-weight: 700;
   box-shadow: var(--shadow-neo);
 }
 
@@ -209,7 +216,7 @@
 /* CTA banner */
 
 .landing__cta {
-  background: var(--color-primary);
+  background: var(--color-dark-navy, var(--color-primary));
   text-align: center;
   padding: 6vw;
 }
@@ -233,11 +240,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 24px 6vw;
-  background: var(--color-surface);
+  background: var(--color-surface-dark, var(--color-dark-navy));
   font-family: var(--font-body);
   font-size: 13px;
-  color: var(--color-dark);
-  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.7);
+  border-top: 2px solid var(--color-accent-green, var(--color-accent));
+}
+
+.landing__footer span:first-child {
+  color: var(--color-white, #ffffff);
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {
