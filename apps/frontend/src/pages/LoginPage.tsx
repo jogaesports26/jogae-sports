@@ -1,25 +1,6 @@
-import { useState, type FormEvent, type CSSProperties } from 'react'
+import { useState, type FormEvent } from 'react'
 import './LoginPage.css'
-import {
-  SoccerBall,
-  Basketball,
-  Volleyball,
-  TennisBall,
-  TennisRacket,
-  BadmintonRacket,
-  BeachTennisRacket,
-  Shuttlecock,
-  VolleyballNet,
-  Sneaker,
-  Skateboard,
-  Whistle,
-  Trophy,
-  Stopwatch,
-  BoxingGlove,
-  ClockIcon,
-  CalendarIcon,
-  FilterIcon,
-} from './SportIcons'
+import DeviceMockup from './DeviceMockup'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
 
@@ -45,55 +26,6 @@ function validate(email: string, password: string): FormErrors {
 
   return errors
 }
-
-interface SportIconPlacement {
-  Icon: typeof SoccerBall
-  top: string
-  left: string
-  size: number
-  rotate: number
-  opacity: number
-  behindCard?: boolean
-}
-
-const SPORT_ICON_LAYOUT: SportIconPlacement[] = [
-  // grandes, cortando as bordas — camada de fundo
-  { Icon: Basketball, top: '-10%', left: '-6%', size: 150, rotate: -8, opacity: 0.35, behindCard: true },
-  { Icon: SoccerBall, top: '68%', left: '78%', size: 170, rotate: 10, opacity: 0.3, behindCard: true },
-  { Icon: Volleyball, top: '82%', left: '-8%', size: 130, rotate: 14, opacity: 0.3, behindCard: true },
-  { Icon: Skateboard, top: '-4%', left: '55%', size: 150, rotate: -6, opacity: 0.28, behindCard: true },
-
-  // camada intermediária, atrás do card
-  { Icon: SoccerBall, top: '-6%', left: '38%', size: 90, rotate: 8, opacity: 0.5, behindCard: true },
-  { Icon: TennisBall, top: '86%', left: '56%', size: 44, rotate: 6, opacity: 0.55, behindCard: true },
-  { Icon: VolleyballNet, top: '94%', left: '28%', size: 120, rotate: -1, opacity: 0.3, behindCard: true },
-
-  // camada principal, na frente
-  { Icon: TennisRacket, top: '3%', left: '8%', size: 66, rotate: -22, opacity: 0.95 },
-  { Icon: BeachTennisRacket, top: '10%', left: '82%', size: 58, rotate: 16, opacity: 0.9 },
-  { Icon: Whistle, top: '0%', left: '66%', size: 56, rotate: -8, opacity: 0.85 },
-  { Icon: Basketball, top: '22%', left: '90%', size: 70, rotate: 12, opacity: 0.9 },
-  { Icon: TennisBall, top: '16%', left: '-5%', size: 42, rotate: -10, opacity: 0.85 },
-  { Icon: Shuttlecock, top: '4%', left: '44%', size: 46, rotate: -10, opacity: 0.8 },
-  { Icon: Trophy, top: '40%', left: '86%', size: 54, rotate: -6, opacity: 0.9 },
-  { Icon: BadmintonRacket, top: '58%', left: '-4%', size: 62, rotate: 24, opacity: 0.9 },
-  { Icon: Sneaker, top: '4%', left: '22%', size: 62, rotate: 4, opacity: 0.7 },
-  { Icon: Stopwatch, top: '68%', left: '82%', size: 52, rotate: 10, opacity: 0.85 },
-  { Icon: BoxingGlove, top: '78%', left: '4%', size: 58, rotate: -14, opacity: 0.9 },
-  { Icon: SoccerBall, top: '76%', left: '92%', size: 60, rotate: -10, opacity: 0.85 },
-  { Icon: Basketball, top: '92%', left: '32%', size: 46, rotate: 18, opacity: 0.75 },
-  { Icon: Volleyball, top: '-5%', left: '92%', size: 48, rotate: -18, opacity: 0.75 },
-  { Icon: ClockIcon, top: '48%', left: '3%', size: 34, rotate: 0, opacity: 0.7 },
-  { Icon: CalendarIcon, top: '58%', left: '92%', size: 34, rotate: -4, opacity: 0.7 },
-  { Icon: FilterIcon, top: '90%', left: '68%', size: 36, rotate: 0, opacity: 0.65 },
-]
-
-const MOBILE_SPORT_ICON_LAYOUT: Omit<SportIconPlacement, 'behindCard'>[] = [
-  { Icon: TennisBall, top: '6%', left: '80%', size: 22, rotate: -10, opacity: 0.9 },
-  { Icon: SoccerBall, top: '4%', left: '4%', size: 26, rotate: 8, opacity: 0.9 },
-  { Icon: TennisRacket, top: '48%', left: '90%', size: 32, rotate: 24, opacity: 0.9 },
-  { Icon: Trophy, top: '55%', left: '2%', size: 26, rotate: -10, opacity: 0.85 },
-]
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -135,10 +67,10 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-page__panel login-page__panel--form">
         <div className="login-page__form">
-          <div className="login-page__brand">Jogaê Sports</div>
+          <div className="login-page__brand">Jogaê Sports - Gestão</div>
 
           <h1>Bem-vindo de volta</h1>
-          <p className="login-page__subtitle">Entre para reservar sua quadra</p>
+          <p className="login-page__subtitle">Entre para administrar sua quadra</p>
 
           {formError && <div className="login-page__error">{formError}</div>}
 
@@ -185,54 +117,11 @@ export default function LoginPage() {
       </div>
 
       <div className="login-page__panel login-page__panel--illustration">
-        <div className="login-page__sport-icons login-page__sport-icons--desktop">
-          {SPORT_ICON_LAYOUT.map(({ Icon, top, left, size, rotate, opacity, behindCard }, index) => {
-            const style: CSSProperties = {
-              top,
-              left,
-              width: size,
-              opacity,
-              transform: `rotate(${rotate}deg)`,
-              zIndex: behindCard ? 0 : 2,
-            }
-            return <Icon key={index} className="login-page__sport-icon" style={style} />
-          })}
-        </div>
-
-        <div className="login-page__sport-icons login-page__sport-icons--mobile">
-          {MOBILE_SPORT_ICON_LAYOUT.map(({ Icon, top, left, size, rotate, opacity }, index) => {
-            const style: CSSProperties = {
-              top,
-              left,
-              width: size,
-              opacity,
-              transform: `rotate(${rotate}deg)`,
-            }
-            return <Icon key={index} className="login-page__sport-icon" style={style} />
-          })}
-        </div>
-
-        <div className="login-page__illustration-card">
-          <svg
-            className="login-page__icon"
-            viewBox="0 0 64 64"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="32" cy="24" r="16" fill="#FFFFFF" fillOpacity="0.15" />
-            <path
-              d="M32 8C22.6 8 15 15.6 15 25c0 12 17 31 17 31s17-19 17-31c0-9.4-7.6-17-17-17Z"
-              fill="#FFFFFF"
-              fillOpacity="0.9"
-            />
-            <circle cx="32" cy="25" r="7" fill="#1A237E" />
-          </svg>
-          <h2>Sua quadra, a um clique</h2>
-          <p>
-            Encontre e reserve quadras esportivas perto de você. Times, horários e pagamentos,
-            tudo em um só lugar.
-          </p>
-        </div>
+        <h2 className="login-page__headline">Gestão completa para sua quadra</h2>
+        <p className="login-page__headline-subtitle">
+          Agenda online, controle de reservas, pagamentos e muito mais. Tudo em um só lugar.
+        </p>
+        <DeviceMockup className="login-page__mockup" />
       </div>
     </div>
   )
