@@ -157,6 +157,116 @@ export function BoxingGlove({ className, style }: IconProps) {
   )
 }
 
+export function Shuttlecock({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 32 46" fill="none" aria-hidden="true">
+      <circle cx="16" cy="38" r="6" stroke={STROKE} strokeWidth="2.1" />
+      <path
+        d="M16 32 8 4M16 32 16 3M16 32l8 28"
+        stroke={STROKE}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path d="M8 4 2 8M16 3 10 5M24 4 20 7" stroke={STROKE} strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function BeachTennisRacket({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 34 54" fill="none" aria-hidden="true">
+      <path
+        d="M17 3C9 3 5 9 5 18s6 15 12 15 12-6 12-15S25 3 17 3Z"
+        stroke={STROKE}
+        strokeWidth="2.3"
+        strokeLinejoin="round"
+      />
+      <circle cx="11" cy="12" r="1.4" fill={STROKE} />
+      <circle cx="17" cy="10" r="1.4" fill={STROKE} />
+      <circle cx="23" cy="12" r="1.4" fill={STROKE} />
+      <circle cx="9" cy="18" r="1.4" fill={STROKE} />
+      <circle cx="17" cy="17" r="1.4" fill={STROKE} />
+      <circle cx="25" cy="18" r="1.4" fill={STROKE} />
+      <circle cx="11" cy="24" r="1.4" fill={STROKE} />
+      <circle cx="17" cy="24" r="1.4" fill={STROKE} />
+      <circle cx="23" cy="24" r="1.4" fill={STROKE} />
+      <path d="M17 33v11" stroke={STROKE} strokeWidth="3" strokeLinecap="round" />
+      <rect x="13.5" y="44" width="7" height="9" rx="3.5" stroke={STROKE} strokeWidth="2.1" />
+    </svg>
+  )
+}
+
+export function VolleyballNet({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 64 30" fill="none" aria-hidden="true">
+      <path d="M4 2v26M4 2h56" stroke={STROKE} strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M4 6h56M4 6v14h56V6M12 6v14M20 6v14M28 6v14M36 6v14M44 6v14M52 6v14M60 6v14"
+        stroke={STROKE}
+        strokeWidth="1"
+      />
+    </svg>
+  )
+}
+
+export function Sneaker({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 52 30" fill="none" aria-hidden="true">
+      <path
+        d="M2 22c0-5 3-7 7-9l9-5 4 4 8-2 6 4h10c3 0 4 2 4 4v4a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4Z"
+        stroke={STROKE}
+        strokeWidth="2.1"
+        strokeLinejoin="round"
+      />
+      <path d="M18 8l4 4M26 6l3.5 5.5M12 15h30" stroke={STROKE} strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function Skateboard({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 60 26" fill="none" aria-hidden="true">
+      <rect x="2" y="8" width="56" height="10" rx="5" stroke={STROKE} strokeWidth="2.1" />
+      <path d="M14 18v4M46 18v4" stroke={STROKE} strokeWidth="2.1" strokeLinecap="round" />
+      <path d="M7 22h14M39 22h14" stroke={STROKE} strokeWidth="2.1" strokeLinecap="round" />
+      <circle cx="10.5" cy="22" r="2.6" stroke={STROKE} strokeWidth="1.6" />
+      <circle cx="17.5" cy="22" r="2.6" stroke={STROKE} strokeWidth="1.6" />
+      <circle cx="42.5" cy="22" r="2.6" stroke={STROKE} strokeWidth="1.6" />
+      <circle cx="49.5" cy="22" r="2.6" stroke={STROKE} strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+export function ClockIcon({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 36 36" fill="none" aria-hidden="true">
+      <circle cx="18" cy="18" r="15" stroke={STROKE} strokeWidth="2.2" />
+      <path d="M18 10v8l6 4" stroke={STROKE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function CalendarIcon({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 36 36" fill="none" aria-hidden="true">
+      <rect x="3" y="6" width="30" height="26" rx="4" stroke={STROKE} strokeWidth="2.2" />
+      <path d="M3 14h30M11 3v6M25 3v6" stroke={STROKE} strokeWidth="2.2" strokeLinecap="round" />
+      <rect x="13" y="19" width="6" height="6" rx="1.5" fill={STROKE} />
+    </svg>
+  )
+}
+
+export function FilterIcon({ className, style }: IconProps) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 36 26" fill="none" aria-hidden="true">
+      <path d="M2 4h32M2 13h32M2 22h32" stroke={STROKE} strokeWidth="2.1" strokeLinecap="round" />
+      <circle cx="12" cy="4" r="3" stroke={STROKE} strokeWidth="2.1" />
+      <circle cx="24" cy="13" r="3" stroke={STROKE} strokeWidth="2.1" />
+      <circle cx="15" cy="22" r="3" stroke={STROKE} strokeWidth="2.1" />
+    </svg>
+  )
+}
+
 export const SPORT_ICON_COMPONENTS = [
   SoccerBall,
   Basketball,
@@ -164,8 +274,16 @@ export const SPORT_ICON_COMPONENTS = [
   TennisBall,
   TennisRacket,
   BadmintonRacket,
+  BeachTennisRacket,
+  Shuttlecock,
+  VolleyballNet,
+  Sneaker,
+  Skateboard,
   Whistle,
   Trophy,
   Stopwatch,
   BoxingGlove,
+  ClockIcon,
+  CalendarIcon,
+  FilterIcon,
 ]
