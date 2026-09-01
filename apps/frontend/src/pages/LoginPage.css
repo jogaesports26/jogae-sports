@@ -17,51 +17,36 @@
 
 .login-page__panel--illustration {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(180deg, #eaf2ff 0%, var(--color-background) 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 5vw 4vw;
 }
 
-.login-page__sport-icon {
-  position: absolute;
-  pointer-events: none;
+.login-page__headline {
+  max-width: 480px;
+  font-size: 34px;
+  line-height: 1.2;
+  margin-bottom: 4px;
 }
 
-.login-page__sport-icons--mobile {
-  display: none;
-}
-
-.login-page__illustration-card {
-  position: relative;
-  z-index: 1;
-}
-
-.login-page__illustration-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 48px;
+.login-page__headline-subtitle {
   max-width: 420px;
-  color: var(--color-white);
-}
-
-.login-page__illustration-card h2 {
-  color: var(--color-white);
-  font-size: 32px;
-  margin-bottom: 16px;
-}
-
-.login-page__illustration-card p {
+  color: var(--color-primary);
+  opacity: 0.7;
   font-size: 16px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin-bottom: 32px;
 }
 
-.login-page__icon {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 24px;
+.login-page__mockup {
+  width: 100%;
+  max-width: 480px;
+  filter: drop-shadow(0 20px 30px rgba(26, 35, 126, 0.18));
 }
 
 .login-page__brand {
@@ -180,62 +165,32 @@
   .login-page__panel--illustration {
     order: -1;
     flex: 0 0 auto;
-    padding: 28px 6vw;
+    padding: 20px 6vw 12px;
   }
 
-  .login-page__illustration-card {
-    max-width: none;
-    width: 100%;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .login-page__icon {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-
-  .login-page__illustration-card h2 {
+  .login-page__headline {
     font-size: 20px;
     margin-bottom: 0;
   }
 
-  .login-page__illustration-card p {
-    display: none;
+  .login-page__headline-subtitle {
+    font-size: 13px;
+    margin-bottom: 12px;
   }
 
-  .login-page__sport-icons--desktop {
-    display: none;
-  }
-
-  .login-page__sport-icons--mobile {
-    display: block;
+  .login-page__mockup {
+    max-width: 220px;
   }
 
   .login-page__panel--form {
-    padding: 32px 6vw 40px;
+    padding: 24px 6vw 32px;
   }
 
   .login-page__brand {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
 
   .login-page__form h1 {
     font-size: 32px;
-  }
-}
-
-@media (max-width: 400px) {
-  .login-page__illustration-card {
-    gap: 12px;
-    padding: 16px 20px;
-  }
-
-  .login-page__illustration-card h2 {
-    font-size: 17px;
   }
 }
