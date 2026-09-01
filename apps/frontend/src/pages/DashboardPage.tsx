@@ -12,7 +12,7 @@ export default function DashboardPage() {
     const token = localStorage.getItem('jogae_token')
 
     if (!raw || !token) {
-      navigate('/')
+      navigate('/login')
       return
     }
 
