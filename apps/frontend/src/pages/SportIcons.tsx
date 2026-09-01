@@ -144,30 +144,40 @@ export function Stopwatch({ className, style }: IconProps) {
 
 export function BoxingGlove({ className, style }: IconProps) {
   return (
-    <svg className={className} style={style} viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <svg className={className} style={style} viewBox="0 0 36 40" fill="none" aria-hidden="true">
       <path
-        d="M13 6a5 5 0 0 1 10 0v3a5 5 0 0 1 5 5v4a10 10 0 0 1-10 10h-2a9 9 0 0 1-9-9v-4a3 3 0 0 1 3-3 3 3 0 0 1 3 3"
+        d="M22 4a8 8 0 0 0-8 8v7a8 8 0 0 0 8 8 8 8 0 0 0 8-8v-7a8 8 0 0 0-8-8Z"
         stroke={STROKE}
         strokeWidth="2.2"
         strokeLinejoin="round"
       />
-      <path d="M8 26h20v3a5 5 0 0 1-5 5H13a5 5 0 0 1-5-5v-3Z" stroke={STROKE} strokeWidth="2.2" strokeLinejoin="round" />
-      <path d="M13 9v5M18 9v6M23 12v4" stroke={STROKE} strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M9 12a4.5 4.5 0 0 1 5 4.5V19a4.5 4.5 0 0 1-9 0v-3a4.5 4.5 0 0 1 4-4Z"
+        stroke={STROKE}
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M11 25h22v3a7 7 0 0 1-7 7H18a7 7 0 0 1-7-7v-3Z"
+        stroke={STROKE}
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
 
 export function Shuttlecock({ className, style }: IconProps) {
   return (
-    <svg className={className} style={style} viewBox="0 0 32 46" fill="none" aria-hidden="true">
-      <circle cx="16" cy="38" r="6" stroke={STROKE} strokeWidth="2.1" />
+    <svg className={className} style={style} viewBox="0 0 28 40" fill="none" aria-hidden="true">
       <path
-        d="M16 32 8 4M16 32 16 3M16 32l8 28"
+        d="M14 27 4 4Q14 -2 24 4Z"
         stroke={STROKE}
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        strokeWidth="2.1"
+        strokeLinejoin="round"
       />
-      <path d="M8 4 2 8M16 3 10 5M24 4 20 7" stroke={STROKE} strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M14 4v23M9 8l5 19M19 8l-5 19" stroke={STROKE} strokeWidth="1" />
+      <circle cx="14" cy="32" r="5.5" stroke={STROKE} strokeWidth="2.1" />
     </svg>
   )
 }

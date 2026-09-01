@@ -66,15 +66,15 @@ const SPORT_ICON_LAYOUT: SportIconPlacement[] = [
   // camada intermediária, atrás do card
   { Icon: SoccerBall, top: '-6%', left: '38%', size: 90, rotate: 8, opacity: 0.5, behindCard: true },
   { Icon: TennisBall, top: '86%', left: '56%', size: 44, rotate: 6, opacity: 0.55, behindCard: true },
-  { Icon: VolleyballNet, top: '4%', left: '2%', size: 130, rotate: -3, opacity: 0.4, behindCard: true },
+  { Icon: VolleyballNet, top: '94%', left: '28%', size: 120, rotate: -1, opacity: 0.3, behindCard: true },
 
   // camada principal, na frente
-  { Icon: TennisRacket, top: '4%', left: '10%', size: 66, rotate: -22, opacity: 0.95 },
+  { Icon: TennisRacket, top: '3%', left: '8%', size: 66, rotate: -22, opacity: 0.95 },
   { Icon: BeachTennisRacket, top: '10%', left: '82%', size: 58, rotate: 16, opacity: 0.9 },
   { Icon: Whistle, top: '0%', left: '66%', size: 56, rotate: -8, opacity: 0.85 },
   { Icon: Basketball, top: '22%', left: '90%', size: 70, rotate: 12, opacity: 0.9 },
-  { Icon: TennisBall, top: '12%', left: '-5%', size: 42, rotate: -10, opacity: 0.85 },
-  { Icon: Shuttlecock, top: '30%', left: '46%', size: 40, rotate: -12, opacity: 0.75 },
+  { Icon: TennisBall, top: '16%', left: '-5%', size: 42, rotate: -10, opacity: 0.85 },
+  { Icon: Shuttlecock, top: '4%', left: '44%', size: 46, rotate: -10, opacity: 0.8 },
   { Icon: Trophy, top: '40%', left: '86%', size: 54, rotate: -6, opacity: 0.9 },
   { Icon: BadmintonRacket, top: '58%', left: '-4%', size: 62, rotate: 24, opacity: 0.9 },
   { Icon: Sneaker, top: '4%', left: '22%', size: 62, rotate: 4, opacity: 0.7 },
