@@ -45,11 +45,12 @@ model Court {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  priceRules        PriceRule[]
-  reservations      Reservation[]
-  maintenanceBlocks MaintenanceBlock[]
-  reviews           Review[]
-  waitlist          Waitlist[]
+  priceRules                 PriceRule[]
+  reservations               Reservation[]
+  maintenanceBlocks          MaintenanceBlock[]
+  recurringMaintenanceBlocks RecurringMaintenanceBlock[]
+  reviews                    Review[]
+  waitlist                   Waitlist[]
 
   @@index([ownerId])
 }
@@ -165,13 +166,28 @@ model OtpCode {
 }
 
 model MaintenanceBlock {
-  id        String   @id @default(uuid())
-  courtId   String
-  court     Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  startsAt  DateTime
-  endsAt    DateTime
-  reason    String?
-  createdAt DateTime @default(now())
+  id          String    @id @default(uuid())
+  courtId     String
+  court       Court     @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  startsAt    DateTime
+  endsAt      DateTime
+  reason      String?
+  cost        Decimal?  @db.Decimal(10, 2)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
 
   @@index([courtId, startsAt, endsAt])
+}
+
+model RecurringMaintenanceBlock {
+  id          String   @id @default(uuid())
+  courtId     String
+  court       Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int
+  startMinute Int
+  endMinute   Int
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@index([courtId, dayOfWeek])
 }

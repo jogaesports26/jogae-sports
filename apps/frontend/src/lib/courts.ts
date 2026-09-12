@@ -9,6 +9,15 @@ export interface PriceRule {
   pricePerHour: string
 }
 
+export interface RecurringMaintenanceBlock {
+  id: string
+  courtId: string
+  dayOfWeek: number
+  startMinute: number
+  endMinute: number
+  reason: string | null
+}
+
 export interface Court {
   id: string
   ownerId: string
@@ -21,6 +30,7 @@ export interface Court {
   createdAt: string
   updatedAt: string
   priceRules: PriceRule[]
+  recurringMaintenanceBlocks: RecurringMaintenanceBlock[]
 }
 
 export interface CourtInput {
@@ -36,6 +46,13 @@ export interface PriceRuleInput {
   startMinute: number
   endMinute: number
   pricePerHour: number
+}
+
+export interface RecurringMaintenanceBlockInput {
+  dayOfWeek: number
+  startMinute: number
+  endMinute: number
+  reason?: string
 }
 
 export const SPORT_OPTIONS = [
@@ -107,6 +124,20 @@ export async function replacePriceRules(courtId: string, rules: PriceRuleInput[]
   })
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Não foi possível salvar os preços'))
+  }
+  return response.json()
+}
+
+export async function replaceRecurringMaintenanceBlocks(
+  courtId: string,
+  blocks: RecurringMaintenanceBlockInput[],
+): Promise<RecurringMaintenanceBlock[]> {
+  const response = await authFetch(`/courts/${courtId}/recurring-maintenance-blocks`, {
+    method: 'PUT',
+    body: JSON.stringify({ blocks }),
+  })
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível salvar os bloqueios recorrentes'))
   }
   return response.json()
 }

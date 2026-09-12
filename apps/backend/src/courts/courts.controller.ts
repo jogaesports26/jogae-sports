@@ -20,6 +20,7 @@ import { CourtsService } from './courts.service';
 import { CreateCourtDto } from './dto/create-court.dto';
 import { UpdateCourtDto } from './dto/update-court.dto';
 import { UpsertPriceRulesDto } from './dto/upsert-price-rule.dto';
+import { UpsertRecurringMaintenanceBlocksDto } from './dto/upsert-recurring-maintenance-block.dto';
 
 @Controller('courts')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -63,5 +64,18 @@ export class CourtsController {
     @Body() dto: UpsertPriceRulesDto,
   ) {
     return this.courtsService.replacePriceRules(id, user.sub, dto);
+  }
+
+  @Put(':id/recurring-maintenance-blocks')
+  replaceRecurringMaintenanceBlocks(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpsertRecurringMaintenanceBlocksDto,
+  ) {
+    return this.courtsService.replaceRecurringMaintenanceBlocks(
+      id,
+      user.sub,
+      dto,
+    );
   }
 }

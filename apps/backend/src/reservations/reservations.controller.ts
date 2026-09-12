@@ -20,6 +20,7 @@ import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationStatusDto } from './dto/update-reservation-status.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
+import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 import { AgendaQueryDto } from './dto/agenda-query.dto';
 
 @Controller('courts/:courtId')
@@ -97,6 +98,29 @@ export class ReservationsController {
       courtId,
       user.sub,
       id,
+    );
+  }
+
+  @Get('maintenance-blocks')
+  listMaintenanceHistory(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('courtId') courtId: string,
+  ) {
+    return this.reservationsService.listMaintenanceHistory(courtId, user.sub);
+  }
+
+  @Patch('maintenance-blocks/:id')
+  updateBlock(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('courtId') courtId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateMaintenanceBlockDto,
+  ) {
+    return this.reservationsService.updateMaintenanceBlock(
+      courtId,
+      user.sub,
+      id,
+      dto,
     );
   }
 }

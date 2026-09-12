@@ -5,12 +5,13 @@ import { SessionExpiredError } from '../../lib/api'
 import {
   createCourt,
   replacePriceRules,
+  replaceRecurringMaintenanceBlocks,
   updateCourt,
   SPORT_OPTIONS,
   SURFACE_OPTIONS,
   WEEKDAY_LABELS,
 } from '../../lib/courts'
-import type { Court, PriceRule } from '../../lib/courts'
+import type { Court, PriceRule, RecurringMaintenanceBlock } from '../../lib/courts'
 import './CourtFormModal.css'
 
 interface CourtFormModalProps {
@@ -47,6 +48,22 @@ function toDraft(rule: PriceRule): PriceRuleDraft {
   }
 }
 
+interface BlockDraft {
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  reason: string
+}
+
+function toBlockDraft(block: RecurringMaintenanceBlock): BlockDraft {
+  return {
+    dayOfWeek: block.dayOfWeek,
+    startTime: minutesToTime(block.startMinute),
+    endTime: minutesToTime(block.endMinute),
+    reason: block.reason ?? '',
+  }
+}
+
 export default function CourtFormModal({ court, onClose, onSaved, onSessionExpired }: CourtFormModalProps) {
   useEscapeToClose(onClose)
   const [savedCourt, setSavedCourt] = useState<Court | null>(court)
@@ -56,6 +73,9 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
   const [hasLighting, setHasLighting] = useState(court?.hasLighting ?? false)
   const [photoUrlsText, setPhotoUrlsText] = useState((court?.photoUrls ?? []).join('\n'))
   const [priceRules, setPriceRules] = useState<PriceRuleDraft[]>((court?.priceRules ?? []).map(toDraft))
+  const [blocks, setBlocks] = useState<BlockDraft[]>(
+    (court?.recurringMaintenanceBlocks ?? []).map(toBlockDraft),
+  )
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -119,6 +139,45 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
         return
       }
       setError(err instanceof Error ? err.message : 'Não foi possível salvar os preços')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  function addBlock() {
+    setBlocks((rows) => [...rows, { dayOfWeek: 1, startTime: '08:00', endTime: '09:00', reason: '' }])
+  }
+
+  function updateBlock(index: number, patch: Partial<BlockDraft>) {
+    setBlocks((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)))
+  }
+
+  function removeBlock(index: number) {
+    setBlocks((rows) => rows.filter((_, i) => i !== index))
+  }
+
+  async function handleSaveBlocks() {
+    if (!savedCourt) return
+    setIsSaving(true)
+    setError('')
+
+    try {
+      await replaceRecurringMaintenanceBlocks(
+        savedCourt.id,
+        blocks.map((block) => ({
+          dayOfWeek: block.dayOfWeek,
+          startMinute: timeToMinutes(block.startTime),
+          endMinute: timeToMinutes(block.endTime),
+          reason: block.reason || undefined,
+        })),
+      )
+      onSaved()
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar os bloqueios')
     } finally {
       setIsSaving(false)
     }
@@ -250,6 +309,69 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
               disabled={isSaving}
             >
               {isSaving ? 'Salvando...' : 'Salvar preços'}
+            </button>
+          </div>
+        )}
+
+        {savedCourt && (
+          <div className="court-modal__prices">
+            <h3>Bloqueios recorrentes</h3>
+            <p className="court-modal__prices-hint">
+              Horários que ficam sempre indisponíveis nesse dia da semana — por exemplo, manutenção toda
+              segunda de manhã. Diferente do bloqueio pontual da agenda, esse se repeita toda semana.
+            </p>
+
+            {blocks.map((block, index) => (
+              <div className="court-modal__price-row" key={index}>
+                <select
+                  value={block.dayOfWeek}
+                  onChange={(event) => updateBlock(index, { dayOfWeek: Number(event.target.value) })}
+                >
+                  {WEEKDAY_LABELS.map((label, day) => (
+                    <option key={day} value={day}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="time"
+                  value={block.startTime}
+                  onChange={(event) => updateBlock(index, { startTime: event.target.value })}
+                />
+                <span>até</span>
+                <input
+                  type="time"
+                  value={block.endTime}
+                  onChange={(event) => updateBlock(index, { endTime: event.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Motivo (opcional)"
+                  value={block.reason}
+                  onChange={(event) => updateBlock(index, { reason: event.target.value })}
+                />
+                <button
+                  type="button"
+                  className="court-modal__remove-row"
+                  onClick={() => removeBlock(index)}
+                  aria-label="Remover bloqueio"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+
+            <button type="button" className="court-modal__add-row" onClick={addBlock}>
+              + Adicionar bloqueio
+            </button>
+
+            <button
+              type="button"
+              className="court-modal__submit court-modal__submit--secondary"
+              onClick={handleSaveBlocks}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Salvando...' : 'Salvar bloqueios'}
             </button>
           </div>
         )}
