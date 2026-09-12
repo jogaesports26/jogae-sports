@@ -21,6 +21,25 @@ export interface PublicCourt {
   reviewCount: number
 }
 
+export interface EstablishmentCourt {
+  id: string
+  name: string
+  sport: string
+  surfaceType: string
+  hasLighting: boolean
+  photoUrls: string[]
+  fromPricePerHour: string | null
+  averageRating: number | null
+  reviewCount: number
+}
+
+export interface Establishment {
+  establishmentName: string | null
+  establishmentAddress: string | null
+  establishmentPhone: string | null
+  courts: EstablishmentCourt[]
+}
+
 export interface PlayerReservation {
   id: string
   courtId: string
@@ -83,9 +102,9 @@ async function playerFetch(path: string, options: RequestInit = {}): Promise<Res
   return response
 }
 
-export async function fetchPublicCourts(): Promise<PublicCourt[]> {
-  const response = await fetch(`${API_URL}/public/courts`, { cache: 'no-store' })
-  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar as quadras'))
+export async function fetchEstablishment(slug: string): Promise<Establishment> {
+  const response = await fetch(`${API_URL}/public/estabelecimentos/${slug}`, { cache: 'no-store' })
+  if (!response.ok) throw new Error(await parseApiError(response, 'Estabelecimento não encontrado'))
   return response.json()
 }
 

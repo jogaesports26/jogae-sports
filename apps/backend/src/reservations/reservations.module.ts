@@ -5,6 +5,7 @@ import { ReviewsModule } from '../reviews/reviews.module';
 import { ReservationsController } from './reservations.controller';
 import { OverviewController } from './overview.controller';
 import { PublicCourtsController } from './public-courts.controller';
+import { PublicEstablishmentController } from './public-establishment.controller';
 import { PlayerReservationsController } from './player-reservations.controller';
 import { ReservationsService } from './reservations.service';
 
@@ -14,6 +15,7 @@ import { ReservationsService } from './reservations.service';
     ReservationsController,
     OverviewController,
     PublicCourtsController,
+    PublicEstablishmentController,
     PlayerReservationsController,
   ],
   providers: [ReservationsService],

@@ -8,12 +8,14 @@ export interface Profile {
   establishmentName: string | null
   establishmentPhone: string | null
   establishmentAddress: string | null
+  establishmentSlug: string | null
 }
 
 export interface ProfileInput {
   establishmentName: string
   establishmentPhone: string
   establishmentAddress: string
+  establishmentSlug: string
 }
 
 export async function fetchProfile(): Promise<Profile> {

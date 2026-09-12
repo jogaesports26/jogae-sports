@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
   cancelPlayerReservation,
   fetchPlayerReservations,
@@ -33,7 +32,7 @@ export default function PlayerReservationsPage() {
       .then(setReservations)
       .catch((err) => {
         if (err instanceof PlayerSessionExpiredError) {
-          window.location.href = '/reservar'
+          window.location.reload()
           return
         }
         setError(err instanceof Error ? err.message : 'Erro ao carregar suas reservas')
@@ -59,11 +58,10 @@ export default function PlayerReservationsPage() {
       <div className="player-reservations-page">
         <h1>Minhas reservas</h1>
         <p className="player-reservations-page__empty">
-          Você ainda não entrou com seu telefone. Reserve uma quadra pra criar sua conta automaticamente.
+          Você ainda não tem uma sessão ativa aqui. Suas reservas aparecem automaticamente depois que
+          você reserva pela primeira vez, direto pelo link do estabelecimento — peça esse link pro dono
+          da arena.
         </p>
-        <Link to="/reservar" className="player-reservations-page__cta">
-          Ver quadras disponíveis
-        </Link>
       </div>
     )
   }
@@ -80,9 +78,6 @@ export default function PlayerReservationsPage() {
       {reservations !== null && reservations.length === 0 && (
         <div className="player-reservations-page__empty">
           <p>Você ainda não tem nenhuma reserva.</p>
-          <Link to="/reservar" className="player-reservations-page__cta">
-            Ver quadras disponíveis
-          </Link>
         </div>
       )}
 

@@ -1,8 +1,6 @@
 .portal {
-  /* Tokens de marca vêm do :root (index.css) — aqui só o que difere de
-     verdade nessa área. Raio ainda no valor antigo até a fase 4 (redesign
-     do portal/lojinha) trazer o novo raio maior de forma intencional. */
-  --radius-card: 10px;
+  /* Tokens de marca vêm do :root (index.css). */
+  --radius-card: 20px;
 
   min-height: 100svh;
   background: var(--color-background);
@@ -15,7 +13,9 @@
   justify-content: space-between;
   padding: 20px 6vw;
   background: var(--color-white);
-  border-bottom: var(--border-subtle);
+  box-shadow: var(--shadow-soft-sm);
+  position: relative;
+  z-index: 1;
 }
 
 .portal__logo {
@@ -63,8 +63,8 @@
   color: var(--color-dark);
   background: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
   cursor: pointer;
 }
 

@@ -13,9 +13,9 @@
 .booking-modal {
   position: relative;
   background: var(--color-white);
-  border: var(--border-subtle);
+  border: none;
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-neo);
+  box-shadow: var(--shadow-soft-lg);
   padding: 32px;
   width: 100%;
   max-width: 420px;
@@ -49,12 +49,17 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--color-dark-navy);
-  background: var(--color-white);
+  border: none;
+  background: var(--color-border);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
   color: var(--color-dark);
+}
+
+.booking-modal__close:hover {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
 }
 
 .booking-modal__form {
@@ -85,22 +90,24 @@
   font-size: 15px;
   padding: 10px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: #fff;
   color: var(--color-dark);
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .booking-modal__field input:focus {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .booking-modal__error {
   font-family: var(--font-body);
   font-size: 13px;
-  color: #c62828;
-  background: #fdecea;
-  border-radius: 8px;
+  color: var(--color-negative-text);
+  background: var(--color-negative-bg);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   margin-bottom: 8px;
 }
@@ -108,26 +115,26 @@
 .booking-modal__success {
   font-family: var(--font-body);
   font-size: 14px;
-  color: #1b7a3d;
+  color: var(--color-positive-text);
 }
 
 .booking-modal__submit {
   padding: 12px;
   background: var(--color-accent-green);
   color: var(--color-dark-navy);
-  border: 2px solid var(--color-dark-navy);
+  border: none;
   border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--shadow-neo);
+  box-shadow: var(--shadow-soft);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .booking-modal__submit:hover:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: 0px 0px 0px var(--color-dark-navy);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft-lg);
 }
 
 .booking-modal__submit:disabled {

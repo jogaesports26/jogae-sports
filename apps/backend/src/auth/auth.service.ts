@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes, createHash } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -77,14 +78,12 @@ export class AuthService {
       establishmentName: user.establishmentName,
       establishmentPhone: user.establishmentPhone,
       establishmentAddress: user.establishmentAddress,
+      establishmentSlug: user.establishmentSlug,
     };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data: dto,
-    });
+    const user = await this.updateProfileRow(userId, dto);
 
     return {
       id: user.id,
@@ -94,7 +93,25 @@ export class AuthService {
       establishmentName: user.establishmentName,
       establishmentPhone: user.establishmentPhone,
       establishmentAddress: user.establishmentAddress,
+      establishmentSlug: user.establishmentSlug,
     };
+  }
+
+  private async updateProfileRow(userId: string, dto: UpdateProfileDto) {
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: dto,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Esse link já está em uso, escolha outro');
+      }
+      throw error;
+    }
   }
 
   async forgotPassword(email: string) {

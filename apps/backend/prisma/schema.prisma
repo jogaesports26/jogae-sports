@@ -20,6 +20,7 @@ model User {
   establishmentName    String?
   establishmentPhone   String?
   establishmentAddress String?
+  establishmentSlug    String? @unique
 
   courts               Court[]
   passwordResetTokens  PasswordResetToken[]

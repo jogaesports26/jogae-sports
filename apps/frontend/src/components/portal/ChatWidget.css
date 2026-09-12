@@ -14,25 +14,25 @@
   height: 56px;
   border-radius: 50%;
   background: var(--color-accent-green);
-  border: 2px solid var(--color-dark-navy);
-  box-shadow: 4px 4px 0px var(--color-dark-navy);
+  border: none;
+  box-shadow: var(--shadow-soft);
   font-size: 22px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .chat-widget__toggle:hover {
-  transform: translate(3px, 3px);
-  box-shadow: 0px 0px 0px var(--color-dark-navy);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft-lg);
 }
 
 .chat-widget__panel {
   width: min(340px, calc(100vw - 48px));
   height: 420px;
   background: var(--color-white);
-  border: var(--border-subtle);
+  border: none;
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-neo);
+  box-shadow: var(--shadow-soft-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -102,8 +102,9 @@
   font-size: 13px;
   padding: 8px 10px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
 .chat-widget__form input:focus {
@@ -116,8 +117,8 @@
   font-weight: 700;
   color: var(--color-dark-navy);
   background: var(--color-accent-green);
-  border: 1px solid var(--color-dark-navy);
-  border-radius: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
   padding: 0 14px;
   cursor: pointer;
 }

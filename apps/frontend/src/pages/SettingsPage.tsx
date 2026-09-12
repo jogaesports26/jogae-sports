@@ -6,11 +6,24 @@ import { fetchProfile, updateProfile } from '../lib/profile'
 import { fetchCep } from '../lib/cep'
 import './SettingsPage.css'
 
+function slugify(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 export default function SettingsPage() {
   const { onSessionExpired } = usePainelContext()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
+  const [slug, setSlug] = useState('')
+  const [slugTouched, setSlugTouched] = useState(false)
   const [cep, setCep] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [cepError, setCepError] = useState('')
@@ -18,6 +31,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   async function handleCepLookup() {
     if (cep.replace(/\D/g, '').length !== 8) {
@@ -43,6 +57,8 @@ export default function SettingsPage() {
         setName(profile.establishmentName ?? '')
         setPhone(profile.establishmentPhone ?? '')
         setAddress(profile.establishmentAddress ?? '')
+        setSlug(profile.establishmentSlug ?? '')
+        setSlugTouched(Boolean(profile.establishmentSlug))
       })
       .catch((err) => {
         if (err instanceof SessionExpiredError) {
@@ -66,6 +82,7 @@ export default function SettingsPage() {
         establishmentName: name,
         establishmentPhone: phone,
         establishmentAddress: address,
+        establishmentSlug: slug,
       })
       setSaved(true)
     } catch (err) {
@@ -76,6 +93,29 @@ export default function SettingsPage() {
       setError(err instanceof Error ? err.message : 'Não foi possível salvar')
     } finally {
       setSaving(false)
+    }
+  }
+
+  function handleNameChange(value: string) {
+    setName(value)
+    if (!slugTouched) {
+      setSlug(slugify(value))
+    }
+  }
+
+  function handleSlugChange(value: string) {
+    setSlugTouched(true)
+    setSlug(slugify(value))
+  }
+
+  async function handleCopyLink() {
+    const link = `${window.location.origin}/${slug}`
+    try {
+      await navigator.clipboard.writeText(link)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch {
+      // clipboard indisponível (ex: contexto não seguro) — sem tratamento especial
     }
   }
 
@@ -94,9 +134,33 @@ export default function SettingsPage() {
             <span>Nome do estabelecimento</span>
             <input
               value={name}
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event) => handleNameChange(event.target.value)}
               placeholder="Ex: Arena Gol de Placa"
             />
+          </label>
+
+          <label className="settings-page__field">
+            <span>Link da sua lojinha</span>
+            <div className="settings-page__slug-row">
+              <span className="settings-page__slug-prefix">jogae.com/</span>
+              <input
+                value={slug}
+                onChange={(event) => handleSlugChange(event.target.value)}
+                placeholder="arena-gol-de-placa"
+              />
+            </div>
+            <span className="settings-page__hint">
+              É esse link que você compartilha com seus clientes pra eles reservarem — no
+              WhatsApp, Instagram ou num QR code na recepção.
+            </span>
+            {slug && (
+              <div className="settings-page__slug-preview">
+                <span>{`${window.location.origin}/${slug}`}</span>
+                <button type="button" onClick={handleCopyLink}>
+                  {linkCopied ? 'Copiado!' : 'Copiar link'}
+                </button>
+              </div>
+            )}
           </label>
 
           <label className="settings-page__field">

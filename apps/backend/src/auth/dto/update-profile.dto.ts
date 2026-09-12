@@ -1,4 +1,10 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -15,4 +21,13 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(200)
   establishmentAddress?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(60)
+  @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
+    message: 'O link só pode ter letras minúsculas, números e hífen',
+  })
+  establishmentSlug?: string;
 }
