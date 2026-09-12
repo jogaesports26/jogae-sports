@@ -8,6 +8,7 @@ import { CourtsModule } from './courts/courts.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { PlayerAuthModule } from './player-auth/player-auth.module';
 import { CepModule } from './cep/cep.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CepModule } from './cep/cep.module';
     ReservationsModule,
     PlayerAuthModule,
     CepModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

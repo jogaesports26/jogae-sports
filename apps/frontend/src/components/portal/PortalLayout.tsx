@@ -1,5 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 import { clearPlayerSession, getPlayerUser } from '../../lib/player'
+import ChatWidget from './ChatWidget'
 import './PortalLayout.css'
 
 export default function PortalLayout() {
@@ -33,6 +34,8 @@ export default function PortalLayout() {
       <main className="portal__content">
         <Outlet />
       </main>
+
+      <ChatWidget />
     </div>
   )
 }
