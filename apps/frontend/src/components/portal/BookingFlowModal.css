@@ -42,6 +42,72 @@
   margin: 8px 0 20px;
 }
 
+.booking-modal__price-original {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-family: var(--font-body);
+}
+
+.booking-modal__coupon {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.booking-modal__coupon-row {
+  display: flex;
+  gap: 8px;
+}
+
+.booking-modal__coupon-row input {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-dark);
+  outline: none;
+}
+
+.booking-modal__coupon-row input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+.booking-modal__coupon-apply {
+  padding: 0 14px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.booking-modal__coupon-apply:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booking-modal__coupon-error {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-negative-text);
+}
+
+.booking-modal__coupon-applied {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-positive-text);
+}
+
 .booking-modal__close {
   position: absolute;
   top: 16px;

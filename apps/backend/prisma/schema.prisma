@@ -26,6 +26,7 @@ model User {
   courts              Court[]
   passwordResetTokens PasswordResetToken[]
   instructors         Instructor[]
+  coupons             Coupon[]
 }
 
 enum Role {
@@ -93,6 +94,9 @@ model Reservation {
   reminderSentAt DateTime?
   instructorId   String?
   instructor     Instructor?       @relation(fields: [instructorId], references: [id])
+  couponId       String?
+  coupon         Coupon?           @relation(fields: [couponId], references: [id])
+  discountAmount Decimal?          @db.Decimal(10, 2)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -100,6 +104,7 @@ model Reservation {
 
   @@index([courtId, startsAt, endsAt])
   @@index([playerId])
+  @@index([couponId])
   @@index([instructorId])
 }
 
@@ -207,5 +212,30 @@ model Instructor {
 
   reservations Reservation[]
 
+  @@index([ownerId])
+}
+
+enum CouponDiscountType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id            String             @id @default(uuid())
+  ownerId       String
+  owner         User               @relation(fields: [ownerId], references: [id])
+  code          String
+  discountType  CouponDiscountType
+  discountValue Decimal            @db.Decimal(10, 2)
+  validFrom     DateTime?
+  validUntil    DateTime?
+  usageLimit    Int?
+  usageCount    Int                @default(0)
+  active        Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+
+  reservations Reservation[]
+
+  @@unique([ownerId, code])
   @@index([ownerId])
 }

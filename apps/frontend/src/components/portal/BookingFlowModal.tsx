@@ -6,8 +6,10 @@ import {
   getPlayerUser,
   requestOtp,
   savePlayerSession,
+  validatePublicCoupon,
   verifyOtp,
 } from '../../lib/player'
+import type { CouponPreview } from '../../lib/player'
 import { formatMinutes } from '../../lib/weekGrid'
 import './BookingFlowModal.css'
 
@@ -48,8 +50,35 @@ export default function BookingFlowModal({
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
+  const [couponCode, setCouponCode] = useState('')
+  const [couponPreview, setCouponPreview] = useState<CouponPreview | null>(null)
+  const [couponError, setCouponError] = useState('')
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const discount = couponPreview
+    ? Math.min(
+        couponPreview.discountType === 'PERCENT' ? (price * couponPreview.discountValue) / 100 : couponPreview.discountValue,
+        price,
+      )
+    : 0
+  const finalPrice = price - discount
+
+  async function handleApplyCoupon() {
+    setCouponError('')
+    setCouponPreview(null)
+    if (!couponCode.trim()) return
+    setIsValidatingCoupon(true)
+    try {
+      const preview = await validatePublicCoupon(courtId, couponCode.trim())
+      setCouponPreview(preview)
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : 'Cupom inválido')
+    } finally {
+      setIsValidatingCoupon(false)
+    }
+  }
 
   async function handleRequestOtp(event: FormEvent) {
     event.preventDefault()
@@ -87,6 +116,7 @@ export default function BookingFlowModal({
       await createPlayerReservation(courtId, {
         startsAt: toISOAt(dayDate, startMinute),
         endsAt: toISOAt(dayDate, endMinute),
+        couponCode: couponPreview ? couponCode.trim() : undefined,
       })
       setStep('success')
       onBooked()
@@ -108,7 +138,46 @@ export default function BookingFlowModal({
         <p className="booking-modal__slot">
           {dayLabel} · {formatMinutes(startMinute)} – {formatMinutes(endMinute)}
         </p>
-        <p className="booking-modal__price">R$ {price.toFixed(2).replace('.', ',')}</p>
+        {step !== 'success' && (
+          <div className="booking-modal__coupon">
+            <div className="booking-modal__coupon-row">
+              <input
+                value={couponCode}
+                onChange={(event) => {
+                  setCouponCode(event.target.value.toUpperCase())
+                  setCouponPreview(null)
+                  setCouponError('')
+                }}
+                placeholder="Código do cupom (opcional)"
+              />
+              <button
+                type="button"
+                className="booking-modal__coupon-apply"
+                onClick={handleApplyCoupon}
+                disabled={!couponCode.trim() || isValidatingCoupon}
+              >
+                {isValidatingCoupon ? 'Validando...' : 'Aplicar'}
+              </button>
+            </div>
+            {couponError && <p className="booking-modal__coupon-error">{couponError}</p>}
+            {couponPreview && (
+              <p className="booking-modal__coupon-applied">
+                Cupom {couponPreview.code} aplicado — desconto de R$ {discount.toFixed(2).replace('.', ',')}
+              </p>
+            )}
+          </div>
+        )}
+
+        <p className="booking-modal__price">
+          {couponPreview ? (
+            <>
+              <span className="booking-modal__price-original">R$ {price.toFixed(2).replace('.', ',')}</span>{' '}
+              R$ {finalPrice.toFixed(2).replace('.', ',')}
+            </>
+          ) : (
+            <>R$ {price.toFixed(2).replace('.', ',')}</>
+          )}
+        </p>
 
         {error && <p className="booking-modal__error">{error}</p>}
 

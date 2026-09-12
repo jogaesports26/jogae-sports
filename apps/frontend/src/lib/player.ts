@@ -144,7 +144,7 @@ export async function verifyOtp(phone: string, code: string): Promise<{ accessTo
 
 export async function createPlayerReservation(
   courtId: string,
-  input: { startsAt: string; endsAt: string },
+  input: { startsAt: string; endsAt: string; couponCode?: string },
 ): Promise<PlayerReservation> {
   const response = await playerFetch(`/public/courts/${courtId}/reservations`, {
     method: 'POST',
@@ -180,6 +180,24 @@ export async function fetchCourtReviews(courtId: string): Promise<CourtReview[]>
   const response = await fetch(`${API_URL}/public/courts/${courtId}/reviews`)
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar as avaliações'))
   return response.json()
+}
+
+export interface CouponPreview {
+  valid: boolean
+  code: string
+  discountType: 'PERCENT' | 'FIXED'
+  discountValue: number
+}
+
+export async function validatePublicCoupon(courtId: string, code: string): Promise<CouponPreview> {
+  const response = await fetch(`${API_URL}/public/courts/${courtId}/coupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  })
+  if (!response.ok) throw new Error(await parseApiError(response, 'Cupom inválido'))
+  const preview: CouponPreview = await response.json()
+  return { ...preview, discountValue: Number(preview.discountValue) }
 }
 
 export type { PriceRule }

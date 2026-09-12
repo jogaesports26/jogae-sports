@@ -15,6 +15,7 @@ import { CustomersModule } from './customers/customers.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
 import { InstructorsModule } from './instructors/instructors.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { InstructorsModule } from './instructors/instructors.module';
     NotificationsModule,
     WaitlistModule,
     InstructorsModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

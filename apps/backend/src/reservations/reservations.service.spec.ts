@@ -7,7 +7,7 @@ import {
 import { ReservationsService } from './reservations.service';
 
 function buildPrismaMock() {
-  return {
+  const mock: any = {
     priceRule: { findMany: jest.fn() },
     reservation: {
       findFirst: jest.fn(),
@@ -24,9 +24,16 @@ function buildPrismaMock() {
     recurringMaintenanceBlock: {
       findFirst: jest.fn().mockResolvedValue(null),
     },
+    coupon: {
+      update: jest.fn(),
+    },
     court: { findFirst: jest.fn() },
     player: { findUnique: jest.fn() },
   };
+  mock.$transaction = jest.fn((callback: (tx: unknown) => unknown) =>
+    callback(mock),
+  );
+  return mock;
 }
 
 function buildCourtsServiceMock(
@@ -107,13 +114,19 @@ describe('ReservationsService', () => {
     const instructorsService = {
       findOneOrThrow: jest.fn(),
     };
+    const couponsService = {
+      validateForOwner: jest.fn(),
+      validateForCourt: jest.fn(),
+      computeDiscount: jest.fn(),
+    };
     service = new ReservationsService(
-      prisma as any,
+      prisma,
       courtsService as any,
       reviewsService as any,
       notificationsService as any,
       waitlistService as any,
       instructorsService as any,
+      couponsService as any,
     );
   });
 
@@ -222,6 +235,127 @@ describe('ReservationsService', () => {
           endsAt: nextSaturdayAt(15).toISOString(),
         }),
       ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('cupom de desconto', () => {
+    let couponsService: {
+      validateForOwner: jest.Mock;
+      validateForCourt: jest.Mock;
+      computeDiscount: jest.Mock;
+    };
+
+    beforeEach(() => {
+      couponsService = (service as any).couponsService;
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
+    });
+
+    it('aplica um cupom válido e registra o desconto na reserva', async () => {
+      const coupon = {
+        id: 'coupon-1',
+        discountType: 'FIXED',
+        discountValue: 20,
+      };
+      couponsService.validateForOwner.mockResolvedValue(coupon);
+      couponsService.computeDiscount.mockReturnValue(20);
+
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+        couponCode: 'PROMO20',
+      });
+
+      expect(couponsService.validateForOwner).toHaveBeenCalledWith(
+        'owner-1',
+        'PROMO20',
+      );
+      expect(couponsService.computeDiscount).toHaveBeenCalledWith(coupon, 180);
+      expect(result.priceSnapshot).toBe(160);
+      expect(result.couponId).toBe('coupon-1');
+      expect(result.discountAmount).toBe(20);
+      expect(prisma.coupon.update).toHaveBeenCalledWith({
+        where: { id: 'coupon-1' },
+        data: { usageCount: { increment: 1 } },
+      });
+    });
+
+    it('cria a reserva sem cupom quando nenhum código é informado', async () => {
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+      });
+
+      expect(couponsService.validateForOwner).not.toHaveBeenCalled();
+      expect(prisma.coupon.update).not.toHaveBeenCalled();
+      expect(result.priceSnapshot).toBe(180);
+      expect(result.couponId).toBeUndefined();
+    });
+
+    it('rejeita quando o cupom informado é inválido/expirado/esgotado', async () => {
+      couponsService.validateForOwner.mockRejectedValue(
+        new BadRequestException('Esse cupom expirou'),
+      );
+
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente Teste',
+          guestPhone: '85999998888',
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(16).toISOString(),
+          couponCode: 'VENCIDO',
+        } as any),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
+      expect(prisma.coupon.update).not.toHaveBeenCalled();
+    });
+
+    it('aplica um cupom válido em createForPlayer e incrementa o uso', async () => {
+      prisma.court.findFirst.mockResolvedValue({
+        id: 'court-1',
+        name: 'Quadra 1',
+        sport: 'FUTSAL',
+        surfaceType: 'QUADRA_POLIESPORTIVA',
+        hasLighting: true,
+        photoUrls: [],
+        owner: {},
+      });
+      prisma.player.findUnique.mockResolvedValue({ id: 'player-1' });
+      const coupon = {
+        id: 'coupon-2',
+        discountType: 'PERCENT',
+        discountValue: 10,
+      };
+      couponsService.validateForCourt.mockResolvedValue(coupon);
+      couponsService.computeDiscount.mockReturnValue(18);
+
+      const result = await service.createForPlayer(
+        'court-1',
+        'player-1',
+        nextSaturdayAt(14).toISOString(),
+        nextSaturdayAt(16).toISOString(),
+        'PROMO10',
+      );
+
+      expect(couponsService.validateForCourt).toHaveBeenCalledWith(
+        'court-1',
+        'PROMO10',
+      );
+      expect(result.priceSnapshot).toBe(162);
+      expect(result.couponId).toBe('coupon-2');
+      expect(prisma.coupon.update).toHaveBeenCalledWith({
+        where: { id: 'coupon-2' },
+        data: { usageCount: { increment: 1 } },
+      });
     });
   });
 

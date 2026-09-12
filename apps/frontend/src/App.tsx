@@ -15,6 +15,7 @@ import CourtMaintenancePage from './pages/CourtMaintenancePage'
 import ReportsPage from './pages/ReportsPage'
 import CustomersPage from './pages/CustomersPage'
 import InstructorsPage from './pages/InstructorsPage'
+import CouponsPage from './pages/CouponsPage'
 import SettingsPage from './pages/SettingsPage'
 import PortalLayout from './components/portal/PortalLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
@@ -43,6 +44,7 @@ function App() {
           <Route path="relatorios" element={<ReportsPage />} />
           <Route path="clientes" element={<CustomersPage />} />
           <Route path="equipe" element={<InstructorsPage />} />
+          <Route path="cupons" element={<CouponsPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>
         <Route path="/minhas-reservas" element={<PortalLayout />}>

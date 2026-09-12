@@ -34,6 +34,7 @@ export class PlayerReservationsController {
       user.sub,
       dto.startsAt,
       dto.endsAt,
+      dto.couponCode,
     );
   }
 
