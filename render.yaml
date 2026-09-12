@@ -17,3 +17,5 @@ services:
         value: 20.18.0
       - key: TZ
         value: America/Sao_Paulo
+      - key: ANTHROPIC_API_KEY
+        sync: false
