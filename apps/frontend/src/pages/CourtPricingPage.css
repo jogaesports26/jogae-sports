@@ -5,13 +5,18 @@
   margin-bottom: 16px;
 }
 
+.court-pricing-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
 .court-pricing-page__section {
   background: var(--color-white);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
   padding: 24px;
-  margin-bottom: 20px;
-  max-width: 720px;
 }
 
 .court-pricing-page__section h2 {

@@ -148,6 +148,7 @@ export default function CourtPricingPage() {
     <div className="court-pricing-page">
       {error && <p className="court-pricing-page__error">{error}</p>}
 
+      <div className="court-pricing-page__grid">
       <section className="court-pricing-page__section">
         <h2>Preços por horário</h2>
         <p className="court-pricing-page__hint">
@@ -278,6 +279,7 @@ export default function CourtPricingPage() {
           {blocksSaved && <span className="court-pricing-page__saved">Salvo!</span>}
         </div>
       </section>
+      </div>
     </div>
   )
 }
