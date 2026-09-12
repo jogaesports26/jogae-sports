@@ -1,0 +1,215 @@
+/* Primitivos visuais compartilhados — estilo "SaaS suave": cantos bem
+   arredondados, sombra difusa, pílula em tudo que é interativo. Nenhuma
+   tela é obrigada a usar essas classes (o CSS de cada área ainda pode ter
+   suas próprias regras específicas), mas telas novas ou redesenhadas devem
+   preferir isto a reinventar botão/card/badge do zero. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 12px 22px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+.btn--primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.btn--gradient {
+  background: var(--gradient-brand);
+  color: var(--color-dark-navy);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+.btn--gradient:hover:not(:disabled) {
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.btn--outline {
+  background: var(--color-white);
+  color: var(--color-dark);
+  border-color: var(--color-border);
+}
+
+.btn--outline:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-dark);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--color-border);
+}
+
+.btn--danger {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
+.btn--danger:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+
+  .btn--primary:hover:not(:disabled),
+  .btn--gradient:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: 24px;
+}
+
+.card--flat {
+  box-shadow: none;
+  border: var(--border-subtle);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.pill--positive {
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+}
+
+.pill--negative {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
+.pill--info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.pill--neutral {
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.icon-tile svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kpi-number {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-dark);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 24, 46, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh 20px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.modal {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-border);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-dark);
+}
+
+.modal__close:hover {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}

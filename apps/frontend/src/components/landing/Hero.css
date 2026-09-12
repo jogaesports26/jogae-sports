@@ -2,11 +2,11 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(160deg, var(--color-primary) 0%, var(--color-dark-navy, #00182e) 100%);
-  padding: 8vw 6vw 6vw;
-  display: flex;
-  flex-direction: column;
+  padding: 7vw 6vw;
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
   align-items: center;
-  text-align: center;
+  gap: 4vw;
 }
 
 .hero__icons {
@@ -54,7 +54,7 @@
 .hero__content {
   position: relative;
   z-index: 1;
-  max-width: 700px;
+  text-align: left;
 }
 
 .hero__content h1 {
@@ -69,20 +69,20 @@
   color: rgba(255, 255, 255, 0.85);
   font-size: 18px;
   line-height: 1.6;
-  max-width: 560px;
-  margin: 0 auto 36px;
+  max-width: 480px;
+  margin: 0 0 36px;
 }
 
 .hero__actions {
   display: flex;
   gap: 16px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .hero__proof {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px 24px;
   list-style: none;
   margin: 28px 0 0;
@@ -112,8 +112,8 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 720px;
-  margin-top: 5vw;
+  max-width: 560px;
+  justify-self: end;
 }
 
 .hero__mockup {
@@ -128,10 +128,9 @@
   gap: 10px;
   background: #ffffff;
   color: var(--color-dark);
-  border: 2px solid var(--color-dark-navy);
-  border-radius: var(--radius-sm, 8px);
+  border-radius: var(--radius-md, 16px);
   padding: 10px 16px;
-  box-shadow: 4px 4px 0px var(--color-dark-navy);
+  box-shadow: var(--shadow-soft-lg);
   font-family: var(--font-body);
   text-align: left;
 }
@@ -162,22 +161,54 @@
 }
 
 .hero__badge--payment {
-  top: -6%;
-  right: 2%;
+  top: 2%;
+  right: -6%;
 }
 
 .hero__badge--occupancy {
-  bottom: -4%;
-  left: 0%;
+  top: 40%;
+  left: -12%;
+}
+
+.hero__badge--rating {
+  bottom: 4%;
+  right: 4%;
+}
+
+.hero__badge-stars {
+  color: var(--color-accent-green);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero__content {
+    text-align: center;
+  }
+
+  .hero__subtitle {
+    margin-inline: auto;
+  }
+
+  .hero__actions,
+  .hero__proof {
+    justify-content: center;
+  }
+
+  .hero__mockup-wrap {
+    justify-self: center;
+    margin-top: 6vw;
+  }
 }
 
 @media (max-width: 640px) {
   .hero__content h1 {
     font-size: 30px;
-  }
-
-  .hero__headline-highlight {
-    font-size: 20px;
   }
 
   .hero__subtitle {
@@ -208,10 +239,16 @@
   .hero__badge--payment {
     top: -3%;
     right: -2%;
+    bottom: auto;
   }
 
   .hero__badge--occupancy {
+    top: auto;
     bottom: -2%;
     left: -2%;
+  }
+
+  .hero__badge--rating {
+    display: none;
   }
 }

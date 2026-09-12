@@ -60,6 +60,16 @@ export default function Hero() {
             <small>hoje</small>
           </span>
         </div>
+
+        <div className="hero__badge hero__badge--rating">
+          <span className="hero__badge-stars" aria-hidden="true">
+            ★★★★★
+          </span>
+          <span>
+            <strong>4.9 de avaliação</strong>
+            <small>dos jogadores</small>
+          </span>
+        </div>
       </div>
     </section>
   )

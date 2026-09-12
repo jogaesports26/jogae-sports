@@ -1,22 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=Syne:wght@600;700;800&display=swap');
 @import './styles/scroll-reveal.css';
+@import './styles/primitives.css';
 
 :root {
-  --color-primary: #1a237e;
-  --color-background: #f5f5f5;
-  --color-accent: #1e88e5;
+  /* Marca — fixas, não mudam de área pra área */
+  --color-primary: #013ff6;
+  --color-accent-green: #acec00;
+  --color-dark-navy: #00182e;
   --color-white: #ffffff;
-  --color-accent-green: #4caf50;
-  --color-accent-yellow: #ffc107;
 
-  --font-heading: 'Playfair Display', 'Lora', serif;
-  --font-body: 'Inter', 'Work Sans', system-ui, sans-serif;
+  /* Aliases genéricos que os componentes já consomem */
+  --color-accent: var(--color-accent-green);
+  --color-dark: var(--color-dark-navy);
+  --color-surface: var(--color-white);
+  --color-background: #f4f5fa;
 
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  /* Neutros do estilo novo — fundo nunca branco puro, texto secundário sempre cinza */
+  --color-text-secondary: #5b6472;
+  --color-border: rgba(0, 24, 46, 0.08);
+  --border-subtle: 1px solid var(--color-border);
+
+  /* Pílulas de status/variação (fundo suave, nunca cor chapada) */
+  --color-positive-bg: #e6f9d9;
+  --color-positive-text: #4f7d0a;
+  --color-negative-bg: #fde8ea;
+  --color-negative-text: #b3283f;
+  --color-info-bg: #e8edff;
+  --color-info-text: #013ff6;
+
+  /* Gradiente-assinatura, reservado pro CTA de maior hierarquia */
+  --gradient-brand: linear-gradient(135deg, #013ff6 0%, #acec00 100%);
+
+  --font-heading: 'Inter Tight', 'Syne', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Raio por hierarquia — container de página > card > elemento interno */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-card: 20px;
+  --radius-pill: 9999px;
+
+  /* Sombra suave e difusa — substitui a sombra deslocada do neo-brutalismo.
+     --shadow-neo mantém o nome por compatibilidade com CSS ainda não migrado. */
+  --shadow-soft-sm: 0 4px 12px -4px rgba(0, 24, 46, 0.12);
+  --shadow-soft: 0 12px 24px -8px rgba(0, 24, 46, 0.14);
+  --shadow-soft-lg: 0 24px 48px -12px rgba(0, 24, 46, 0.18);
+  --shadow-neo: var(--shadow-soft);
 
   color-scheme: light;
-  color: var(--color-primary);
+  color: var(--color-dark);
   background: var(--color-background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -33,7 +65,7 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
-  color: var(--color-primary);
+  color: var(--color-dark);
   background: var(--color-background);
 }
 
@@ -49,12 +81,12 @@ html {
 
 h1, h2, h3 {
   font-family: var(--font-heading);
-  color: var(--color-primary);
+  color: var(--color-dark);
   margin: 0;
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 button {

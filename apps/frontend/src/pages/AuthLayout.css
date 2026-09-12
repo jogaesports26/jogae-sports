@@ -1,23 +1,9 @@
 .auth {
-  /* Identidade visual oficial (Jogaê Sports) — mesma paleta da landing,
-     escopada aqui pra não afetar o painel/dashboard. */
-  --color-primary: #013ff6;
-  --color-accent-green: #acec00;
-  --color-dark-navy: #00182e;
-  --color-white: #ffffff;
+  /* Tokens de marca vêm do :root (index.css) — aqui só o que difere de
+     verdade nessa área. */
   --color-surface: rgba(255, 255, 255, 0.95);
-  --color-border: rgba(0, 24, 46, 0.1);
-  --border-subtle: 1px solid var(--color-border);
-  --font-heading: 'Inter Tight', 'Syne', sans-serif;
-
-  --radius-card: 20px;
-  --radius-pill: 9999px;
-
-  --shadow-neo: 4px 4px 0px var(--color-dark-navy);
-
-  --color-accent: var(--color-accent-green);
-  --color-dark: var(--color-dark-navy);
   --color-background: var(--color-white);
+  --radius-card: 20px;
 
   min-height: 100svh;
   display: flex;
@@ -115,20 +101,21 @@
   font-size: 16px;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 10px);
   background: var(--color-surface);
   color: var(--color-dark);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .auth__field input:focus {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .auth__field-error {
   font-size: 13px;
-  color: #c62828;
+  color: var(--color-negative-text);
 }
 
 .auth__submit {
@@ -147,8 +134,8 @@
 }
 
 .auth__submit:hover:not(:disabled) {
-  box-shadow: 6px 6px 0px var(--color-dark-navy);
-  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-soft-lg);
+  transform: translateY(-2px);
 }
 
 .auth__submit:disabled {
@@ -157,9 +144,9 @@
 }
 
 .auth__error {
-  background: #fdecea;
-  color: #c62828;
-  border-radius: 8px;
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+  border-radius: var(--radius-sm, 10px);
   padding: 10px 14px;
   font-size: 14px;
   margin-bottom: 20px;
