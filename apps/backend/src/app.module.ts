@@ -10,6 +10,7 @@ import { PlayerAuthModule } from './player-auth/player-auth.module';
 import { CepModule } from './cep/cep.module';
 import { ChatModule } from './chat/chat.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     CepModule,
     ChatModule,
     ReviewsModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
