@@ -16,26 +16,27 @@
   font-weight: 700;
   color: var(--color-dark-navy);
   background: var(--color-accent-green);
-  border: 2px solid var(--color-dark-navy);
+  border: none;
   border-radius: var(--radius-pill);
   padding: 10px 20px;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 4px 4px 0px var(--color-dark-navy);
+  box-shadow: var(--shadow-soft-sm);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .court-list__new-button:hover {
-  transform: translate(4px, 4px);
-  box-shadow: 0px 0px 0px var(--color-dark-navy);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
 }
 
 .court-list__empty {
   text-align: center;
   padding: 60px 20px;
   background: var(--color-white);
-  border: var(--border-subtle);
+  border: none;
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
 }
 
 .court-list__empty p {
@@ -53,9 +54,9 @@
 
 .court-card {
   background: var(--color-white);
-  border: var(--border-subtle);
+  border: none;
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-neo);
+  box-shadow: var(--shadow-soft);
   font-family: var(--font-body);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   display: flex;
@@ -63,8 +64,8 @@
 }
 
 .court-card:hover {
-  transform: translate(5px, 5px);
-  box-shadow: 0px 0px 0px var(--color-dark-navy);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft-lg);
 }
 
 .court-card--inactive {
@@ -98,24 +99,41 @@
 .court-card__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 8px;
+}
+
+.court-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  flex-shrink: 0;
+}
+
+.court-card__icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .court-card__header h3 {
   font-family: var(--font-heading);
   font-size: 17px;
   color: var(--color-dark);
+  flex: 1;
+  min-width: 0;
 }
 
 .court-card__badge {
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: rgba(0, 24, 46, 0.1);
-  color: var(--color-dark);
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
   white-space: nowrap;
 }
 

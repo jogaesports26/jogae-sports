@@ -1,25 +1,29 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useParams } from 'react-router-dom'
 import { clearPlayerSession, getPlayerUser } from '../../lib/player'
 import ChatWidget from './ChatWidget'
 import './PortalLayout.css'
 
 export default function PortalLayout() {
   const player = getPlayerUser()
+  const { slug } = useParams<{ slug?: string }>()
 
   function handleLogout() {
     clearPlayerSession()
-    window.location.href = '/reservar'
+    window.location.reload()
   }
 
   return (
     <div className="portal">
       <header className="portal__nav">
-        <Link to="/reservar" className="portal__logo">
-          Jogaê Sports
-        </Link>
+        {slug ? (
+          <Link to={`/${slug}`} className="portal__logo">
+            Jogaê Sports
+          </Link>
+        ) : (
+          <span className="portal__logo">Jogaê Sports</span>
+        )}
         <nav className="portal__nav-links">
-          <Link to="/reservar">Quadras</Link>
-          <Link to="/minhas-reservas">Minhas reservas</Link>
+          {player && <Link to="/minhas-reservas">Minhas reservas</Link>}
           {player && (
             <>
               <span className="portal__player-name">{player.name ?? player.phone}</span>

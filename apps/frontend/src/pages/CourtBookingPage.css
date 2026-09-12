@@ -1,3 +1,13 @@
+.booking-page__back {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
 .booking-page h1 {
   font-family: var(--font-heading);
   font-size: 28px;
@@ -7,15 +17,13 @@
 
 .booking-page__meta {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.7;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
 .booking-page__establishment {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.55;
+  color: var(--color-text-secondary);
   font-size: 13px;
   margin-bottom: 24px;
 }
@@ -45,8 +53,9 @@
 
 .booking-review {
   background: var(--color-white);
-  border: var(--border-subtle);
-  border-radius: var(--radius-card);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft-sm);
   padding: 12px 16px;
 }
 
@@ -85,8 +94,9 @@
 
 .booking-day {
   background: var(--color-white);
-  border: var(--border-subtle);
-  border-radius: var(--radius-card);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft-sm);
   padding: 14px;
 }
 
@@ -100,7 +110,7 @@
 
 .booking-day__header span {
   font-size: 12px;
-  opacity: 0.6;
+  color: var(--color-text-secondary);
 }
 
 .booking-day__header strong {
@@ -119,11 +129,12 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--color-primary);
-  background: #fff;
-  border: 1px solid var(--color-primary);
-  border-radius: 6px;
-  padding: 6px;
+  background: var(--color-info-bg);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 8px;
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .booking-day__slot:hover {
@@ -134,13 +145,18 @@
 .booking-day__empty {
   font-family: var(--font-body);
   font-size: 12px;
-  color: var(--color-dark);
-  opacity: 0.4;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
 }
 
 .booking-page__error,
 .booking-page__loading {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.65;
+  color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-day__slot {
+    transition: none;
+  }
 }

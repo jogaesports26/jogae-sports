@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
 import type { AgendaResponse } from '../lib/reservations'
 import type { CourtReview, PublicCourt } from '../lib/player'
@@ -21,7 +21,7 @@ interface SelectedSlot {
 }
 
 export default function CourtBookingPage() {
-  const { courtId } = useParams<{ courtId: string }>()
+  const { courtId, slug } = useParams<{ courtId: string; slug: string }>()
   const [court, setCourt] = useState<PublicCourt | null>(null)
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [reviews, setReviews] = useState<CourtReview[]>([])
@@ -60,6 +60,9 @@ export default function CourtBookingPage() {
 
   return (
     <div className="booking-page">
+      <Link to={`/${slug}`} className="booking-page__back">
+        ← Voltar
+      </Link>
       <h1>{court.name}</h1>
       <p className="booking-page__meta">
         {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}

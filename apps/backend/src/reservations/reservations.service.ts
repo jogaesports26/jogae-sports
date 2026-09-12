@@ -21,38 +21,52 @@ export class ReservationsService {
     private readonly reviewsService: ReviewsService,
   ) {}
 
-  async listPublicCourts() {
-    const courts = await this.prisma.court.findMany({
-      where: { active: true },
+  async getEstablishmentBySlug(slug: string) {
+    const owner = await this.prisma.user.findUnique({
+      where: { establishmentSlug: slug },
       select: {
-        id: true,
-        name: true,
-        sport: true,
-        surfaceType: true,
-        hasLighting: true,
-        photoUrls: true,
-        owner: {
-          select: { establishmentName: true, establishmentAddress: true },
-        },
-        priceRules: {
-          select: { pricePerHour: true },
-          orderBy: { pricePerHour: 'asc' },
-          take: 1,
+        establishmentName: true,
+        establishmentAddress: true,
+        establishmentPhone: true,
+        courts: {
+          where: { active: true },
+          select: {
+            id: true,
+            name: true,
+            sport: true,
+            surfaceType: true,
+            hasLighting: true,
+            photoUrls: true,
+            priceRules: {
+              select: { pricePerHour: true },
+              orderBy: { pricePerHour: 'asc' },
+              take: 1,
+            },
+          },
         },
       },
     });
 
+    if (!owner) {
+      throw new NotFoundException('Estabelecimento não encontrado');
+    }
+
     const ratingByCourtId = await this.reviewsService.getSummaryForCourts(
-      courts.map((c) => c.id),
+      owner.courts.map((c) => c.id),
     );
 
-    return courts.map((court) => ({
-      ...court,
-      fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
-      priceRules: undefined,
-      averageRating: ratingByCourtId.get(court.id)?.averageRating ?? null,
-      reviewCount: ratingByCourtId.get(court.id)?.reviewCount ?? 0,
-    }));
+    return {
+      establishmentName: owner.establishmentName,
+      establishmentAddress: owner.establishmentAddress,
+      establishmentPhone: owner.establishmentPhone,
+      courts: owner.courts.map((court) => ({
+        ...court,
+        fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
+        priceRules: undefined,
+        averageRating: ratingByCourtId.get(court.id)?.averageRating ?? null,
+        reviewCount: ratingByCourtId.get(court.id)?.reviewCount ?? 0,
+      })),
+    };
   }
 
   async getPublicCourt(courtId: string) {

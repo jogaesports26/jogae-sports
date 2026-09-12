@@ -44,7 +44,23 @@ function buildCourtsServiceMock(
   };
 }
 
-// Saturday 2026-09-12 in local time, 14:00-16:00 across two contiguous 1h price rules.
+// Sempre o próximo sábado a partir de "agora", nunca uma data fixa — testes que
+// dependem de "isso é no futuro" (ex: `startsAt.getTime() < Date.now()` no
+// service) não podem travar em uma data de calendário específica que
+// inevitavelmente vira passado.
+function nextSaturdayAt(hour: number, minute = 0): Date {
+  const date = new Date();
+  // Sempre um sábado FUTURO, nunca hoje — mesmo que hoje já seja sábado. Isso
+  // evita uma corrida entre chamadas com horas diferentes (ex: nextSaturdayAt(14)
+  // e nextSaturdayAt(16) chamadas quando "agora" está entre as duas: uma decide
+  // "já passou, pula pra semana que vem" e a outra não, gerando startsAt > endsAt).
+  const daysUntilSaturday = (6 - date.getDay() + 7) % 7 || 7;
+  date.setDate(date.getDate() + daysUntilSaturday);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+}
+
+// Faixas de preço do sábado, 14:00-16:00, em dois blocos contíguos de 1h.
 const SATURDAY_RULES = [
   {
     id: 'r1',
@@ -94,8 +110,8 @@ describe('ReservationsService', () => {
         Promise.resolve({ id: 'res-1', ...data }),
       );
 
-      const startsAt = new Date('2026-09-12T14:00:00');
-      const endsAt = new Date('2026-09-12T16:00:00');
+      const startsAt = nextSaturdayAt(14);
+      const endsAt = nextSaturdayAt(16);
 
       const result = await service.create('court-1', 'owner-1', {
         guestName: 'Cliente Teste',
@@ -112,8 +128,8 @@ describe('ReservationsService', () => {
       prisma.reservation.findFirst.mockResolvedValue(null);
       prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
 
-      const startsAt = new Date('2026-09-12T14:00:00');
-      const endsAt = new Date('2026-09-12T14:30:00');
+      const startsAt = nextSaturdayAt(14);
+      const endsAt = nextSaturdayAt(14, 30);
 
       await expect(
         service.create('court-1', 'owner-1', {
@@ -130,8 +146,8 @@ describe('ReservationsService', () => {
       prisma.reservation.findFirst.mockResolvedValue(null);
       prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
 
-      const startsAt = new Date('2026-09-12T14:00:00');
-      const endsAt = new Date('2026-09-12T16:00:00');
+      const startsAt = nextSaturdayAt(14);
+      const endsAt = nextSaturdayAt(16);
 
       await expect(
         service.create('court-1', 'owner-1', {
@@ -153,8 +169,8 @@ describe('ReservationsService', () => {
         service.create('court-1', 'owner-1', {
           guestName: 'Cliente Teste',
           guestPhone: '85999998888',
-          startsAt: new Date('2026-09-12T14:00:00').toISOString(),
-          endsAt: new Date('2026-09-12T15:00:00').toISOString(),
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(15).toISOString(),
         }),
       ).rejects.toThrow(ConflictException);
     });
@@ -168,8 +184,8 @@ describe('ReservationsService', () => {
         service.create('court-1', 'owner-1', {
           guestName: 'Cliente Teste',
           guestPhone: '85999998888',
-          startsAt: new Date('2026-09-12T14:00:00').toISOString(),
-          endsAt: new Date('2026-09-12T15:00:00').toISOString(),
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(15).toISOString(),
         }),
       ).rejects.toThrow(ConflictException);
     });
@@ -181,8 +197,8 @@ describe('ReservationsService', () => {
         service.create('court-1', 'outro-dono', {
           guestName: 'Cliente Teste',
           guestPhone: '85999998888',
-          startsAt: new Date('2026-09-12T14:00:00').toISOString(),
-          endsAt: new Date('2026-09-12T15:00:00').toISOString(),
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(15).toISOString(),
         }),
       ).rejects.toThrow(NotFoundException);
     });
@@ -213,8 +229,8 @@ describe('ReservationsService', () => {
       const result = await service.createForPlayer(
         'court-1',
         'player-1',
-        new Date('2026-09-12T14:00:00').toISOString(),
-        new Date('2026-09-12T16:00:00').toISOString(),
+        nextSaturdayAt(14).toISOString(),
+        nextSaturdayAt(16).toISOString(),
       );
 
       expect(result.priceSnapshot).toBe(180);
@@ -227,8 +243,8 @@ describe('ReservationsService', () => {
         service.createForPlayer(
           'court-1',
           'player-fantasma',
-          new Date('2026-09-12T14:00:00').toISOString(),
-          new Date('2026-09-12T16:00:00').toISOString(),
+          nextSaturdayAt(14).toISOString(),
+          nextSaturdayAt(16).toISOString(),
         ),
       ).rejects.toThrow(UnauthorizedException);
 
