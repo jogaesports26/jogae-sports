@@ -4,6 +4,7 @@ import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { fetchProfile, updateProfile } from '../lib/profile'
 import { fetchCep } from '../lib/cep'
+import InstructorsSection from '../components/panel/InstructorsSection'
 import './SettingsPage.css'
 
 function slugify(value: string) {
@@ -228,6 +229,8 @@ export default function SettingsPage() {
           </button>
         </form>
       )}
+
+      {!loading && <InstructorsSection onSessionExpired={onSessionExpired} />}
     </div>
   )
 }

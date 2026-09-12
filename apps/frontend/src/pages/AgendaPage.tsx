@@ -6,6 +6,8 @@ import { fetchCourt } from '../lib/courts'
 import type { Court } from '../lib/courts'
 import { fetchAgenda } from '../lib/reservations'
 import type { AgendaResponse, Reservation } from '../lib/reservations'
+import { fetchWaitlist, removeWaitlistEntry } from '../lib/waitlist'
+import type { WaitlistEntry } from '../lib/waitlist'
 import {
   addDays,
   buildGridRows,
@@ -19,6 +21,7 @@ import {
 import ReservationModal from '../components/panel/ReservationModal'
 import ReservationActionsModal from '../components/panel/ReservationActionsModal'
 import MaintenanceBlockModal from '../components/panel/MaintenanceBlockModal'
+import MaintenanceHistoryPanel from '../components/panel/MaintenanceHistoryPanel'
 import './AgendaPage.css'
 
 interface SlotSelection {
@@ -38,15 +41,17 @@ export default function AgendaPage() {
   const [selection, setSelection] = useState<SlotSelection | null>(null)
   const [activeReservation, setActiveReservation] = useState<Reservation | null>(null)
   const [isBlocking, setIsBlocking] = useState(false)
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const latestRequestRef = useRef(0)
 
   async function load() {
     if (!courtId) return
     const requestId = ++latestRequestRef.current
     try {
-      const [courtData, agendaData] = await Promise.all([
+      const [courtData, agendaData, waitlistData] = await Promise.all([
         fetchCourt(courtId),
         fetchAgenda(courtId, toDateInputValue(weekStart)),
+        fetchWaitlist(courtId).catch(() => []),
       ])
       // Descarta a resposta se outra chamada a `load` (troca de semana, ou o
       // reload depois de criar/cancelar uma reserva) começou depois desta —
@@ -55,6 +60,7 @@ export default function AgendaPage() {
       if (requestId !== latestRequestRef.current) return
       setCourt(courtData)
       setAgenda(agendaData)
+      setWaitlist(waitlistData)
     } catch (err) {
       if (requestId !== latestRequestRef.current) return
       if (err instanceof SessionExpiredError) {
@@ -75,6 +81,18 @@ export default function AgendaPage() {
     setActiveReservation(null)
     setIsBlocking(false)
     load()
+  }
+
+  async function handleRemoveWaitlistEntry(id: string) {
+    if (!courtId) return
+    try {
+      await removeWaitlistEntry(courtId, id)
+      setWaitlist((prev) => prev.filter((entry) => entry.id !== id))
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+      }
+    }
   }
 
   if (error) return <p className="agenda-page__error">{error}</p>
@@ -142,6 +160,7 @@ export default function AgendaPage() {
                     row.endMinute,
                     agenda.reservations,
                     agenda.maintenanceBlocks,
+                    agenda.recurringMaintenanceBlocks,
                   )
 
                   if (occupant?.type === 'reservation' && occupant.reservation) {
@@ -158,7 +177,7 @@ export default function AgendaPage() {
                     )
                   }
 
-                  if (occupant?.type === 'block') {
+                  if (occupant?.type === 'block' || occupant?.type === 'recurringBlock') {
                     return (
                       <div className="agenda-grid__cell agenda-grid__cell--blocked" key={`${row.key}-${dayOfWeek}`}>
                         Manutenção
@@ -182,6 +201,41 @@ export default function AgendaPage() {
         </div>
       )}
 
+      {waitlist.length > 0 && (
+        <div className="agenda-page__waitlist card">
+          <h2>Fila de espera</h2>
+          <p className="agenda-page__waitlist-hint">
+            Essas pessoas pediram pra ser avisadas se algum desses horários abrir.
+          </p>
+          <div className="agenda-page__waitlist-list">
+            {waitlist.map((entry) => (
+              <div key={entry.id} className="agenda-page__waitlist-item">
+                <span className="agenda-page__waitlist-slot">
+                  {new Date(entry.startsAt).toLocaleDateString('pt-BR')} ·{' '}
+                  {new Date(entry.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  {'–'}
+                  {new Date(entry.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+                <span className="agenda-page__waitlist-name">
+                  <strong>{entry.name}</strong>
+                  <small>{entry.phone}</small>
+                </span>
+                <button
+                  type="button"
+                  className="agenda-page__waitlist-remove"
+                  onClick={() => handleRemoveWaitlistEntry(entry.id)}
+                  aria-label="Remover da fila"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {courtId && <MaintenanceHistoryPanel courtId={courtId} onSessionExpired={onSessionExpired} />}
+
       {selection && courtId && (
         <ReservationModal
           courtId={courtId}
@@ -195,6 +249,7 @@ export default function AgendaPage() {
             selection.dayDate,
             agenda.reservations,
             agenda.maintenanceBlocks,
+            agenda.recurringMaintenanceBlocks,
           )}
           priceRules={agenda.priceRules}
           onClose={() => setSelection(null)}

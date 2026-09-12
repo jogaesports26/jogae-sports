@@ -41,6 +41,16 @@ function IconReports() {
   )
 }
 
+function IconCustomers() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="9" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M3.5 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M15.5 4.3c1.7.5 3 2.2 3 4.2s-1.3 3.7-3 4.2M19 20c0-2.7-1.7-5-4-5.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconSettings() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -59,6 +69,7 @@ const NAV_ITEMS = [
   { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true },
   { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false },
   { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false },
+  { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, end: false },
   { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false },
 ]
 

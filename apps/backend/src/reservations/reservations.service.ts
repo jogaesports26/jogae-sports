@@ -8,8 +8,12 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CourtsService } from '../courts/courts.service';
 import { ReviewsService } from '../reviews/reviews.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
+import { InstructorsService } from '../instructors/instructors.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
+import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 
 const CANCELLATION_MIN_NOTICE_MS = 2 * 60 * 60 * 1000;
 
@@ -19,6 +23,9 @@ export class ReservationsService {
     private readonly prisma: PrismaService,
     private readonly courtsService: CourtsService,
     private readonly reviewsService: ReviewsService,
+    private readonly notificationsService: NotificationsService,
+    private readonly waitlistService: WaitlistService,
+    private readonly instructorsService: InstructorsService,
   ) {}
 
   async getEstablishmentBySlug(slug: string) {
@@ -106,7 +113,12 @@ export class ReservationsService {
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
 
-    const [reservations, maintenanceBlocks, priceRules] = await Promise.all([
+    const [
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: {
           courtId,
@@ -122,9 +134,18 @@ export class ReservationsService {
         where: { courtId },
         orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
       }),
+      this.prisma.recurringMaintenanceBlock.findMany({
+        where: { courtId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+      }),
     ]);
 
-    return { reservations, maintenanceBlocks, priceRules };
+    return {
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    };
   }
 
   async createForPlayer(
@@ -133,7 +154,7 @@ export class ReservationsService {
     startsAtIso: string,
     endsAtIso: string,
   ) {
-    await this.getPublicCourt(courtId);
+    const court = await this.getPublicCourt(courtId);
 
     const player = await this.prisma.player.findUnique({
       where: { id: playerId },
@@ -160,14 +181,27 @@ export class ReservationsService {
     const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
-    return this.prisma.reservation.create({
+    const reservation = await this.prisma.reservation.create({
       data: { courtId, playerId, startsAt, endsAt, priceSnapshot },
     });
+
+    await this.notificationsService.notifyReservationConfirmed(
+      player.phone,
+      court.name,
+      startsAt,
+      endsAt,
+    );
+
+    return reservation;
   }
 
   async cancelForPlayer(playerId: string, reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId, playerId },
+      include: {
+        court: { select: { name: true } },
+        player: { select: { phone: true } },
+      },
     });
 
     if (!reservation) {
@@ -189,10 +223,26 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.update({
+    const updated = await this.prisma.reservation.update({
       where: { id: reservationId },
       data: { status: 'CANCELLED', cancelledAt: new Date() },
     });
+
+    if (reservation.player) {
+      await this.notificationsService.notifyReservationCancelled(
+        reservation.player.phone,
+        reservation.court.name,
+        reservation.startsAt,
+        reservation.endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      reservation.courtId,
+      reservation.startsAt,
+      reservation.endsAt,
+    );
+
+    return updated;
   }
 
   async getPlayerReservations(playerId: string) {
@@ -224,7 +274,10 @@ export class ReservationsService {
         startsAt: { gte: start, lt: end },
         status: { not: 'CANCELLED' },
       },
-      include: { court: { select: { id: true, name: true } } },
+      include: {
+        court: { select: { id: true, name: true } },
+        instructor: { select: { id: true, name: true } },
+      },
       orderBy: { startsAt: 'asc' },
     });
   }
@@ -344,9 +397,15 @@ export class ReservationsService {
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
 
-    const [reservations, maintenanceBlocks, priceRules] = await Promise.all([
+    const [
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: { courtId, startsAt: { gte: start, lt: end } },
+        include: { instructor: { select: { id: true, name: true } } },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.maintenanceBlock.findMany({
@@ -357,13 +416,22 @@ export class ReservationsService {
         where: { courtId },
         orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
       }),
+      this.prisma.recurringMaintenanceBlock.findMany({
+        where: { courtId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+      }),
     ]);
 
-    return { reservations, maintenanceBlocks, priceRules };
+    return {
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    };
   }
 
   async create(courtId: string, ownerId: string, dto: CreateReservationDto) {
-    await this.courtsService.findOneOrThrow(courtId, ownerId);
+    const court = await this.courtsService.findOneOrThrow(courtId, ownerId);
 
     const startsAt = new Date(dto.startsAt);
     const endsAt = new Date(dto.endsAt);
@@ -383,7 +451,11 @@ export class ReservationsService {
     const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
-    return this.prisma.reservation.create({
+    if (dto.instructorId) {
+      await this.instructorsService.findOneOrThrow(dto.instructorId, ownerId);
+    }
+
+    const reservation = await this.prisma.reservation.create({
       data: {
         courtId,
         guestName: dto.guestName,
@@ -391,12 +463,22 @@ export class ReservationsService {
         startsAt,
         endsAt,
         priceSnapshot,
+        instructorId: dto.instructorId,
       },
     });
+
+    await this.notificationsService.notifyReservationConfirmed(
+      dto.guestPhone,
+      court.name,
+      startsAt,
+      endsAt,
+    );
+
+    return reservation;
   }
 
   async cancel(courtId: string, ownerId: string, reservationId: string) {
-    await this.courtsService.findOneOrThrow(courtId, ownerId);
+    const court = await this.courtsService.findOneOrThrow(courtId, ownerId);
     const reservation = await this.findReservationOrThrow(
       courtId,
       reservationId,
@@ -417,10 +499,27 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.update({
+    const updated = await this.prisma.reservation.update({
       where: { id: reservationId },
       data: { status: 'CANCELLED', cancelledAt: new Date() },
     });
+
+    const phone = reservation.player?.phone ?? reservation.guestPhone;
+    if (phone) {
+      await this.notificationsService.notifyReservationCancelled(
+        phone,
+        court.name,
+        reservation.startsAt,
+        reservation.endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      courtId,
+      reservation.startsAt,
+      reservation.endsAt,
+    );
+
+    return updated;
   }
 
   async updateStatus(
@@ -500,9 +599,43 @@ export class ReservationsService {
     return this.prisma.maintenanceBlock.delete({ where: { id: blockId } });
   }
 
+  async listMaintenanceHistory(courtId: string, ownerId: string) {
+    await this.courtsService.findOneOrThrow(courtId, ownerId);
+
+    return this.prisma.maintenanceBlock.findMany({
+      where: { courtId },
+      orderBy: { startsAt: 'desc' },
+    });
+  }
+
+  async updateMaintenanceBlock(
+    courtId: string,
+    ownerId: string,
+    blockId: string,
+    dto: UpdateMaintenanceBlockDto,
+  ) {
+    await this.courtsService.findOneOrThrow(courtId, ownerId);
+
+    const block = await this.prisma.maintenanceBlock.findFirst({
+      where: { id: blockId, courtId },
+    });
+    if (!block) {
+      throw new NotFoundException('Bloqueio não encontrado');
+    }
+
+    return this.prisma.maintenanceBlock.update({
+      where: { id: blockId },
+      data: {
+        cost: dto.cost,
+        completedAt: dto.completedAt ? new Date(dto.completedAt) : undefined,
+      },
+    });
+  }
+
   private async findReservationOrThrow(courtId: string, reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId, courtId },
+      include: { player: { select: { phone: true } } },
     });
 
     if (!reservation) {
@@ -535,6 +668,26 @@ export class ReservationsService {
     });
 
     if (overlappingBlock) {
+      throw new ConflictException(
+        'Esse horário está bloqueado para manutenção',
+      );
+    }
+
+    const dayOfWeek = startsAt.getDay();
+    const startMinute = this.toMinutesSinceMidnight(startsAt);
+    const endMinute = this.toMinutesSinceMidnight(endsAt);
+
+    const overlappingRecurringBlock =
+      await this.prisma.recurringMaintenanceBlock.findFirst({
+        where: {
+          courtId,
+          dayOfWeek,
+          startMinute: { lt: endMinute },
+          endMinute: { gt: startMinute },
+        },
+      });
+
+    if (overlappingRecurringBlock) {
       throw new ConflictException(
         'Esse horário está bloqueado para manutenção',
       );

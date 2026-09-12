@@ -73,6 +73,9 @@ export default function ReservationActionsModal({
             Valor: R$ {Number(reservation.priceSnapshot).toFixed(2).replace('.', ',')}
           </p>
           <p className="reservation-modal__price">Status: {STATUS_LABELS[reservation.status]}</p>
+          {reservation.instructor && (
+            <p className="reservation-modal__price">Instrutor: {reservation.instructor.name}</p>
+          )}
 
           {error && <p className="reservation-modal__error">{error}</p>}
 

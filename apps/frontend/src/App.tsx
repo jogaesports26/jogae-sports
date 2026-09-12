@@ -9,6 +9,7 @@ import OverviewPage from './pages/OverviewPage'
 import QuadrasPage from './pages/QuadrasPage'
 import AgendaPage from './pages/AgendaPage'
 import ReportsPage from './pages/ReportsPage'
+import CustomersPage from './pages/CustomersPage'
 import SettingsPage from './pages/SettingsPage'
 import PortalLayout from './components/portal/PortalLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
@@ -29,6 +30,7 @@ function App() {
           <Route path="quadras" element={<QuadrasPage />} />
           <Route path="quadras/:courtId/agenda" element={<AgendaPage />} />
           <Route path="relatorios" element={<ReportsPage />} />
+          <Route path="clientes" element={<CustomersPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>
         <Route path="/minhas-reservas" element={<PortalLayout />}>

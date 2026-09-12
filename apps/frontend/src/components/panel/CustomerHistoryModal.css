@@ -1,0 +1,201 @@
+.customer-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 24, 46, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh 20px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.customer-modal {
+  position: relative;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.customer-modal h2 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--color-dark);
+  margin-bottom: 2px;
+}
+
+.customer-modal h3 {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--color-dark);
+  margin: 20px 0 12px;
+}
+
+.customer-modal__phone {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.customer-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-border);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-dark);
+}
+
+.customer-modal__close:hover {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
+.customer-modal__summary {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 14px 16px;
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.customer-modal__summary strong {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.customer-modal__no-show strong {
+  color: var(--color-negative-text);
+}
+
+.customer-modal__birthdate {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.customer-modal__birthdate label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+.customer-modal__birthdate input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: var(--border-subtle);
+  color: var(--color-dark);
+}
+
+.customer-modal__hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 16px;
+}
+
+.customer-modal__error {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-negative-text);
+  background: var(--color-negative-bg);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+
+.customer-modal__loading {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.customer-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.customer-modal__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.customer-modal__item-date {
+  color: var(--color-text-secondary);
+  width: 76px;
+  flex-shrink: 0;
+}
+
+.customer-modal__item-court {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-dark);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customer-modal__item-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.customer-modal__item-status--confirmed {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.customer-modal__item-status--completed {
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+}
+
+.customer-modal__item-status--no_show,
+.customer-modal__item-status--cancelled {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
+.customer-modal__item-price {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  color: var(--color-dark);
+  flex-shrink: 0;
+}

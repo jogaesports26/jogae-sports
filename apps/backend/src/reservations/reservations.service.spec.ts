@@ -21,6 +21,9 @@ function buildPrismaMock() {
       findMany: jest.fn(),
       delete: jest.fn(),
     },
+    recurringMaintenanceBlock: {
+      findFirst: jest.fn().mockResolvedValue(null),
+    },
     court: { findFirst: jest.fn() },
     player: { findUnique: jest.fn() },
   };
@@ -94,10 +97,23 @@ describe('ReservationsService', () => {
         .mockResolvedValue({ averageRating: null, reviewCount: 0 }),
       getSummaryForCourts: jest.fn(),
     };
+    const notificationsService = {
+      notifyReservationConfirmed: jest.fn().mockResolvedValue(undefined),
+      notifyReservationCancelled: jest.fn().mockResolvedValue(undefined),
+    };
+    const waitlistService = {
+      notifyForFreedSlot: jest.fn().mockResolvedValue(null),
+    };
+    const instructorsService = {
+      findOneOrThrow: jest.fn(),
+    };
     service = new ReservationsService(
       prisma as any,
       courtsService as any,
       reviewsService as any,
+      notificationsService as any,
+      waitlistService as any,
+      instructorsService as any,
     );
   });
 
@@ -179,6 +195,24 @@ describe('ReservationsService', () => {
       prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
       prisma.reservation.findFirst.mockResolvedValue(null);
       prisma.maintenanceBlock.findFirst.mockResolvedValue({ id: 'block-1' });
+
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente Teste',
+          guestPhone: '85999998888',
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(15).toISOString(),
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('rejeita reserva sobreposta a um bloqueio recorrente', async () => {
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.recurringMaintenanceBlock.findFirst.mockResolvedValue({
+        id: 'recurring-1',
+      });
 
       await expect(
         service.create('court-1', 'owner-1', {
