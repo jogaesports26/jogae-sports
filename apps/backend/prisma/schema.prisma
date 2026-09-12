@@ -23,8 +23,8 @@ model User {
   establishmentSlug    String?  @unique
   monthlyRevenueGoal   Decimal? @db.Decimal(10, 2)
 
-  courts               Court[]
-  passwordResetTokens  PasswordResetToken[]
+  courts              Court[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 enum Role {
@@ -49,6 +49,7 @@ model Court {
   reservations      Reservation[]
   maintenanceBlocks MaintenanceBlock[]
   reviews           Review[]
+  waitlist          Waitlist[]
 
   @@index([ownerId])
 }
@@ -75,25 +76,40 @@ enum ReservationStatus {
 }
 
 model Reservation {
-  id            String            @id @default(uuid())
-  courtId       String
-  court         Court             @relation(fields: [courtId], references: [id])
-  playerId      String?
-  player        Player?           @relation(fields: [playerId], references: [id])
-  guestName     String?
-  guestPhone    String?
-  startsAt      DateTime
-  endsAt        DateTime
-  status        ReservationStatus @default(CONFIRMED)
-  priceSnapshot Decimal           @db.Decimal(10, 2)
-  cancelledAt   DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id             String            @id @default(uuid())
+  courtId        String
+  court          Court             @relation(fields: [courtId], references: [id])
+  playerId       String?
+  player         Player?           @relation(fields: [playerId], references: [id])
+  guestName      String?
+  guestPhone     String?
+  startsAt       DateTime
+  endsAt         DateTime
+  status         ReservationStatus @default(CONFIRMED)
+  priceSnapshot  Decimal           @db.Decimal(10, 2)
+  cancelledAt    DateTime?
+  reminderSentAt DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  review Review?
 
   @@index([courtId, startsAt, endsAt])
   @@index([playerId])
+}
 
-  review Review?
+model Waitlist {
+  id         String    @id @default(uuid())
+  courtId    String
+  court      Court     @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String
+  startsAt   DateTime
+  endsAt     DateTime
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([courtId, startsAt, endsAt])
 }
 
 model Player {

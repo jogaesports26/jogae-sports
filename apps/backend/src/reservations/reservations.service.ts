@@ -8,6 +8,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CourtsService } from '../courts/courts.service';
 import { ReviewsService } from '../reviews/reviews.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { WaitlistService } from '../waitlist/waitlist.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 
@@ -19,6 +21,8 @@ export class ReservationsService {
     private readonly prisma: PrismaService,
     private readonly courtsService: CourtsService,
     private readonly reviewsService: ReviewsService,
+    private readonly notificationsService: NotificationsService,
+    private readonly waitlistService: WaitlistService,
   ) {}
 
   async getEstablishmentBySlug(slug: string) {
@@ -133,7 +137,7 @@ export class ReservationsService {
     startsAtIso: string,
     endsAtIso: string,
   ) {
-    await this.getPublicCourt(courtId);
+    const court = await this.getPublicCourt(courtId);
 
     const player = await this.prisma.player.findUnique({
       where: { id: playerId },
@@ -160,14 +164,27 @@ export class ReservationsService {
     const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
-    return this.prisma.reservation.create({
+    const reservation = await this.prisma.reservation.create({
       data: { courtId, playerId, startsAt, endsAt, priceSnapshot },
     });
+
+    await this.notificationsService.notifyReservationConfirmed(
+      player.phone,
+      court.name,
+      startsAt,
+      endsAt,
+    );
+
+    return reservation;
   }
 
   async cancelForPlayer(playerId: string, reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId, playerId },
+      include: {
+        court: { select: { name: true } },
+        player: { select: { phone: true } },
+      },
     });
 
     if (!reservation) {
@@ -189,10 +206,26 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.update({
+    const updated = await this.prisma.reservation.update({
       where: { id: reservationId },
       data: { status: 'CANCELLED', cancelledAt: new Date() },
     });
+
+    if (reservation.player) {
+      await this.notificationsService.notifyReservationCancelled(
+        reservation.player.phone,
+        reservation.court.name,
+        reservation.startsAt,
+        reservation.endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      reservation.courtId,
+      reservation.startsAt,
+      reservation.endsAt,
+    );
+
+    return updated;
   }
 
   async getPlayerReservations(playerId: string) {
@@ -363,7 +396,7 @@ export class ReservationsService {
   }
 
   async create(courtId: string, ownerId: string, dto: CreateReservationDto) {
-    await this.courtsService.findOneOrThrow(courtId, ownerId);
+    const court = await this.courtsService.findOneOrThrow(courtId, ownerId);
 
     const startsAt = new Date(dto.startsAt);
     const endsAt = new Date(dto.endsAt);
@@ -383,7 +416,7 @@ export class ReservationsService {
     const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
-    return this.prisma.reservation.create({
+    const reservation = await this.prisma.reservation.create({
       data: {
         courtId,
         guestName: dto.guestName,
@@ -393,10 +426,19 @@ export class ReservationsService {
         priceSnapshot,
       },
     });
+
+    await this.notificationsService.notifyReservationConfirmed(
+      dto.guestPhone,
+      court.name,
+      startsAt,
+      endsAt,
+    );
+
+    return reservation;
   }
 
   async cancel(courtId: string, ownerId: string, reservationId: string) {
-    await this.courtsService.findOneOrThrow(courtId, ownerId);
+    const court = await this.courtsService.findOneOrThrow(courtId, ownerId);
     const reservation = await this.findReservationOrThrow(
       courtId,
       reservationId,
@@ -417,10 +459,27 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.update({
+    const updated = await this.prisma.reservation.update({
       where: { id: reservationId },
       data: { status: 'CANCELLED', cancelledAt: new Date() },
     });
+
+    const phone = reservation.player?.phone ?? reservation.guestPhone;
+    if (phone) {
+      await this.notificationsService.notifyReservationCancelled(
+        phone,
+        court.name,
+        reservation.startsAt,
+        reservation.endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      courtId,
+      reservation.startsAt,
+      reservation.endsAt,
+    );
+
+    return updated;
   }
 
   async updateStatus(
@@ -503,6 +562,7 @@ export class ReservationsService {
   private async findReservationOrThrow(courtId: string, reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId, courtId },
+      include: { player: { select: { phone: true } } },
     });
 
     if (!reservation) {
