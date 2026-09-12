@@ -58,6 +58,14 @@
   opacity: 0.55;
 }
 
+.catalog-card__rating {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: #b8860b;
+  margin-top: 4px;
+}
+
 .catalog-card__price {
   font-family: var(--font-body);
   font-size: 14px;

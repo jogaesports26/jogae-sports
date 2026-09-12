@@ -46,6 +46,11 @@ export default function CatalogPage() {
               {court.owner.establishmentName && (
                 <p className="catalog-card__establishment">{court.owner.establishmentName}</p>
               )}
+              {court.reviewCount > 0 && (
+                <p className="catalog-card__rating">
+                  ★ {court.averageRating?.toFixed(1)} ({court.reviewCount})
+                </p>
+              )}
               {court.fromPricePerHour && (
                 <p className="catalog-card__price">
                   A partir de R$ {Number(court.fromPricePerHour).toFixed(2).replace('.', ',')}/h

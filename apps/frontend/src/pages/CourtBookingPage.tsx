@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
+import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
 import type { AgendaResponse } from '../lib/reservations'
-import type { PublicCourt } from '../lib/player'
+import type { CourtReview, PublicCourt } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
 import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT } from '../lib/weekGrid'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
@@ -24,6 +24,7 @@ export default function CourtBookingPage() {
   const { courtId } = useParams<{ courtId: string }>()
   const [court, setCourt] = useState<PublicCourt | null>(null)
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
+  const [reviews, setReviews] = useState<CourtReview[]>([])
   const [error, setError] = useState('')
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null)
 
@@ -32,12 +33,14 @@ export default function CourtBookingPage() {
     try {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      const [courtData, agendaData] = await Promise.all([
+      const [courtData, agendaData, reviewsData] = await Promise.all([
         fetchPublicCourt(courtId),
         fetchPublicAgenda(courtId, toDateInputValue(today)),
+        fetchCourtReviews(courtId).catch(() => []),
       ])
       setCourt(courtData)
       setAgenda(agendaData)
+      setReviews(reviewsData)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar a quadra')
     }
@@ -61,6 +64,12 @@ export default function CourtBookingPage() {
       <p className="booking-page__meta">
         {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}
         {court.hasLighting ? ' · Com iluminação' : ''}
+        {court.reviewCount > 0 && (
+          <span className="booking-page__rating">
+            {' '}
+            · ★ {court.averageRating?.toFixed(1)} ({court.reviewCount} avaliações)
+          </span>
+        )}
       </p>
       {court.owner.establishmentName && (
         <p className="booking-page__establishment">
@@ -115,6 +124,23 @@ export default function CourtBookingPage() {
           )
         })}
       </div>
+
+      {reviews.length > 0 && (
+        <div className="booking-page__reviews">
+          <h2>O que os clientes acharam</h2>
+          <div className="booking-page__reviews-list">
+            {reviews.map((review) => (
+              <div className="booking-review" key={review.id}>
+                <div className="booking-review__header">
+                  <span className="booking-review__stars">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                  <span className="booking-review__author">{review.player.name ?? 'Jogador'}</span>
+                </div>
+                {review.comment && <p className="booking-review__comment">{review.comment}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {selectedSlot && courtId && (
         <BookingFlowModal

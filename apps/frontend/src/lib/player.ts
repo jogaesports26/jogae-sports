@@ -17,6 +17,8 @@ export interface PublicCourt {
   photoUrls: string[]
   owner: { establishmentName: string | null; establishmentAddress: string | null; establishmentPhone?: string | null }
   fromPricePerHour: string | null
+  averageRating: number | null
+  reviewCount: number
 }
 
 export interface PlayerReservation {
@@ -27,6 +29,15 @@ export interface PlayerReservation {
   status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW'
   priceSnapshot: string
   court: { id: string; name: string; owner: { establishmentName: string | null } }
+  review: { id: string; rating: number; comment: string | null } | null
+}
+
+export interface CourtReview {
+  id: string
+  rating: number
+  comment: string | null
+  createdAt: string
+  player: { name: string | null }
 }
 
 export class PlayerSessionExpiredError extends Error {
@@ -130,6 +141,23 @@ export async function fetchPlayerReservations(): Promise<PlayerReservation[]> {
 export async function cancelPlayerReservation(id: string): Promise<void> {
   const response = await playerFetch(`/me/reservations/${id}`, { method: 'DELETE' })
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível cancelar a reserva'))
+}
+
+export async function createReview(
+  reservationId: string,
+  input: { rating: number; comment?: string },
+): Promise<void> {
+  const response = await playerFetch(`/me/reservations/${reservationId}/review`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível enviar a avaliação'))
+}
+
+export async function fetchCourtReviews(courtId: string): Promise<CourtReview[]> {
+  const response = await fetch(`${API_URL}/public/courts/${courtId}/reviews`)
+  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar as avaliações'))
+  return response.json()
 }
 
 export type { PriceRule }
