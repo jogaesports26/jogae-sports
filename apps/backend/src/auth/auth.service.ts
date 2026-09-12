@@ -8,6 +8,7 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,6 +56,39 @@ export class AuthService {
     }
 
     return this.buildAuthResponse(user);
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      establishmentName: user.establishmentName,
+      establishmentPhone: user.establishmentPhone,
+      establishmentAddress: user.establishmentAddress,
+    };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: dto,
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      establishmentName: user.establishmentName,
+      establishmentPhone: user.establishmentPhone,
+      establishmentAddress: user.establishmentAddress,
+    };
   }
 
   private buildAuthResponse(user: {

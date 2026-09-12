@@ -5,15 +5,9 @@
 .court-list__toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   margin-bottom: 24px;
-}
-
-.court-list__toolbar h2 {
-  font-family: var(--font-heading);
-  font-size: 22px;
-  color: var(--color-dark);
 }
 
 .court-list__new-button {
@@ -58,15 +52,14 @@
 }
 
 .court-card {
-  text-align: left;
   background: var(--color-white);
   border: var(--border-subtle);
   border-radius: var(--radius-card);
-  padding: 20px;
   box-shadow: var(--shadow-neo);
-  cursor: pointer;
   font-family: var(--font-body);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .court-card:hover {
@@ -76,6 +69,30 @@
 
 .court-card--inactive {
   opacity: 0.55;
+}
+
+.court-card__edit-trigger {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 20px 20px 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  width: 100%;
+}
+
+.court-card__agenda-link {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: 10px 20px 16px;
+}
+
+.court-card__agenda-link:hover {
+  text-decoration: underline;
 }
 
 .court-card__header {

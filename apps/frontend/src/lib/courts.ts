@@ -69,6 +69,14 @@ export async function fetchCourts(): Promise<Court[]> {
   return response.json()
 }
 
+export async function fetchCourt(id: string): Promise<Court> {
+  const response = await authFetch(`/courts/${id}`)
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível carregar a quadra'))
+  }
+  return response.json()
+}
+
 export async function createCourt(input: CourtInput): Promise<Court> {
   const response = await authFetch('/courts', { method: 'POST', body: JSON.stringify(input) })
   if (!response.ok) {

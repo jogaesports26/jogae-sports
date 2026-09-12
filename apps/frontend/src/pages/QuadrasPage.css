@@ -1,0 +1,14 @@
+.quadras-page h1 {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.quadras-page__subtitle {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  opacity: 0.65;
+  font-size: 15px;
+  margin-bottom: 28px;
+}
