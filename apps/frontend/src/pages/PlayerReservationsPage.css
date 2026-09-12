@@ -75,6 +75,24 @@
   color: #a11313;
 }
 
+.player-reservation-card__review-button {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.player-reservation-card__reviewed {
+  font-size: 13px;
+  color: #b8860b;
+  letter-spacing: 1px;
+}
+
 .player-reservation-card__actions button {
   font-family: var(--font-body);
   font-size: 12px;

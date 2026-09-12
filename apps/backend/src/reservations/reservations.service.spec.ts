@@ -69,7 +69,15 @@ describe('ReservationsService', () => {
   beforeEach(() => {
     prisma = buildPrismaMock();
     courtsService = buildCourtsServiceMock();
-    service = new ReservationsService(prisma as any, courtsService as any);
+    const reviewsService = {
+      getSummary: jest.fn(),
+      getSummaryForCourts: jest.fn(),
+    };
+    service = new ReservationsService(
+      prisma as any,
+      courtsService as any,
+      reviewsService as any,
+    );
   });
 
   describe('calculatePrice (private, exercised via create)', () => {

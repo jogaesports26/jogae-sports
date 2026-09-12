@@ -7,6 +7,7 @@ import {
   PlayerSessionExpiredError,
 } from '../lib/player'
 import type { PlayerReservation } from '../lib/player'
+import ReviewModal from '../components/portal/ReviewModal'
 import './PlayerReservationsPage.css'
 
 const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
@@ -25,6 +26,7 @@ export default function PlayerReservationsPage() {
   const [reservations, setReservations] = useState<PlayerReservation[] | null>(null)
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
+  const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
 
   function load() {
     fetchPlayerReservations()
@@ -112,10 +114,36 @@ export default function PlayerReservationsPage() {
                 {reservation.status === 'CONFIRMED' && (
                   <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
                 )}
+                {reservation.status === 'COMPLETED' && !reservation.review && (
+                  <button
+                    className="player-reservation-card__review-button"
+                    onClick={() => setReviewingReservation(reservation)}
+                  >
+                    Avaliar
+                  </button>
+                )}
+                {reservation.review && (
+                  <span className="player-reservation-card__reviewed">
+                    {'★'.repeat(reservation.review.rating)}
+                    {'☆'.repeat(5 - reservation.review.rating)}
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {reviewingReservation && (
+        <ReviewModal
+          reservationId={reviewingReservation.id}
+          courtName={reviewingReservation.court.name}
+          onClose={() => setReviewingReservation(null)}
+          onSubmitted={() => {
+            setReviewingReservation(null)
+            load()
+          }}
+        />
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CourtsService } from '../courts/courts.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 
@@ -16,6 +17,7 @@ export class ReservationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly courtsService: CourtsService,
+    private readonly reviewsService: ReviewsService,
   ) {}
 
   async listPublicCourts() {
@@ -39,10 +41,16 @@ export class ReservationsService {
       },
     });
 
+    const ratingByCourtId = await this.reviewsService.getSummaryForCourts(
+      courts.map((c) => c.id),
+    );
+
     return courts.map((court) => ({
       ...court,
       fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
       priceRules: undefined,
+      averageRating: ratingByCourtId.get(court.id)?.averageRating ?? null,
+      reviewCount: ratingByCourtId.get(court.id)?.reviewCount ?? 0,
     }));
   }
 
@@ -70,7 +78,10 @@ export class ReservationsService {
       throw new NotFoundException('Quadra não encontrada');
     }
 
-    return court;
+    const { averageRating, reviewCount } =
+      await this.reviewsService.getSummary(courtId);
+
+    return { ...court, averageRating, reviewCount };
   }
 
   async getPublicAgenda(courtId: string, weekStart: string) {
@@ -173,6 +184,7 @@ export class ReservationsService {
             owner: { select: { establishmentName: true } },
           },
         },
+        review: { select: { id: true, rating: true, comment: true } },
       },
       orderBy: { startsAt: 'desc' },
     });

@@ -20,6 +20,62 @@
   margin-bottom: 24px;
 }
 
+.booking-page__rating {
+  color: #b8860b;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.booking-page__reviews {
+  margin-top: 32px;
+}
+
+.booking-page__reviews h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-dark);
+  margin-bottom: 12px;
+}
+
+.booking-page__reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booking-review {
+  background: var(--color-white);
+  border: var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 12px 16px;
+}
+
+.booking-review__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.booking-review__stars {
+  color: #b8860b;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.booking-review__author {
+  font-family: var(--font-body);
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.booking-review__comment {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  opacity: 0.8;
+}
+
 .booking-page__days {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
