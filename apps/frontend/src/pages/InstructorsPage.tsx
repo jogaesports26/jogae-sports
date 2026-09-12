@@ -75,52 +75,61 @@ export default function InstructorsPage() {
 
       {!error && instructors === null && <p className="instructors-page__loading">Carregando...</p>}
 
-      <form className="instructors-page__form card" onSubmit={handleAdd}>
-        <h2>Adicionar instrutor</h2>
-        <div className="instructors-page__form-row">
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Nome do instrutor"
-            required
-            minLength={2}
-          />
-          <input
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            placeholder="Telefone (opcional)"
-          />
-          <button type="submit" className="btn btn--primary btn--sm" disabled={isSaving}>
-            {isSaving ? 'Adicionando...' : '+ Adicionar'}
-          </button>
-        </div>
-      </form>
+      {instructors !== null && (
+        <div className="instructors-page__layout">
+          <form className="instructors-page__form card" onSubmit={handleAdd}>
+            <h2>Adicionar instrutor</h2>
+            <label className="instructors-page__field">
+              <span>Nome</span>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Nome do instrutor"
+                required
+                minLength={2}
+              />
+            </label>
+            <label className="instructors-page__field">
+              <span>Telefone (opcional)</span>
+              <input
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="(85) 99999-9999"
+              />
+            </label>
+            <button type="submit" className="btn btn--primary btn--full" disabled={isSaving}>
+              {isSaving ? 'Adicionando...' : '+ Adicionar instrutor'}
+            </button>
+          </form>
 
-      {instructors !== null && active.length === 0 && (
-        <div className="instructors-page__empty card">
-          <p>Nenhum instrutor cadastrado ainda.</p>
-          <span>Depois de cadastrar, ele aparece como opção ao lançar uma reserva na Agenda.</span>
-        </div>
-      )}
-
-      {active.length > 0 && (
-        <div className="instructors-page__list">
-          {active.map((instructor) => (
-            <div key={instructor.id} className="instructors-page__item">
-              <span className="instructors-page__name">
-                <strong>{instructor.name}</strong>
-                {instructor.phone && <small>{instructor.phone}</small>}
-              </span>
-              <button
-                type="button"
-                className="instructors-page__remove"
-                onClick={() => handleRemove(instructor.id)}
-                aria-label="Remover instrutor"
-              >
-                ×
-              </button>
+          {active.length === 0 ? (
+            <div className="instructors-page__empty card">
+              <p>Nenhum instrutor cadastrado ainda.</p>
+              <span>Depois de cadastrar, ele aparece como opção ao lançar uma reserva na Agenda.</span>
             </div>
-          ))}
+          ) : (
+            <div className="instructors-page__list">
+              {active.map((instructor) => (
+                <div key={instructor.id} className="instructors-page__item">
+                  <span className="instructors-page__avatar" aria-hidden="true">
+                    {instructor.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="instructors-page__name">
+                    <strong>{instructor.name}</strong>
+                    <small>{instructor.phone || 'Sem telefone'}</small>
+                  </span>
+                  <button
+                    type="button"
+                    className="instructors-page__remove"
+                    onClick={() => handleRemove(instructor.id)}
+                    aria-label="Remover instrutor"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
