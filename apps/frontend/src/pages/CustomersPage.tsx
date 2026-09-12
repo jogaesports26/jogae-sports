@@ -1,0 +1,167 @@
+import { useEffect, useMemo, useState } from 'react'
+import { usePainelContext } from '../components/panel/PainelLayout'
+import CustomerHistoryModal from '../components/panel/CustomerHistoryModal'
+import { SessionExpiredError } from '../lib/api'
+import { fetchCustomers } from '../lib/customers'
+import type { Customer } from '../lib/customers'
+import './CustomersPage.css'
+
+type FilterTab = 'all' | 'inactive' | 'birthdays' | 'noShows'
+
+const INACTIVE_THRESHOLD_DAYS = 30
+const NO_SHOW_ALERT_THRESHOLD = 2
+
+const FILTER_LABELS: Record<FilterTab, string> = {
+  all: 'Todos',
+  inactive: 'Inativos',
+  birthdays: 'Aniversariantes do mês',
+  noShows: 'Faltas recorrentes',
+}
+
+function isBirthdayThisMonth(birthDate: string | null, currentMonth: number) {
+  if (!birthDate) return false
+  return new Date(birthDate).getUTCMonth() === currentMonth
+}
+
+function formatLastSeen(days: number) {
+  if (days === 0) return 'Hoje'
+  if (days === 1) return 'Ontem'
+  return `Há ${days} dias`
+}
+
+export default function CustomersPage() {
+  const { onSessionExpired } = usePainelContext()
+  const [customers, setCustomers] = useState<Customer[] | null>(null)
+  const [error, setError] = useState('')
+  const [filter, setFilter] = useState<FilterTab>('all')
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState<Customer | null>(null)
+
+  useEffect(() => {
+    fetchCustomers()
+      .then(setCustomers)
+      .catch((err) => {
+        if (err instanceof SessionExpiredError) {
+          onSessionExpired()
+          return
+        }
+        setError(err instanceof Error ? err.message : 'Erro ao carregar os clientes')
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const currentMonth = useMemo(() => new Date().getMonth(), [])
+
+  const filtered = useMemo(() => {
+    if (!customers) return []
+    const term = search.trim().toLowerCase()
+
+    return customers.filter((customer) => {
+      if (term && !customer.name.toLowerCase().includes(term) && !customer.phone.includes(term)) {
+        return false
+      }
+      if (filter === 'inactive') return customer.daysSinceLastReservation >= INACTIVE_THRESHOLD_DAYS
+      if (filter === 'birthdays') return isBirthdayThisMonth(customer.birthDate, currentMonth)
+      if (filter === 'noShows') return customer.noShowCount >= NO_SHOW_ALERT_THRESHOLD
+      return true
+    })
+  }, [customers, filter, search, currentMonth])
+
+  function handleBirthDateSaved(updated: Customer) {
+    setCustomers((prev) => (prev ? prev.map((c) => (c.phone === updated.phone ? updated : c)) : prev))
+    setSelected(updated)
+  }
+
+  return (
+    <div className="customers-page">
+      <h1>Clientes</h1>
+      <p className="customers-page__subtitle">
+        Histórico, frequência e alertas dos clientes que já reservaram na sua arena.
+      </p>
+
+      <div className="customers-page__toolbar">
+        <div className="customers-page__tabs">
+          {(Object.keys(FILTER_LABELS) as FilterTab[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={`customers-page__tab ${filter === key ? 'customers-page__tab--active' : ''}`}
+              onClick={() => setFilter(key)}
+            >
+              {FILTER_LABELS[key]}
+            </button>
+          ))}
+        </div>
+
+        <input
+          className="customers-page__search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Buscar por nome ou telefone"
+        />
+      </div>
+
+      {error && <p className="customers-page__error">{error}</p>}
+
+      {!error && customers === null && <p className="customers-page__loading">Carregando...</p>}
+
+      {customers !== null && filtered.length === 0 && (
+        <div className="customers-page__empty card">
+          <p>Nenhum cliente encontrado {filter !== 'all' || search ? 'com esse filtro' : 'ainda'}.</p>
+        </div>
+      )}
+
+      {filtered.length > 0 && (
+        <div className="customers-page__list">
+          {filtered.map((customer) => {
+            const birthday = isBirthdayThisMonth(customer.birthDate, currentMonth)
+            const inactive = customer.daysSinceLastReservation >= INACTIVE_THRESHOLD_DAYS
+            const flagged = customer.noShowCount >= NO_SHOW_ALERT_THRESHOLD
+
+            return (
+              <button
+                key={customer.phone}
+                type="button"
+                className="customers-page__row"
+                onClick={() => setSelected(customer)}
+              >
+                <span className="customers-page__row-identity">
+                  <strong>{customer.name}</strong>
+                  <small>{customer.phone}</small>
+                </span>
+
+                <span className="customers-page__row-badges">
+                  {birthday && <span className="pill pill--info">🎂 Aniversário</span>}
+                  {flagged && <span className="pill pill--negative">{customer.noShowCount} faltas</span>}
+                  {inactive && <span className="pill pill--neutral">Inativo</span>}
+                </span>
+
+                <span className="customers-page__row-stat">
+                  <small>Reservas</small>
+                  {customer.totalReservations}
+                </span>
+                <span className="customers-page__row-stat">
+                  <small>Gasto total</small>
+                  R$ {customer.totalSpent.toFixed(2).replace('.', ',')}
+                </span>
+                <span className="customers-page__row-stat customers-page__row-stat--last">
+                  <small>Última reserva</small>
+                  {formatLastSeen(customer.daysSinceLastReservation)}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {selected && (
+        <CustomerHistoryModal
+          customer={selected}
+          onClose={() => setSelected(null)}
+          onSessionExpired={onSessionExpired}
+          onBirthDateSaved={handleBirthDateSaved}
+        />
+      )}
+    </div>
+  )
+}
