@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CourtsService } from '../courts/courts.service';
@@ -119,6 +120,13 @@ export class ReservationsService {
     endsAtIso: string,
   ) {
     await this.getPublicCourt(courtId);
+
+    const player = await this.prisma.player.findUnique({
+      where: { id: playerId },
+    });
+    if (!player) {
+      throw new UnauthorizedException('Sessão do jogador expirada');
+    }
 
     const startsAt = new Date(startsAtIso);
     const endsAt = new Date(endsAtIso);
