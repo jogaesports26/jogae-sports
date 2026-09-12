@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { AuthUser } from '../lib/api'
+import { clearSession } from '../lib/api'
+import CourtList from '../components/panel/CourtList'
 import './DashboardPage.css'
 
 export default function DashboardPage() {
@@ -20,9 +22,12 @@ export default function DashboardPage() {
   }, [navigate])
 
   function handleLogout() {
-    localStorage.removeItem('jogae_token')
-    localStorage.removeItem('jogae_user')
+    clearSession()
     navigate('/')
+  }
+
+  function handleSessionExpired() {
+    navigate('/login')
   }
 
   if (!user) return null
@@ -38,7 +43,9 @@ export default function DashboardPage() {
 
       <main className="dashboard__content">
         <h1>Olá, {user.name.split(' ')[0]}!</h1>
-        <p>Sua conta foi criada com sucesso. O painel de gestão da sua quadra está em construção.</p>
+        <p className="dashboard__subtitle">Cadastre suas quadras e configure os preços por horário.</p>
+
+        <CourtList onSessionExpired={handleSessionExpired} />
       </main>
     </div>
   )

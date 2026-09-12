@@ -16,9 +16,47 @@ model User {
   role      Role     @default(PLAYER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  establishmentName    String?
+  establishmentPhone   String?
+  establishmentAddress String?
+
+  courts Court[]
 }
 
 enum Role {
   PLAYER
   COURT_OWNER
+}
+
+model Court {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  name        String
+  sport       String
+  surfaceType String
+  hasLighting Boolean  @default(false)
+  photoUrls   String[]
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  priceRules PriceRule[]
+
+  @@index([ownerId])
+}
+
+model PriceRule {
+  id           String   @id @default(uuid())
+  courtId      String
+  court        Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  dayOfWeek    Int
+  startMinute  Int
+  endMinute    Int
+  pricePerHour Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([courtId, dayOfWeek])
 }
