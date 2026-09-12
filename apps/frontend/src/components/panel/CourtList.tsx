@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { SessionExpiredError } from '../../lib/api'
 import { fetchCourts, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
 import type { Court } from '../../lib/courts'
@@ -58,7 +59,6 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
   return (
     <div className="court-list">
       <div className="court-list__toolbar">
-        <h2>Suas quadras</h2>
         <button className="court-list__new-button" onClick={() => setIsCreating(true)}>
           + Nova quadra
         </button>
@@ -74,25 +74,26 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
       ) : (
         <div className="court-list__grid">
           {courts.map((court) => (
-            <button
-              key={court.id}
-              className={`court-card ${court.active ? '' : 'court-card--inactive'}`}
-              onClick={() => setEditingCourt(court)}
-            >
-              <div className="court-card__header">
-                <h3>{court.name}</h3>
-                {!court.active && <span className="court-card__badge">Inativa</span>}
-              </div>
-              <p className="court-card__meta">
-                {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}
-                {court.hasLighting ? ' · Com iluminação' : ''}
-              </p>
-              <p className="court-card__prices">
-                {court.priceRules.length === 0
-                  ? 'Sem preços configurados'
-                  : `${court.priceRules.length} horário(s) com preço definido`}
-              </p>
-            </button>
+            <div key={court.id} className={`court-card ${court.active ? '' : 'court-card--inactive'}`}>
+              <button className="court-card__edit-trigger" onClick={() => setEditingCourt(court)}>
+                <div className="court-card__header">
+                  <h3>{court.name}</h3>
+                  {!court.active && <span className="court-card__badge">Inativa</span>}
+                </div>
+                <p className="court-card__meta">
+                  {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}
+                  {court.hasLighting ? ' · Com iluminação' : ''}
+                </p>
+                <p className="court-card__prices">
+                  {court.priceRules.length === 0
+                    ? 'Sem preços configurados'
+                    : `${court.priceRules.length} horário(s) com preço definido`}
+                </p>
+              </button>
+              <Link to={`/painel/quadras/${court.id}/agenda`} className="court-card__agenda-link">
+                Ver agenda →
+              </Link>
+            </div>
           ))}
         </div>
       )}

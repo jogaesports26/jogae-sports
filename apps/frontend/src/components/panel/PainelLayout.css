@@ -1,0 +1,144 @@
+.painel {
+  /* Identidade visual oficial (Jogaê Sports) — mesma paleta da landing/login. */
+  --color-primary: #013ff6;
+  --color-accent-green: #acec00;
+  --color-dark-navy: #00182e;
+  --color-white: #ffffff;
+  --color-border: var(--color-dark-navy);
+  --border-subtle: 2px solid var(--color-border);
+  --font-heading: 'Inter Tight', 'Syne', sans-serif;
+
+  --radius-card: 10px;
+  --radius-pill: 9999px;
+
+  --shadow-neo: 5px 5px 0px var(--color-dark-navy);
+
+  --color-accent: var(--color-accent-green);
+  --color-dark: var(--color-dark-navy);
+  --color-background: #f4f5fa;
+
+  min-height: 100svh;
+  display: flex;
+  background: var(--color-background);
+  color: var(--color-dark);
+}
+
+.painel__sidebar {
+  width: 232px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white);
+  border-right: var(--border-subtle);
+  padding: 24px 16px;
+}
+
+.painel__brand {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-dark);
+  padding: 0 8px;
+  margin-bottom: 32px;
+}
+
+.painel__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.painel__nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  opacity: 0.6;
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+
+.painel__nav-link svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.painel__nav-link:hover {
+  opacity: 0.85;
+}
+
+.painel__nav-link--active {
+  opacity: 1;
+  background: var(--color-accent-green);
+  border-color: var(--color-dark-navy);
+  box-shadow: 3px 3px 0px var(--color-dark-navy);
+}
+
+.painel__logout {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 2px solid var(--color-dark);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+.painel__logout:hover {
+  background: var(--color-background);
+}
+
+.painel__main {
+  flex: 1;
+  min-width: 0;
+  padding: 4vw 3vw;
+}
+
+@media (max-width: 860px) {
+  .painel {
+    flex-direction: column;
+  }
+
+  .painel__sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 5vw;
+    border-right: none;
+    border-bottom: var(--border-subtle);
+  }
+
+  .painel__brand {
+    margin-bottom: 0;
+    margin-right: 16px;
+  }
+
+  .painel__nav {
+    flex-direction: row;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .painel__nav-link span {
+    display: none;
+  }
+
+  .painel__logout {
+    margin-top: 0;
+    margin-left: 12px;
+  }
+
+  .painel__main {
+    padding: 6vw 5vw;
+  }
+}

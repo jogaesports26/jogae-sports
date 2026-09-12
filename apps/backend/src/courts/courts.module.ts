@@ -7,5 +7,6 @@ import { CourtsService } from './courts.service';
   imports: [AuthModule],
   controllers: [CourtsController],
   providers: [CourtsService],
+  exports: [CourtsService],
 })
 export class CourtsModule {}
