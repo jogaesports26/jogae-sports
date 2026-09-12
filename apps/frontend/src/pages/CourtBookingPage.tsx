@@ -6,6 +6,7 @@ import type { CourtReview, PublicCourt } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
 import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT } from '../lib/weekGrid'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
+import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import './CourtBookingPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -20,6 +21,13 @@ interface SelectedSlot {
   price: number
 }
 
+interface WaitlistSlot {
+  dayDate: Date
+  dayLabel: string
+  startMinute: number
+  endMinute: number
+}
+
 export default function CourtBookingPage() {
   const { courtId, slug } = useParams<{ courtId: string; slug: string }>()
   const [court, setCourt] = useState<PublicCourt | null>(null)
@@ -27,6 +35,7 @@ export default function CourtBookingPage() {
   const [reviews, setReviews] = useState<CourtReview[]>([])
   const [error, setError] = useState('')
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null)
+  const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
 
   async function load() {
     if (!courtId) return
@@ -88,11 +97,6 @@ export default function CourtBookingPage() {
             .filter((r) => r.dayOfWeek === dayOfWeek)
             .sort((a, b) => a.startMinute - b.startMinute)
 
-          const availableSlots = dayRules.filter(
-            (rule) =>
-              !findOccupant(day, rule.startMinute, rule.endMinute, agenda.reservations, agenda.maintenanceBlocks),
-          )
-
           return (
             <div className="booking-day" key={day.toISOString()}>
               <div className="booking-day__header">
@@ -100,27 +104,63 @@ export default function CourtBookingPage() {
                 <strong>{day.getDate()}</strong>
               </div>
 
-              {availableSlots.length === 0 ? (
+              {dayRules.length === 0 ? (
                 <p className="booking-day__empty">Sem horários</p>
               ) : (
                 <div className="booking-day__slots">
-                  {availableSlots.map((rule) => (
-                    <button
-                      key={rule.id}
-                      className="booking-day__slot"
-                      onClick={() =>
-                        setSelectedSlot({
-                          dayDate: day,
-                          dayLabel: `${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()}`,
-                          startMinute: rule.startMinute,
-                          endMinute: rule.endMinute,
-                          price: Number(rule.pricePerHour) * ((rule.endMinute - rule.startMinute) / 60),
-                        })
-                      }
-                    >
-                      {formatMinutes(rule.startMinute)}
-                    </button>
-                  ))}
+                  {dayRules.map((rule) => {
+                    const occupant = findOccupant(
+                      day,
+                      rule.startMinute,
+                      rule.endMinute,
+                      agenda.reservations,
+                      agenda.maintenanceBlocks,
+                    )
+
+                    if (!occupant) {
+                      return (
+                        <button
+                          key={rule.id}
+                          className="booking-day__slot"
+                          onClick={() =>
+                            setSelectedSlot({
+                              dayDate: day,
+                              dayLabel: `${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()}`,
+                              startMinute: rule.startMinute,
+                              endMinute: rule.endMinute,
+                              price: Number(rule.pricePerHour) * ((rule.endMinute - rule.startMinute) / 60),
+                            })
+                          }
+                        >
+                          {formatMinutes(rule.startMinute)}
+                        </button>
+                      )
+                    }
+
+                    if (occupant.type === 'reservation') {
+                      return (
+                        <div key={rule.id} className="booking-day__slot booking-day__slot--taken">
+                          <span>{formatMinutes(rule.startMinute)}</span>
+                          <button
+                            type="button"
+                            className="booking-day__notify"
+                            onClick={() =>
+                              setWaitlistSlot({
+                                dayDate: day,
+                                dayLabel: `${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()}`,
+                                startMinute: rule.startMinute,
+                                endMinute: rule.endMinute,
+                              })
+                            }
+                          >
+                            Avise-me
+                          </button>
+                        </div>
+                      )
+                    }
+
+                    return null
+                  })}
                 </div>
               )}
             </div>
@@ -156,6 +196,18 @@ export default function CourtBookingPage() {
           price={selectedSlot.price}
           onClose={() => setSelectedSlot(null)}
           onBooked={load}
+        />
+      )}
+
+      {waitlistSlot && courtId && (
+        <WaitlistJoinModal
+          courtId={courtId}
+          courtName={court.name}
+          dayLabel={waitlistSlot.dayLabel}
+          dayDate={waitlistSlot.dayDate}
+          startMinute={waitlistSlot.startMinute}
+          endMinute={waitlistSlot.endMinute}
+          onClose={() => setWaitlistSlot(null)}
         />
       )}
     </div>

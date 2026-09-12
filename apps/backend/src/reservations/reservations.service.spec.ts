@@ -94,10 +94,19 @@ describe('ReservationsService', () => {
         .mockResolvedValue({ averageRating: null, reviewCount: 0 }),
       getSummaryForCourts: jest.fn(),
     };
+    const notificationsService = {
+      notifyReservationConfirmed: jest.fn().mockResolvedValue(undefined),
+      notifyReservationCancelled: jest.fn().mockResolvedValue(undefined),
+    };
+    const waitlistService = {
+      notifyForFreedSlot: jest.fn().mockResolvedValue(null),
+    };
     service = new ReservationsService(
       prisma as any,
       courtsService as any,
       reviewsService as any,
+      notificationsService as any,
+      waitlistService as any,
     );
   });
 
