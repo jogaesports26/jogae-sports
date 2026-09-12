@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import { createMaintenanceBlock } from '../../lib/reservations'
 import './ReservationModal.css'
@@ -17,6 +18,7 @@ export default function MaintenanceBlockModal({
   onCreated,
   onSessionExpired,
 }: MaintenanceBlockModalProps) {
+  useEscapeToClose(onClose)
   const [startsAt, setStartsAt] = useState('')
   const [endsAt, setEndsAt] = useState('')
   const [reason, setReason] = useState('')

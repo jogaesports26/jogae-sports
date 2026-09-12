@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import {
   createPlayerReservation,
   getPlayerUser,
@@ -41,6 +42,7 @@ export default function BookingFlowModal({
   onClose,
   onBooked,
 }: BookingFlowModalProps) {
+  useEscapeToClose(onClose)
   const existingPlayer = getPlayerUser()
   const [step, setStep] = useState<Step>(existingPlayer ? 'confirm' : 'phone')
   const [phone, setPhone] = useState('')

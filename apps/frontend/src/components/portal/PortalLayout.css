@@ -57,6 +57,17 @@
   opacity: 1;
 }
 
+.portal__player-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  opacity: 0.6;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .portal__logout {
   font-family: var(--font-body);
   font-size: 13px;
@@ -84,6 +95,10 @@
 
   .portal__nav-links {
     gap: 14px;
+  }
+
+  .portal__player-name {
+    display: none;
   }
 
   .portal__content {

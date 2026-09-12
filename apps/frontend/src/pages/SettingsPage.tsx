@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { fetchProfile, updateProfile } from '../lib/profile'
+import { fetchCep } from '../lib/cep'
 import './SettingsPage.css'
 
 export default function SettingsPage() {
@@ -10,10 +11,31 @@ export default function SettingsPage() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
+  const [cep, setCep] = useState('')
+  const [cepLoading, setCepLoading] = useState(false)
+  const [cepError, setCepError] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+
+  async function handleCepLookup() {
+    if (cep.replace(/\D/g, '').length !== 8) {
+      setCepError('Digite um CEP com 8 dígitos')
+      return
+    }
+
+    setCepLoading(true)
+    setCepError('')
+    try {
+      const result = await fetchCep(cep)
+      setAddress(`${result.logradouro}, ${result.bairro}, ${result.cidade} - ${result.uf}`)
+    } catch (err) {
+      setCepError(err instanceof Error ? err.message : 'CEP não encontrado')
+    } finally {
+      setCepLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetchProfile()
@@ -84,6 +106,22 @@ export default function SettingsPage() {
               onChange={(event) => setPhone(event.target.value)}
               placeholder="(85) 99999-9999"
             />
+          </label>
+
+          <label className="settings-page__field">
+            <span>CEP</span>
+            <div className="settings-page__cep-row">
+              <input
+                value={cep}
+                onChange={(event) => setCep(event.target.value)}
+                placeholder="60000-000"
+                maxLength={9}
+              />
+              <button type="button" onClick={handleCepLookup} disabled={cepLoading}>
+                {cepLoading ? 'Buscando...' : 'Buscar'}
+              </button>
+            </div>
+            {cepError && <span className="settings-page__cep-error">{cepError}</span>}
           </label>
 
           <label className="settings-page__field">
