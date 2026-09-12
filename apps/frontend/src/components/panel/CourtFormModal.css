@@ -24,8 +24,15 @@
 .court-modal h2 {
   font-family: var(--font-heading);
   font-size: 22px;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
   color: var(--color-dark);
+}
+
+.court-modal__hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
 }
 
 .court-modal__close {
@@ -133,81 +140,6 @@
   cursor: not-allowed;
 }
 
-.court-modal__submit--secondary {
-  background: var(--color-white);
-  color: var(--color-primary);
-  margin-top: 12px;
-}
-
-.court-modal__prices {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: var(--border-subtle);
-}
-
-.court-modal__prices h3 {
-  font-family: var(--font-heading);
-  font-size: 17px;
-  margin-bottom: 6px;
-  color: var(--color-dark);
-}
-
-.court-modal__prices-hint {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-dark);
-  opacity: 0.65;
-  margin-bottom: 16px;
-}
-
-.court-modal__price-row {
-  display: grid;
-  grid-template-columns: 1.2fr 0.9fr auto 0.9fr 0.9fr auto;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.court-modal__price-row select,
-.court-modal__price-row input {
-  font-family: var(--font-body);
-  font-size: 13px;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-dark);
-}
-
-.court-modal__price-row span {
-  font-size: 13px;
-  color: var(--color-dark);
-  opacity: 0.6;
-  text-align: center;
-}
-
-.court-modal__remove-row {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: #fff;
-  color: var(--color-dark);
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.court-modal__add-row {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 0;
-  margin-bottom: 16px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .court-modal__submit {
     transition: none;
@@ -221,9 +153,5 @@
 
   .court-modal__row {
     grid-template-columns: 1fr;
-  }
-
-  .court-modal__price-row {
-    grid-template-columns: 1fr 1fr;
   }
 }

@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { SessionExpiredError } from '../../lib/api'
-import { createInstructor, fetchInstructors, removeInstructor } from '../../lib/instructors'
-import type { Instructor } from '../../lib/instructors'
-import './InstructorsSection.css'
+import { usePainelContext } from '../components/panel/PainelLayout'
+import { SessionExpiredError } from '../lib/api'
+import { createInstructor, fetchInstructors, removeInstructor } from '../lib/instructors'
+import type { Instructor } from '../lib/instructors'
+import './InstructorsPage.css'
 
-interface InstructorsSectionProps {
-  onSessionExpired: () => void
-}
-
-export default function InstructorsSection({ onSessionExpired }: InstructorsSectionProps) {
+export default function InstructorsPage() {
+  const { onSessionExpired } = usePainelContext()
   const [instructors, setInstructors] = useState<Instructor[] | null>(null)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -67,25 +65,55 @@ export default function InstructorsSection({ onSessionExpired }: InstructorsSect
   const active = (instructors ?? []).filter((i) => i.active)
 
   return (
-    <div className="instructors-section card">
-      <h2>Instrutores</h2>
-      <p className="instructors-section__hint">
-        Cadastre os professores/instrutores da sua arena pra associar a uma reserva na hora de lançar.
+    <div className="instructors-page">
+      <h1>Equipe</h1>
+      <p className="instructors-page__subtitle">
+        Professores e instrutores da sua arena — associe um a uma reserva na hora de lançar.
       </p>
 
-      {error && <p className="instructors-section__error">{error}</p>}
+      {error && <p className="instructors-page__error">{error}</p>}
+
+      {!error && instructors === null && <p className="instructors-page__loading">Carregando...</p>}
+
+      <form className="instructors-page__form card" onSubmit={handleAdd}>
+        <h2>Adicionar instrutor</h2>
+        <div className="instructors-page__form-row">
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Nome do instrutor"
+            required
+            minLength={2}
+          />
+          <input
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="Telefone (opcional)"
+          />
+          <button type="submit" className="btn btn--primary btn--sm" disabled={isSaving}>
+            {isSaving ? 'Adicionando...' : '+ Adicionar'}
+          </button>
+        </div>
+      </form>
+
+      {instructors !== null && active.length === 0 && (
+        <div className="instructors-page__empty card">
+          <p>Nenhum instrutor cadastrado ainda.</p>
+          <span>Depois de cadastrar, ele aparece como opção ao lançar uma reserva na Agenda.</span>
+        </div>
+      )}
 
       {active.length > 0 && (
-        <div className="instructors-section__list">
+        <div className="instructors-page__list">
           {active.map((instructor) => (
-            <div key={instructor.id} className="instructors-section__item">
-              <span className="instructors-section__name">
+            <div key={instructor.id} className="instructors-page__item">
+              <span className="instructors-page__name">
                 <strong>{instructor.name}</strong>
                 {instructor.phone && <small>{instructor.phone}</small>}
               </span>
               <button
                 type="button"
-                className="instructors-section__remove"
+                className="instructors-page__remove"
                 onClick={() => handleRemove(instructor.id)}
                 aria-label="Remover instrutor"
               >
@@ -95,24 +123,6 @@ export default function InstructorsSection({ onSessionExpired }: InstructorsSect
           ))}
         </div>
       )}
-
-      <form className="instructors-section__form" onSubmit={handleAdd}>
-        <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Nome do instrutor"
-          required
-          minLength={2}
-        />
-        <input
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          placeholder="Telefone (opcional)"
-        />
-        <button type="submit" className="btn btn--outline btn--sm" disabled={isSaving}>
-          {isSaving ? 'Adicionando...' : '+ Adicionar'}
-        </button>
-      </form>
     </div>
   )
 }
