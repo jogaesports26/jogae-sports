@@ -20,13 +20,10 @@ export default function Hero() {
       </div>
 
       <div className="hero__content reveal" ref={contentRef}>
-        <h1>Zero conflito de horários, zero perda de tempo.</h1>
-        <p className="hero__headline-highlight">
-          Automatize a gestão da sua quadra esportiva.
-        </p>
+        <h1>Sua quadra parou de depender do WhatsApp.</h1>
         <p className="hero__subtitle">
-          Diga adeus à confusão de mensagens no WhatsApp e cadernos de anotações. Centralize
-          grade de horários, reservas online e pagamentos em um painel simples e em tempo real.
+          Agenda, reservas online e pagamentos em um só painel — sem horário duplicado, sem
+          mensagem fora de hora, sem planilha pra fechar o mês.
         </p>
         <div className="hero__actions">
           <Link to="/cadastro" className="landing__button landing__button--primary">
@@ -36,6 +33,11 @@ export default function Hero() {
             Ver como funciona
           </a>
         </div>
+        <ul className="hero__proof">
+          <li>Sem taxa por reserva</li>
+          <li>Sem fidelidade</li>
+          <li>Suporte direto no WhatsApp</li>
+        </ul>
       </div>
 
       <div className="hero__mockup-wrap reveal" ref={mockupRef}>
