@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
@@ -38,17 +38,25 @@ export default function AgendaPage() {
   const [selection, setSelection] = useState<SlotSelection | null>(null)
   const [activeReservation, setActiveReservation] = useState<Reservation | null>(null)
   const [isBlocking, setIsBlocking] = useState(false)
+  const latestRequestRef = useRef(0)
 
   async function load() {
     if (!courtId) return
+    const requestId = ++latestRequestRef.current
     try {
       const [courtData, agendaData] = await Promise.all([
         fetchCourt(courtId),
         fetchAgenda(courtId, toDateInputValue(weekStart)),
       ])
+      // Descarta a resposta se outra chamada a `load` (troca de semana, ou o
+      // reload depois de criar/cancelar uma reserva) começou depois desta —
+      // sem isso, a resposta mais lenta podia chegar por último e sobrescrever
+      // o estado com os dados de uma semana errada.
+      if (requestId !== latestRequestRef.current) return
       setCourt(courtData)
       setAgenda(agendaData)
     } catch (err) {
+      if (requestId !== latestRequestRef.current) return
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
         return

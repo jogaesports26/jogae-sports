@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 
@@ -20,6 +21,8 @@ function buildPrismaMock() {
       findMany: jest.fn(),
       delete: jest.fn(),
     },
+    court: { findFirst: jest.fn() },
+    player: { findUnique: jest.fn() },
   };
 }
 
@@ -70,7 +73,9 @@ describe('ReservationsService', () => {
     prisma = buildPrismaMock();
     courtsService = buildCourtsServiceMock();
     const reviewsService = {
-      getSummary: jest.fn(),
+      getSummary: jest
+        .fn()
+        .mockResolvedValue({ averageRating: null, reviewCount: 0 }),
       getSummaryForCourts: jest.fn(),
     };
     service = new ReservationsService(
@@ -180,6 +185,54 @@ describe('ReservationsService', () => {
           endsAt: new Date('2026-09-12T15:00:00').toISOString(),
         }),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('createForPlayer', () => {
+    beforeEach(() => {
+      prisma.court.findFirst.mockResolvedValue({
+        id: 'court-1',
+        name: 'Quadra 1',
+        sport: 'FUTSAL',
+        surfaceType: 'QUADRA_POLIESPORTIVA',
+        hasLighting: true,
+        photoUrls: [],
+        owner: {},
+      });
+    });
+
+    it('cria a reserva quando o jogador do token ainda existe', async () => {
+      prisma.player.findUnique.mockResolvedValue({ id: 'player-1' });
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
+
+      const result = await service.createForPlayer(
+        'court-1',
+        'player-1',
+        new Date('2026-09-12T14:00:00').toISOString(),
+        new Date('2026-09-12T16:00:00').toISOString(),
+      );
+
+      expect(result.priceSnapshot).toBe(180);
+    });
+
+    it('rejeita com 401 quando o jogador do token não existe mais (sessão obsoleta)', async () => {
+      prisma.player.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.createForPlayer(
+          'court-1',
+          'player-fantasma',
+          new Date('2026-09-12T14:00:00').toISOString(),
+          new Date('2026-09-12T16:00:00').toISOString(),
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
     });
   });
 

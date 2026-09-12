@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsArray,
   IsIn,
   IsOptional,
@@ -24,8 +25,11 @@ export class SendMessageDto {
   @MaxLength(2000)
   message: string;
 
+  // Mantém em sincronia com MAX_HISTORY_MESSAGES em chat.service.ts — endpoint
+  // é público e sem autenticação, então rejeita payloads grandes já na validação.
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(20)
   @ValidateNested({ each: true })
   @Type(() => ChatMessageDto)
   history?: ChatMessageDto[];

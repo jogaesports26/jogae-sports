@@ -87,7 +87,9 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
                 <p className="court-card__prices">
                   {court.priceRules.length === 0
                     ? 'Sem preços configurados'
-                    : `${court.priceRules.length} horário(s) com preço definido`}
+                    : court.priceRules.length === 1
+                      ? '1 horário com preço definido'
+                      : `${court.priceRules.length} horários com preço definido`}
                 </p>
               </button>
               <Link to={`/painel/quadras/${court.id}/agenda`} className="court-card__agenda-link">

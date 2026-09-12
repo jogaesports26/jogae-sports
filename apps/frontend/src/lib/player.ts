@@ -67,6 +67,7 @@ async function playerFetch(path: string, options: RequestInit = {}): Promise<Res
 
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -83,19 +84,21 @@ async function playerFetch(path: string, options: RequestInit = {}): Promise<Res
 }
 
 export async function fetchPublicCourts(): Promise<PublicCourt[]> {
-  const response = await fetch(`${API_URL}/public/courts`)
+  const response = await fetch(`${API_URL}/public/courts`, { cache: 'no-store' })
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar as quadras'))
   return response.json()
 }
 
 export async function fetchPublicCourt(id: string): Promise<PublicCourt> {
-  const response = await fetch(`${API_URL}/public/courts/${id}`)
+  const response = await fetch(`${API_URL}/public/courts/${id}`, { cache: 'no-store' })
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar a quadra'))
   return response.json()
 }
 
 export async function fetchPublicAgenda(courtId: string, weekStart: string): Promise<AgendaResponse> {
-  const response = await fetch(`${API_URL}/public/courts/${courtId}/agenda?weekStart=${weekStart}`)
+  const response = await fetch(`${API_URL}/public/courts/${courtId}/agenda?weekStart=${weekStart}`, {
+    cache: 'no-store',
+  })
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível carregar os horários'))
   return response.json()
 }
