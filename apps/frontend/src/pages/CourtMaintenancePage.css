@@ -1,0 +1,85 @@
+.court-maintenance-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.court-maintenance-page__header h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.court-maintenance-page__hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  max-width: 480px;
+}
+
+.court-maintenance-page__error,
+.court-maintenance-page__loading {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  opacity: 0.65;
+}
+
+.court-maintenance-page__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+}
+
+.court-maintenance-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.court-maintenance-page__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.court-maintenance-page__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.court-maintenance-page__info strong {
+  color: var(--color-dark);
+}
+
+.court-maintenance-page__info small {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.court-maintenance-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.court-maintenance-page__actions input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: var(--border-subtle);
+  width: 110px;
+  color: var(--color-dark);
+}

@@ -1,13 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { usePainelContext } from '../components/panel/PainelLayout'
+import { useParams } from 'react-router-dom'
+import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
 import { SessionExpiredError } from '../lib/api'
-import { fetchCourt } from '../lib/courts'
-import type { Court } from '../lib/courts'
 import { fetchAgenda } from '../lib/reservations'
 import type { AgendaResponse, Reservation } from '../lib/reservations'
-import { fetchWaitlist, removeWaitlistEntry } from '../lib/waitlist'
-import type { WaitlistEntry } from '../lib/waitlist'
 import {
   addDays,
   buildGridRows,
@@ -20,8 +16,6 @@ import {
 } from '../lib/weekGrid'
 import ReservationModal from '../components/panel/ReservationModal'
 import ReservationActionsModal from '../components/panel/ReservationActionsModal'
-import MaintenanceBlockModal from '../components/panel/MaintenanceBlockModal'
-import MaintenanceHistoryPanel from '../components/panel/MaintenanceHistoryPanel'
 import './AgendaPage.css'
 
 interface SlotSelection {
@@ -32,35 +26,26 @@ interface SlotSelection {
 
 export default function AgendaPage() {
   const { courtId } = useParams<{ courtId: string }>()
-  const { onSessionExpired } = usePainelContext()
+  const { onSessionExpired } = useCourtDetailContext()
 
-  const [court, setCourt] = useState<Court | null>(null)
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [error, setError] = useState('')
   const [selection, setSelection] = useState<SlotSelection | null>(null)
   const [activeReservation, setActiveReservation] = useState<Reservation | null>(null)
-  const [isBlocking, setIsBlocking] = useState(false)
-  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const latestRequestRef = useRef(0)
 
   async function load() {
     if (!courtId) return
     const requestId = ++latestRequestRef.current
     try {
-      const [courtData, agendaData, waitlistData] = await Promise.all([
-        fetchCourt(courtId),
-        fetchAgenda(courtId, toDateInputValue(weekStart)),
-        fetchWaitlist(courtId).catch(() => []),
-      ])
+      const agendaData = await fetchAgenda(courtId, toDateInputValue(weekStart))
       // Descarta a resposta se outra chamada a `load` (troca de semana, ou o
       // reload depois de criar/cancelar uma reserva) começou depois desta —
       // sem isso, a resposta mais lenta podia chegar por último e sobrescrever
       // o estado com os dados de uma semana errada.
       if (requestId !== latestRequestRef.current) return
-      setCourt(courtData)
       setAgenda(agendaData)
-      setWaitlist(waitlistData)
     } catch (err) {
       if (requestId !== latestRequestRef.current) return
       if (err instanceof SessionExpiredError) {
@@ -79,43 +64,18 @@ export default function AgendaPage() {
   function handleChanged() {
     setSelection(null)
     setActiveReservation(null)
-    setIsBlocking(false)
     load()
   }
 
-  async function handleRemoveWaitlistEntry(id: string) {
-    if (!courtId) return
-    try {
-      await removeWaitlistEntry(courtId, id)
-      setWaitlist((prev) => prev.filter((entry) => entry.id !== id))
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-      }
-    }
-  }
-
   if (error) return <p className="agenda-page__error">{error}</p>
-  if (!agenda || !court) return <p className="agenda-page__loading">Carregando agenda...</p>
+  if (!agenda) return <p className="agenda-page__loading">Carregando agenda...</p>
 
   const rows = buildGridRows(agenda.priceRules)
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
   return (
     <div className="agenda-page">
-      <Link to="/painel/quadras" className="agenda-page__back">
-        ← Voltar pras quadras
-      </Link>
-
-      <div className="agenda-page__header">
-        <div>
-          <h1>Agenda — {court.name}</h1>
-          <p className="agenda-page__subtitle">Clique num horário livre pra criar uma reserva.</p>
-        </div>
-        <button className="agenda-page__block-button" onClick={() => setIsBlocking(true)}>
-          + Bloquear horário
-        </button>
-      </div>
+      <p className="agenda-page__subtitle">Clique num horário livre pra criar uma reserva.</p>
 
       <div className="agenda-page__week-nav">
         <button onClick={() => setWeekStart((d) => addDays(d, -7))}>← Semana anterior</button>
@@ -125,8 +85,8 @@ export default function AgendaPage() {
 
       {rows.length === 0 ? (
         <p className="agenda-page__empty">
-          Essa quadra ainda não tem preços por horário configurados. Configure em "Quadras" antes de lançar
-          reservas.
+          Essa quadra ainda não tem preços por horário configurados. Configure na aba "Preços &
+          disponibilidade" antes de lançar reservas.
         </p>
       ) : (
         <div className="agenda-grid__wrap">
@@ -201,41 +161,6 @@ export default function AgendaPage() {
         </div>
       )}
 
-      {waitlist.length > 0 && (
-        <div className="agenda-page__waitlist card">
-          <h2>Fila de espera</h2>
-          <p className="agenda-page__waitlist-hint">
-            Essas pessoas pediram pra ser avisadas se algum desses horários abrir.
-          </p>
-          <div className="agenda-page__waitlist-list">
-            {waitlist.map((entry) => (
-              <div key={entry.id} className="agenda-page__waitlist-item">
-                <span className="agenda-page__waitlist-slot">
-                  {new Date(entry.startsAt).toLocaleDateString('pt-BR')} ·{' '}
-                  {new Date(entry.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                  {'–'}
-                  {new Date(entry.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                <span className="agenda-page__waitlist-name">
-                  <strong>{entry.name}</strong>
-                  <small>{entry.phone}</small>
-                </span>
-                <button
-                  type="button"
-                  className="agenda-page__waitlist-remove"
-                  onClick={() => handleRemoveWaitlistEntry(entry.id)}
-                  aria-label="Remover da fila"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {courtId && <MaintenanceHistoryPanel courtId={courtId} onSessionExpired={onSessionExpired} />}
-
       {selection && courtId && (
         <ReservationModal
           courtId={courtId}
@@ -264,15 +189,6 @@ export default function AgendaPage() {
           reservation={activeReservation}
           onClose={() => setActiveReservation(null)}
           onChanged={handleChanged}
-          onSessionExpired={onSessionExpired}
-        />
-      )}
-
-      {isBlocking && courtId && (
-        <MaintenanceBlockModal
-          courtId={courtId}
-          onClose={() => setIsBlocking(false)}
-          onCreated={handleChanged}
           onSessionExpired={onSessionExpired}
         />
       )}

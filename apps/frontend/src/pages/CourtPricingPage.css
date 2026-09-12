@@ -1,0 +1,97 @@
+.court-pricing-page__error {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-negative-text);
+  margin-bottom: 16px;
+}
+
+.court-pricing-page__section {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-sm);
+  padding: 24px;
+  margin-bottom: 20px;
+  max-width: 720px;
+}
+
+.court-pricing-page__section h2 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  margin-bottom: 6px;
+  color: var(--color-dark);
+}
+
+.court-pricing-page__hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.court-pricing-page__row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr auto 0.9fr 0.9fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.court-pricing-page__row select,
+.court-pricing-page__row input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-dark);
+}
+
+.court-pricing-page__row span {
+  font-size: 13px;
+  color: var(--color-dark);
+  opacity: 0.6;
+  text-align: center;
+}
+
+.court-pricing-page__remove-row {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-dark);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.court-pricing-page__add-row {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.court-pricing-page__save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.court-pricing-page__saved {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-positive-text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .court-pricing-page__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
