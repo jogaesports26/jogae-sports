@@ -111,6 +111,9 @@ export default function LoginPage() {
       </form>
 
       <div className="auth__footer">
+        <Link to="/esqueci-senha">Esqueci minha senha</Link>
+      </div>
+      <div className="auth__footer">
         Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
       </div>
     </AuthLayout>

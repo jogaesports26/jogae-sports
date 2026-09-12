@@ -21,7 +21,8 @@ model User {
   establishmentPhone   String?
   establishmentAddress String?
 
-  courts Court[]
+  courts               Court[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 enum Role {
@@ -99,6 +100,19 @@ model Player {
   updatedAt       DateTime  @updatedAt
 
   reservations Reservation[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
 }
 
 model OtpCode {
