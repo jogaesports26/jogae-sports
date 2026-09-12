@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { Reservation } from '../../lib/reservations'
 import { cancelReservation, updateReservationStatus } from '../../lib/reservations'
@@ -26,6 +27,7 @@ export default function ReservationActionsModal({
   onChanged,
   onSessionExpired,
 }: ReservationActionsModalProps) {
+  useEscapeToClose(onClose)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 

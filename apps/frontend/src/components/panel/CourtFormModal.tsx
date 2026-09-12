@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import {
   createCourt,
@@ -47,6 +48,7 @@ function toDraft(rule: PriceRule): PriceRuleDraft {
 }
 
 export default function CourtFormModal({ court, onClose, onSaved, onSessionExpired }: CourtFormModalProps) {
+  useEscapeToClose(onClose)
   const [savedCourt, setSavedCourt] = useState<Court | null>(court)
   const [name, setName] = useState(court?.name ?? '')
   const [sport, setSport] = useState(court?.sport ?? SPORT_OPTIONS[0].value)

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { PriceRule } from '../../lib/courts'
 import { createReservation } from '../../lib/reservations'
@@ -49,6 +50,7 @@ export default function ReservationModal({
   onCreated,
   onSessionExpired,
 }: ReservationModalProps) {
+  useEscapeToClose(onClose)
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [endMinute, setEndMinute] = useState(endOptions[0])
