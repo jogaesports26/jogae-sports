@@ -1,8 +1,6 @@
 .painel {
-  /* Tokens de marca vêm do :root (index.css) — aqui só o que difere de
-     verdade nessa área. Raio ainda no valor antigo até a fase 3 (redesign
-     do painel) trazer o novo raio maior de forma intencional. */
-  --radius-card: 10px;
+  /* Tokens de marca vêm do :root (index.css). */
+  --radius-card: 20px;
 
   min-height: 100svh;
   display: flex;
@@ -11,12 +9,11 @@
 }
 
 .painel__sidebar {
-  width: 232px;
+  width: 240px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   background: var(--color-white);
-  border-right: var(--border-subtle);
   padding: 24px 16px;
 }
 
@@ -40,15 +37,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-dark);
-  opacity: 0.6;
+  color: var(--color-text-secondary);
   text-decoration: none;
-  border: 2px solid transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .painel__nav-link svg {
@@ -58,14 +54,14 @@
 }
 
 .painel__nav-link:hover {
-  opacity: 0.85;
+  background: var(--color-background);
+  color: var(--color-dark);
 }
 
 .painel__nav-link--active {
-  opacity: 1;
+  color: var(--color-dark-navy);
   background: var(--color-accent-green);
-  border-color: var(--color-dark-navy);
-  box-shadow: 3px 3px 0px var(--color-dark-navy);
+  font-weight: 700;
 }
 
 .painel__logout {
@@ -74,11 +70,12 @@
   font-weight: 600;
   color: var(--color-dark);
   background: var(--color-white);
-  border: 2px solid var(--color-dark);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 10px 14px;
   cursor: pointer;
   margin-top: 16px;
+  transition: background-color 0.15s ease;
 }
 
 .painel__logout:hover {
@@ -91,6 +88,13 @@
   padding: 4vw 3vw;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .painel__nav-link,
+  .painel__logout {
+    transition: none;
+  }
+}
+
 @media (max-width: 860px) {
   .painel {
     flex-direction: column;
@@ -101,8 +105,7 @@
     flex-direction: row;
     align-items: center;
     padding: 12px 5vw;
-    border-right: none;
-    border-bottom: var(--border-subtle);
+    box-shadow: var(--shadow-soft-sm);
   }
 
   .painel__brand {

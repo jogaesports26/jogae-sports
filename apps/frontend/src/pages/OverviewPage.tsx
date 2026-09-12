@@ -46,12 +46,22 @@ export default function OverviewPage() {
 
       <div className="overview-page__stats">
         <div className="overview-page__stat">
-          <span>Reservas hoje</span>
-          <strong>{totalHoje}</strong>
+          <span className="overview-page__stat-icon" aria-hidden="true">
+            📅
+          </span>
+          <span className="overview-page__stat-body">
+            <span>Reservas hoje</span>
+            <strong>{totalHoje}</strong>
+          </span>
         </div>
         <div className="overview-page__stat">
-          <span>Previsto pra hoje</span>
-          <strong>R$ {faturamentoHoje.toFixed(2).replace('.', ',')}</strong>
+          <span className="overview-page__stat-icon" aria-hidden="true">
+            💰
+          </span>
+          <span className="overview-page__stat-body">
+            <span>Previsto pra hoje</span>
+            <strong>R$ {faturamentoHoje.toFixed(2).replace('.', ',')}</strong>
+          </span>
         </div>
       </div>
 

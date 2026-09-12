@@ -3,12 +3,28 @@ import { Link } from 'react-router-dom'
 import { SessionExpiredError } from '../../lib/api'
 import { fetchCourts, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
 import type { Court } from '../../lib/courts'
+import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from '../../pages/SportIcons'
 import CourtFormModal from './CourtFormModal'
 import './CourtList.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
+
+const SPORT_ICONS: Record<string, typeof SoccerBall> = {
+  FUTEBOL: SoccerBall,
+  FUTSAL: SoccerBall,
+  SOCIETY: SoccerBall,
+  VOLEI: Volleyball,
+  BEACH_TENNIS: TennisBall,
+  TENIS: TennisBall,
+  BASQUETE: Basketball,
+}
+
+function sportIcon(value: string) {
+  const Icon = SPORT_ICONS[value] ?? Trophy
+  return <Icon />
+}
 
 interface CourtListProps {
   onSessionExpired: () => void
@@ -77,6 +93,9 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
             <div key={court.id} className={`court-card ${court.active ? '' : 'court-card--inactive'}`}>
               <button className="court-card__edit-trigger" onClick={() => setEditingCourt(court)}>
                 <div className="court-card__header">
+                  <span className="court-card__icon" aria-hidden="true">
+                    {sportIcon(court.sport)}
+                  </span>
                   <h3>{court.name}</h3>
                   {!court.active && <span className="court-card__badge">Inativa</span>}
                 </div>
