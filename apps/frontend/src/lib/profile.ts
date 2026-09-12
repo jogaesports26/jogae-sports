@@ -9,6 +9,7 @@ export interface Profile {
   establishmentPhone: string | null
   establishmentAddress: string | null
   establishmentSlug: string | null
+  monthlyRevenueGoal: number | null
 }
 
 export interface ProfileInput {
@@ -16,6 +17,7 @@ export interface ProfileInput {
   establishmentPhone: string
   establishmentAddress: string
   establishmentSlug: string
+  monthlyRevenueGoal?: number | null
 }
 
 export async function fetchProfile(): Promise<Profile> {

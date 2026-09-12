@@ -1,8 +1,10 @@
 import {
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -30,4 +32,9 @@ export class UpdateProfileDto {
     message: 'O link só pode ter letras minúsculas, números e hífen',
   })
   establishmentSlug?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  monthlyRevenueGoal?: number;
 }

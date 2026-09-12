@@ -33,6 +33,14 @@ function IconCourts() {
   )
 }
 
+function IconReports() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconSettings() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -50,6 +58,7 @@ function IconSettings() {
 const NAV_ITEMS = [
   { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true },
   { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false },
+  { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false },
   { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false },
 ]
 
