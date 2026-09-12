@@ -21,7 +21,8 @@ model User {
   establishmentPhone   String?
   establishmentAddress String?
 
-  courts Court[]
+  courts               Court[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 enum Role {
@@ -45,6 +46,7 @@ model Court {
   priceRules        PriceRule[]
   reservations      Reservation[]
   maintenanceBlocks MaintenanceBlock[]
+  reviews           Review[]
 
   @@index([ownerId])
 }
@@ -74,8 +76,10 @@ model Reservation {
   id            String            @id @default(uuid())
   courtId       String
   court         Court             @relation(fields: [courtId], references: [id])
-  guestName     String
-  guestPhone    String
+  playerId      String?
+  player        Player?           @relation(fields: [playerId], references: [id])
+  guestName     String?
+  guestPhone    String?
   startsAt      DateTime
   endsAt        DateTime
   status        ReservationStatus @default(CONFIRMED)
@@ -85,6 +89,60 @@ model Reservation {
   updatedAt     DateTime          @updatedAt
 
   @@index([courtId, startsAt, endsAt])
+  @@index([playerId])
+
+  review Review?
+}
+
+model Player {
+  id              String    @id @default(uuid())
+  phone           String    @unique
+  name            String?
+  phoneVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  reservations Reservation[]
+  reviews      Review[]
+}
+
+model Review {
+  id            String      @id @default(uuid())
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  courtId       String
+  court         Court       @relation(fields: [courtId], references: [id])
+  playerId      String
+  player        Player      @relation(fields: [playerId], references: [id])
+  rating        Int
+  comment       String?
+  createdAt     DateTime    @default(now())
+
+  @@index([courtId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model OtpCode {
+  id         String    @id @default(uuid())
+  phone      String
+  code       String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
 }
 
 model MaintenanceBlock {

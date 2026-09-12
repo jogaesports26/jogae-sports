@@ -44,6 +44,7 @@ export async function authFetch(path: string, options: RequestInit = {}): Promis
 
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

@@ -36,6 +36,43 @@
   color: var(--color-dark);
 }
 
+.settings-page__cep-row {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-page__cep-row input {
+  flex: 1;
+}
+
+.settings-page__cep-row button {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.settings-page__cep-row button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.settings-page__cep-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settings-page__cep-error {
+  font-size: 12px;
+  color: #c62828;
+}
+
 .settings-page__field input {
   font-family: var(--font-body);
   font-size: 15px;
