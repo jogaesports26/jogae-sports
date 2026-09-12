@@ -229,6 +229,114 @@ export class ReservationsService {
     });
   }
 
+  async getReports(
+    ownerId: string,
+    from: string,
+    to: string,
+    courtId?: string,
+  ) {
+    const courts = await this.getOwnerCourtsForReport(ownerId, courtId);
+    const courtIds = courts.map((c) => c.id);
+    const { start, end } = this.parseReportRange(from, to);
+
+    const reservations = await this.prisma.reservation.findMany({
+      where: {
+        courtId: { in: courtIds },
+        startsAt: { gte: start, lt: end },
+        status: { not: 'CANCELLED' },
+      },
+      select: {
+        courtId: true,
+        startsAt: true,
+        endsAt: true,
+        priceSnapshot: true,
+      },
+    });
+
+    const revenueByCourt = new Map<
+      string,
+      { name: string; revenue: number; reservationsCount: number }
+    >();
+    for (const court of courts) {
+      revenueByCourt.set(court.id, {
+        name: court.name,
+        revenue: 0,
+        reservationsCount: 0,
+      });
+    }
+
+    let totalRevenue = 0;
+    let reservedMinutes = 0;
+    const revenueByDay = new Map<string, number>();
+
+    for (const reservation of reservations) {
+      const amount = Number(reservation.priceSnapshot);
+      totalRevenue += amount;
+      reservedMinutes +=
+        (reservation.endsAt.getTime() - reservation.startsAt.getTime()) / 60000;
+
+      const courtEntry = revenueByCourt.get(reservation.courtId);
+      if (courtEntry) {
+        courtEntry.revenue += amount;
+        courtEntry.reservationsCount += 1;
+      }
+
+      const dayKey = reservation.startsAt.toISOString().slice(0, 10);
+      revenueByDay.set(dayKey, (revenueByDay.get(dayKey) ?? 0) + amount);
+    }
+
+    const availableMinutes = this.calculateAvailableMinutes(courts, start, end);
+    const occupancyRate =
+      availableMinutes > 0
+        ? Math.min(reservedMinutes / availableMinutes, 1)
+        : 0;
+
+    const courtsReport = [...revenueByCourt.entries()]
+      .map(([id, value]) => ({
+        courtId: id,
+        courtName: value.name,
+        revenue: this.round2(value.revenue),
+        reservationsCount: value.reservationsCount,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    const dailyRevenue = [...revenueByDay.entries()]
+      .map(([date, revenue]) => ({ date, revenue: this.round2(revenue) }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      from,
+      to,
+      totalRevenue: this.round2(totalRevenue),
+      reservationsCount: reservations.length,
+      occupancyRate: Math.round(occupancyRate * 1000) / 1000,
+      courts: courtsReport,
+      dailyRevenue,
+    };
+  }
+
+  async getReportRows(
+    ownerId: string,
+    from: string,
+    to: string,
+    courtId?: string,
+  ) {
+    const courts = await this.getOwnerCourtsForReport(ownerId, courtId);
+    const courtIds = courts.map((c) => c.id);
+    const courtNameById = new Map(courts.map((c) => [c.id, c.name]));
+    const { start, end } = this.parseReportRange(from, to);
+
+    const reservations = await this.prisma.reservation.findMany({
+      where: { courtId: { in: courtIds }, startsAt: { gte: start, lt: end } },
+      orderBy: { startsAt: 'asc' },
+    });
+
+    return reservations.map((reservation) => ({
+      ...reservation,
+      courtName: courtNameById.get(reservation.courtId) ?? '',
+    }));
+  }
+
   async getAgenda(courtId: string, ownerId: string, weekStart: string) {
     await this.courtsService.findOneOrThrow(courtId, ownerId);
 
@@ -431,6 +539,77 @@ export class ReservationsService {
         'Esse horário está bloqueado para manutenção',
       );
     }
+  }
+
+  private async getOwnerCourtsForReport(ownerId: string, courtId?: string) {
+    const courts = await this.prisma.court.findMany({
+      where: { ownerId, ...(courtId ? { id: courtId } : {}) },
+      select: {
+        id: true,
+        name: true,
+        priceRules: {
+          select: { dayOfWeek: true, startMinute: true, endMinute: true },
+        },
+      },
+    });
+
+    if (courtId && courts.length === 0) {
+      throw new NotFoundException('Quadra não encontrada');
+    }
+
+    return courts;
+  }
+
+  private parseReportRange(from: string, to: string) {
+    const start = new Date(`${from}T00:00:00`);
+    const end = new Date(`${to}T00:00:00`);
+    end.setDate(end.getDate() + 1);
+
+    if (end <= start) {
+      throw new BadRequestException(
+        'O período final deve ser depois do inicial',
+      );
+    }
+
+    return { start, end };
+  }
+
+  private calculateAvailableMinutes(
+    courts: {
+      priceRules: {
+        dayOfWeek: number;
+        startMinute: number;
+        endMinute: number;
+      }[];
+    }[],
+    start: Date,
+    end: Date,
+  ) {
+    const minutesByDayOfWeek = new Map<number, number>();
+    for (const court of courts) {
+      for (const rule of court.priceRules) {
+        const duration = rule.endMinute - rule.startMinute;
+        minutesByDayOfWeek.set(
+          rule.dayOfWeek,
+          (minutesByDayOfWeek.get(rule.dayOfWeek) ?? 0) + duration,
+        );
+      }
+    }
+
+    let totalMinutes = 0;
+    for (
+      const cursor = new Date(start);
+      cursor < end;
+      cursor.setDate(cursor.getDate() + 1)
+    ) {
+      totalMinutes += minutesByDayOfWeek.get(cursor.getDay()) ?? 0;
+    }
+
+    return totalMinutes;
+  }
+
+  private round2(value: number) {
+    return Math.round(value * 100) / 100;
   }
 
   private toMinutesSinceMidnight(date: Date) {

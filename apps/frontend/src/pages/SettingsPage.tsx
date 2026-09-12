@@ -24,6 +24,7 @@ export default function SettingsPage() {
   const [address, setAddress] = useState('')
   const [slug, setSlug] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
+  const [monthlyRevenueGoal, setMonthlyRevenueGoal] = useState('')
   const [cep, setCep] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [cepError, setCepError] = useState('')
@@ -59,6 +60,9 @@ export default function SettingsPage() {
         setAddress(profile.establishmentAddress ?? '')
         setSlug(profile.establishmentSlug ?? '')
         setSlugTouched(Boolean(profile.establishmentSlug))
+        setMonthlyRevenueGoal(
+          profile.monthlyRevenueGoal !== null ? String(profile.monthlyRevenueGoal) : '',
+        )
       })
       .catch((err) => {
         if (err instanceof SessionExpiredError) {
@@ -78,11 +82,14 @@ export default function SettingsPage() {
     setSaved(false)
 
     try {
+      const parsedGoal = monthlyRevenueGoal.replace(',', '.').trim()
+
       await updateProfile({
         establishmentName: name,
         establishmentPhone: phone,
         establishmentAddress: address,
         establishmentSlug: slug,
+        ...(parsedGoal ? { monthlyRevenueGoal: Number(parsedGoal) } : {}),
       })
       setSaved(true)
     } catch (err) {
@@ -195,6 +202,22 @@ export default function SettingsPage() {
               onChange={(event) => setAddress(event.target.value)}
               placeholder="Rua, número, bairro, cidade"
             />
+          </label>
+
+          <label className="settings-page__field">
+            <span>Meta de faturamento mensal</span>
+            <div className="settings-page__slug-row">
+              <span className="settings-page__slug-prefix">R$</span>
+              <input
+                value={monthlyRevenueGoal}
+                onChange={(event) => setMonthlyRevenueGoal(event.target.value)}
+                placeholder="5000"
+                inputMode="decimal"
+              />
+            </div>
+            <span className="settings-page__hint">
+              Usada pra mostrar o progresso do mês na tela de relatórios.
+            </span>
           </label>
 
           {error && <p className="settings-page__error">{error}</p>}

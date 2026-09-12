@@ -79,6 +79,9 @@ export class AuthService {
       establishmentPhone: user.establishmentPhone,
       establishmentAddress: user.establishmentAddress,
       establishmentSlug: user.establishmentSlug,
+      monthlyRevenueGoal: user.monthlyRevenueGoal
+        ? Number(user.monthlyRevenueGoal)
+        : null,
     };
   }
 
@@ -94,6 +97,9 @@ export class AuthService {
       establishmentPhone: user.establishmentPhone,
       establishmentAddress: user.establishmentAddress,
       establishmentSlug: user.establishmentSlug,
+      monthlyRevenueGoal: user.monthlyRevenueGoal
+        ? Number(user.monthlyRevenueGoal)
+        : null,
     };
   }
 

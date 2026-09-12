@@ -1,0 +1,317 @@
+.reports-page h1 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.reports-page__subtitle {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  opacity: 0.65;
+  font-size: 15px;
+  margin-bottom: 24px;
+}
+
+.reports-page__goal {
+  margin-bottom: 20px;
+}
+
+.reports-page__goal-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reports-page__goal-value {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--color-dark);
+}
+
+.reports-page__goal-value span {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.reports-page__goal-cta {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.reports-page__goal-cta:hover {
+  text-decoration: underline;
+}
+
+.reports-page__goal-bar {
+  margin-top: 14px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.reports-page__goal-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-brand);
+  transition: width 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reports-page__goal-bar-fill {
+    transition: none;
+  }
+}
+
+.reports-page__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.reports-page__ranges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.reports-page__range-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: var(--border-subtle);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.reports-page__range-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.reports-page__range-btn--active {
+  background: var(--color-dark-navy);
+  border-color: var(--color-dark-navy);
+  color: var(--color-white);
+}
+
+.reports-page__custom-dates {
+  display: flex;
+  gap: 10px;
+}
+
+.reports-page__custom-dates label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.reports-page__custom-dates input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: var(--border-subtle);
+  color: var(--color-dark);
+}
+
+.reports-page__court-select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  border: var(--border-subtle);
+  background: var(--color-white);
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.reports-page__filters .btn {
+  margin-left: auto;
+}
+
+.reports-page__stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.reports-page__stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: 18px 24px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.reports-page__stat-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.reports-page__stat-body span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+}
+
+.reports-page__stat strong {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  color: var(--color-dark);
+}
+
+.reports-page__stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  color: var(--color-primary);
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.reports-page__grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+}
+
+.reports-page__courts h2,
+.reports-page__daily h2 {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  color: var(--color-dark);
+  margin-bottom: 16px;
+}
+
+.reports-page__court-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: var(--border-subtle);
+}
+
+.reports-page__court-row:first-of-type {
+  border-top: none;
+}
+
+.reports-page__court-rank {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.reports-page__court-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  flex: 1;
+  min-width: 0;
+}
+
+.reports-page__court-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.reports-page__court-revenue {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--color-dark);
+  flex-shrink: 0;
+}
+
+.reports-page__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 160px;
+}
+
+.reports-page__bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  height: 100%;
+}
+
+.reports-page__bar-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.reports-page__bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: var(--color-primary);
+  min-height: 4px;
+}
+
+.reports-page__bar-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.reports-page__empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.reports-page__error,
+.reports-page__loading {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  opacity: 0.65;
+}
+
+@media (max-width: 860px) {
+  .reports-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-page__filters .btn {
+    margin-left: 0;
+  }
+}

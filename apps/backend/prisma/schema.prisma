@@ -20,7 +20,8 @@ model User {
   establishmentName    String?
   establishmentPhone   String?
   establishmentAddress String?
-  establishmentSlug    String? @unique
+  establishmentSlug    String?  @unique
+  monthlyRevenueGoal   Decimal? @db.Decimal(10, 2)
 
   courts               Court[]
   passwordResetTokens  PasswordResetToken[]
