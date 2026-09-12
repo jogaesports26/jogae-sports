@@ -1,0 +1,92 @@
+.portal {
+  --color-primary: #013ff6;
+  --color-accent-green: #acec00;
+  --color-dark-navy: #00182e;
+  --color-white: #ffffff;
+  --color-border: var(--color-dark-navy);
+  --border-subtle: 2px solid var(--color-border);
+  --font-heading: 'Inter Tight', 'Syne', sans-serif;
+
+  --radius-card: 10px;
+  --radius-pill: 9999px;
+
+  --shadow-neo: 5px 5px 0px var(--color-dark-navy);
+
+  --color-accent: var(--color-accent-green);
+  --color-dark: var(--color-dark-navy);
+  --color-background: #f4f5fa;
+
+  min-height: 100svh;
+  background: var(--color-background);
+  color: var(--color-dark);
+}
+
+.portal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 6vw;
+  background: var(--color-white);
+  border-bottom: var(--border-subtle);
+}
+
+.portal__logo {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+
+.portal__nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.portal__nav-links a {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.portal__nav-links a:hover {
+  opacity: 1;
+}
+
+.portal__logout {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.portal__content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 4vw 6vw 8vw;
+}
+
+@media (max-width: 640px) {
+  .portal__nav {
+    padding: 16px 5vw;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .portal__nav-links {
+    gap: 14px;
+  }
+
+  .portal__content {
+    padding: 8vw 5vw 12vw;
+  }
+}

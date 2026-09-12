@@ -7,6 +7,10 @@ import OverviewPage from './pages/OverviewPage'
 import QuadrasPage from './pages/QuadrasPage'
 import AgendaPage from './pages/AgendaPage'
 import SettingsPage from './pages/SettingsPage'
+import PortalLayout from './components/portal/PortalLayout'
+import CatalogPage from './pages/CatalogPage'
+import CourtBookingPage from './pages/CourtBookingPage'
+import PlayerReservationsPage from './pages/PlayerReservationsPage'
 
 function App() {
   return (
@@ -20,6 +24,13 @@ function App() {
           <Route path="quadras" element={<QuadrasPage />} />
           <Route path="quadras/:courtId/agenda" element={<AgendaPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
+        </Route>
+        <Route path="/reservar" element={<PortalLayout />}>
+          <Route index element={<CatalogPage />} />
+          <Route path=":courtId" element={<CourtBookingPage />} />
+        </Route>
+        <Route path="/minhas-reservas" element={<PortalLayout />}>
+          <Route index element={<PlayerReservationsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -9,7 +9,8 @@ import type { Request } from 'express';
 
 export interface AuthenticatedUser {
   sub: string;
-  email: string;
+  email?: string;
+  phone?: string;
   role: string;
 }
 

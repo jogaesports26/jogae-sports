@@ -74,8 +74,10 @@ model Reservation {
   id            String            @id @default(uuid())
   courtId       String
   court         Court             @relation(fields: [courtId], references: [id])
-  guestName     String
-  guestPhone    String
+  playerId      String?
+  player        Player?           @relation(fields: [playerId], references: [id])
+  guestName     String?
+  guestPhone    String?
   startsAt      DateTime
   endsAt        DateTime
   status        ReservationStatus @default(CONFIRMED)
@@ -85,6 +87,29 @@ model Reservation {
   updatedAt     DateTime          @updatedAt
 
   @@index([courtId, startsAt, endsAt])
+  @@index([playerId])
+}
+
+model Player {
+  id              String    @id @default(uuid())
+  phone           String    @unique
+  name            String?
+  phoneVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  reservations Reservation[]
+}
+
+model OtpCode {
+  id         String    @id @default(uuid())
+  phone      String
+  code       String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
 }
 
 model MaintenanceBlock {

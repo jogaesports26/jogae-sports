@@ -18,6 +18,166 @@ export class ReservationsService {
     private readonly courtsService: CourtsService,
   ) {}
 
+  async listPublicCourts() {
+    const courts = await this.prisma.court.findMany({
+      where: { active: true },
+      select: {
+        id: true,
+        name: true,
+        sport: true,
+        surfaceType: true,
+        hasLighting: true,
+        photoUrls: true,
+        owner: {
+          select: { establishmentName: true, establishmentAddress: true },
+        },
+        priceRules: {
+          select: { pricePerHour: true },
+          orderBy: { pricePerHour: 'asc' },
+          take: 1,
+        },
+      },
+    });
+
+    return courts.map((court) => ({
+      ...court,
+      fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
+      priceRules: undefined,
+    }));
+  }
+
+  async getPublicCourt(courtId: string) {
+    const court = await this.prisma.court.findFirst({
+      where: { id: courtId, active: true },
+      select: {
+        id: true,
+        name: true,
+        sport: true,
+        surfaceType: true,
+        hasLighting: true,
+        photoUrls: true,
+        owner: {
+          select: {
+            establishmentName: true,
+            establishmentAddress: true,
+            establishmentPhone: true,
+          },
+        },
+      },
+    });
+
+    if (!court) {
+      throw new NotFoundException('Quadra não encontrada');
+    }
+
+    return court;
+  }
+
+  async getPublicAgenda(courtId: string, weekStart: string) {
+    await this.getPublicCourt(courtId);
+
+    const start = new Date(`${weekStart}T00:00:00`);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+
+    const [reservations, maintenanceBlocks, priceRules] = await Promise.all([
+      this.prisma.reservation.findMany({
+        where: {
+          courtId,
+          startsAt: { gte: start, lt: end },
+          status: { not: 'CANCELLED' },
+        },
+        select: { id: true, startsAt: true, endsAt: true, status: true },
+      }),
+      this.prisma.maintenanceBlock.findMany({
+        where: { courtId, startsAt: { gte: start, lt: end } },
+      }),
+      this.prisma.priceRule.findMany({
+        where: { courtId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+      }),
+    ]);
+
+    return { reservations, maintenanceBlocks, priceRules };
+  }
+
+  async createForPlayer(
+    courtId: string,
+    playerId: string,
+    startsAtIso: string,
+    endsAtIso: string,
+  ) {
+    await this.getPublicCourt(courtId);
+
+    const startsAt = new Date(startsAtIso);
+    const endsAt = new Date(endsAtIso);
+
+    if (endsAt <= startsAt) {
+      throw new BadRequestException(
+        'O horário final deve ser depois do horário inicial',
+      );
+    }
+
+    if (startsAt.getTime() < Date.now()) {
+      throw new BadRequestException(
+        'Não é possível reservar um horário no passado',
+      );
+    }
+
+    const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
+    await this.assertNoConflict(courtId, startsAt, endsAt);
+
+    return this.prisma.reservation.create({
+      data: { courtId, playerId, startsAt, endsAt, priceSnapshot },
+    });
+  }
+
+  async cancelForPlayer(playerId: string, reservationId: string) {
+    const reservation = await this.prisma.reservation.findFirst({
+      where: { id: reservationId, playerId },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reserva não encontrada');
+    }
+
+    if (reservation.status !== 'CONFIRMED') {
+      throw new BadRequestException(
+        'Só é possível cancelar reservas confirmadas',
+      );
+    }
+
+    if (
+      reservation.startsAt.getTime() - Date.now() <
+      CANCELLATION_MIN_NOTICE_MS
+    ) {
+      throw new BadRequestException(
+        'Só é possível cancelar até 2 horas antes do horário reservado',
+      );
+    }
+
+    return this.prisma.reservation.update({
+      where: { id: reservationId },
+      data: { status: 'CANCELLED', cancelledAt: new Date() },
+    });
+  }
+
+  async getPlayerReservations(playerId: string) {
+    return this.prisma.reservation.findMany({
+      where: { playerId },
+      include: {
+        court: {
+          select: {
+            id: true,
+            name: true,
+            owner: { select: { establishmentName: true } },
+          },
+        },
+      },
+      orderBy: { startsAt: 'desc' },
+    });
+  }
+
   async getTodayReservations(ownerId: string) {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
