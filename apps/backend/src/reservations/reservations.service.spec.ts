@@ -50,12 +50,13 @@ function buildCourtsServiceMock(
 // inevitavelmente vira passado.
 function nextSaturdayAt(hour: number, minute = 0): Date {
   const date = new Date();
-  date.setHours(hour, minute, 0, 0);
-  let daysUntilSaturday = (6 - date.getDay() + 7) % 7;
-  if (daysUntilSaturday === 0 && date.getTime() <= Date.now()) {
-    daysUntilSaturday = 7;
-  }
+  // Sempre um sábado FUTURO, nunca hoje — mesmo que hoje já seja sábado. Isso
+  // evita uma corrida entre chamadas com horas diferentes (ex: nextSaturdayAt(14)
+  // e nextSaturdayAt(16) chamadas quando "agora" está entre as duas: uma decide
+  // "já passou, pula pra semana que vem" e a outra não, gerando startsAt > endsAt).
+  const daysUntilSaturday = (6 - date.getDay() + 7) % 7 || 7;
   date.setDate(date.getDate() + daysUntilSaturday);
+  date.setHours(hour, minute, 0, 0);
   return date;
 }
 
