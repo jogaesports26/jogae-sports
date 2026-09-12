@@ -18,4 +18,8 @@ export class CreateReservationDto {
   @IsOptional()
   @IsString()
   instructorId?: string;
+
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
 }

@@ -15,6 +15,8 @@ export interface Reservation {
   cancelledAt: string | null
   instructorId: string | null
   instructor: { id: string; name: string } | null
+  couponId: string | null
+  discountAmount: string | null
   createdAt: string
   updatedAt: string
 }
@@ -43,6 +45,7 @@ export interface CreateReservationInput {
   startsAt: string
   endsAt: string
   instructorId?: string
+  couponCode?: string
 }
 
 export interface TodayReservation extends Reservation {

@@ -6,6 +6,8 @@ import type { PriceRule } from '../../lib/courts'
 import { createReservation } from '../../lib/reservations'
 import { fetchInstructors } from '../../lib/instructors'
 import type { Instructor } from '../../lib/instructors'
+import { validateCouponForCourt } from '../../lib/coupons'
+import type { CouponPreview } from '../../lib/coupons'
 import { formatMinutes } from '../../lib/weekGrid'
 import './ReservationModal.css'
 
@@ -58,6 +60,10 @@ export default function ReservationModal({
   const [endMinute, setEndMinute] = useState(endOptions[0])
   const [instructorId, setInstructorId] = useState('')
   const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [couponCode, setCouponCode] = useState('')
+  const [couponPreview, setCouponPreview] = useState<CouponPreview | null>(null)
+  const [couponError, setCouponError] = useState('')
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -70,6 +76,28 @@ export default function ReservationModal({
   }, [])
 
   const price = calcPrice(dayOfWeek, startMinute, endMinute, priceRules)
+  const discount = couponPreview
+    ? Math.min(
+        couponPreview.discountType === 'PERCENT' ? (price * couponPreview.discountValue) / 100 : couponPreview.discountValue,
+        price,
+      )
+    : 0
+  const finalPrice = price - discount
+
+  async function handleApplyCoupon() {
+    setCouponError('')
+    setCouponPreview(null)
+    if (!couponCode.trim()) return
+    setIsValidatingCoupon(true)
+    try {
+      const preview = await validateCouponForCourt(courtId, couponCode.trim())
+      setCouponPreview(preview)
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : 'Cupom inválido')
+    } finally {
+      setIsValidatingCoupon(false)
+    }
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -83,6 +111,7 @@ export default function ReservationModal({
         startsAt: toISOAt(dayDate, startMinute),
         endsAt: toISOAt(dayDate, endMinute),
         instructorId: instructorId || undefined,
+        couponCode: couponPreview ? couponCode.trim() : undefined,
       })
       onCreated()
     } catch (err) {
@@ -150,8 +179,47 @@ export default function ReservationModal({
             </label>
           )}
 
+          <label className="reservation-modal__field">
+            <span>Cupom (opcional)</span>
+            <div className="reservation-modal__coupon-row">
+              <input
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value.toUpperCase())
+                  setCouponPreview(null)
+                  setCouponError('')
+                }}
+                placeholder="PROMO10"
+              />
+              <button
+                type="button"
+                className="btn btn--outline btn--sm"
+                onClick={handleApplyCoupon}
+                disabled={!couponCode.trim() || isValidatingCoupon}
+              >
+                {isValidatingCoupon ? 'Validando...' : 'Aplicar'}
+              </button>
+            </div>
+          </label>
+
+          {couponError && <p className="reservation-modal__error">{couponError}</p>}
+          {couponPreview && (
+            <p className="reservation-modal__coupon-applied">
+              Cupom {couponPreview.code} aplicado — desconto de R$ {discount.toFixed(2).replace('.', ',')}
+            </p>
+          )}
+
           <p className="reservation-modal__price">
-            Total: <strong>R$ {price.toFixed(2).replace('.', ',')}</strong>
+            {couponPreview ? (
+              <>
+                <span className="reservation-modal__price-original">R$ {price.toFixed(2).replace('.', ',')}</span>
+                {' '}Total: <strong>R$ {finalPrice.toFixed(2).replace('.', ',')}</strong>
+              </>
+            ) : (
+              <>
+                Total: <strong>R$ {price.toFixed(2).replace('.', ',')}</strong>
+              </>
+            )}
           </p>
 
           {error && <p className="reservation-modal__error">{error}</p>}

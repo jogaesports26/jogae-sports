@@ -5,12 +5,14 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import type { Coupon } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CourtsService } from '../courts/courts.service';
 import { ReviewsService } from '../reviews/reviews.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { InstructorsService } from '../instructors/instructors.service';
+import { CouponsService } from '../coupons/coupons.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
@@ -26,7 +28,21 @@ export class ReservationsService {
     private readonly notificationsService: NotificationsService,
     private readonly waitlistService: WaitlistService,
     private readonly instructorsService: InstructorsService,
+    private readonly couponsService: CouponsService,
   ) {}
+
+  private applyDiscount(coupon: Coupon, basePrice: number) {
+    const discountAmount = this.couponsService.computeDiscount(
+      coupon,
+      basePrice,
+    );
+
+    return {
+      couponId: coupon.id,
+      discountAmount,
+      finalPrice: Math.round((basePrice - discountAmount) * 100) / 100,
+    };
+  }
 
   async getEstablishmentBySlug(slug: string) {
     const owner = await this.prisma.user.findUnique({
@@ -153,6 +169,7 @@ export class ReservationsService {
     playerId: string,
     startsAtIso: string,
     endsAtIso: string,
+    couponCode?: string,
   ) {
     const court = await this.getPublicCourt(courtId);
 
@@ -178,11 +195,44 @@ export class ReservationsService {
       );
     }
 
-    const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
+    const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
-    const reservation = await this.prisma.reservation.create({
-      data: { courtId, playerId, startsAt, endsAt, priceSnapshot },
+    let couponId: string | undefined;
+    let discountAmount: number | undefined;
+    let priceSnapshot = basePrice;
+
+    if (couponCode) {
+      const coupon = await this.couponsService.validateForCourt(
+        courtId,
+        couponCode,
+      );
+      ({
+        couponId,
+        discountAmount,
+        finalPrice: priceSnapshot,
+      } = this.applyDiscount(coupon, basePrice));
+    }
+
+    const reservation = await this.prisma.$transaction(async (tx) => {
+      if (couponId) {
+        await tx.coupon.update({
+          where: { id: couponId },
+          data: { usageCount: { increment: 1 } },
+        });
+      }
+
+      return tx.reservation.create({
+        data: {
+          courtId,
+          playerId,
+          startsAt,
+          endsAt,
+          priceSnapshot,
+          couponId,
+          discountAmount,
+        },
+      });
     });
 
     await this.notificationsService.notifyReservationConfirmed(
@@ -448,23 +498,50 @@ export class ReservationsService {
       );
     }
 
-    const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
+    const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
     if (dto.instructorId) {
       await this.instructorsService.findOneOrThrow(dto.instructorId, ownerId);
     }
 
-    const reservation = await this.prisma.reservation.create({
-      data: {
-        courtId,
-        guestName: dto.guestName,
-        guestPhone: dto.guestPhone,
-        startsAt,
-        endsAt,
-        priceSnapshot,
-        instructorId: dto.instructorId,
-      },
+    let couponId: string | undefined;
+    let discountAmount: number | undefined;
+    let priceSnapshot = basePrice;
+
+    if (dto.couponCode) {
+      const coupon = await this.couponsService.validateForOwner(
+        ownerId,
+        dto.couponCode,
+      );
+      ({
+        couponId,
+        discountAmount,
+        finalPrice: priceSnapshot,
+      } = this.applyDiscount(coupon, basePrice));
+    }
+
+    const reservation = await this.prisma.$transaction(async (tx) => {
+      if (couponId) {
+        await tx.coupon.update({
+          where: { id: couponId },
+          data: { usageCount: { increment: 1 } },
+        });
+      }
+
+      return tx.reservation.create({
+        data: {
+          courtId,
+          guestName: dto.guestName,
+          guestPhone: dto.guestPhone,
+          startsAt,
+          endsAt,
+          priceSnapshot,
+          instructorId: dto.instructorId,
+          couponId,
+          discountAmount,
+        },
+      });
     });
 
     await this.notificationsService.notifyReservationConfirmed(
