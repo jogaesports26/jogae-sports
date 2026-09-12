@@ -115,6 +115,7 @@ export default function CourtBookingPage() {
                       rule.endMinute,
                       agenda.reservations,
                       agenda.maintenanceBlocks,
+                      agenda.recurringMaintenanceBlocks,
                     )
 
                     if (!occupant) {

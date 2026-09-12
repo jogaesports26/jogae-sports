@@ -21,6 +21,7 @@ import {
 import ReservationModal from '../components/panel/ReservationModal'
 import ReservationActionsModal from '../components/panel/ReservationActionsModal'
 import MaintenanceBlockModal from '../components/panel/MaintenanceBlockModal'
+import MaintenanceHistoryPanel from '../components/panel/MaintenanceHistoryPanel'
 import './AgendaPage.css'
 
 interface SlotSelection {
@@ -159,6 +160,7 @@ export default function AgendaPage() {
                     row.endMinute,
                     agenda.reservations,
                     agenda.maintenanceBlocks,
+                    agenda.recurringMaintenanceBlocks,
                   )
 
                   if (occupant?.type === 'reservation' && occupant.reservation) {
@@ -175,7 +177,7 @@ export default function AgendaPage() {
                     )
                   }
 
-                  if (occupant?.type === 'block') {
+                  if (occupant?.type === 'block' || occupant?.type === 'recurringBlock') {
                     return (
                       <div className="agenda-grid__cell agenda-grid__cell--blocked" key={`${row.key}-${dayOfWeek}`}>
                         Manutenção
@@ -232,6 +234,8 @@ export default function AgendaPage() {
         </div>
       )}
 
+      {courtId && <MaintenanceHistoryPanel courtId={courtId} onSessionExpired={onSessionExpired} />}
+
       {selection && courtId && (
         <ReservationModal
           courtId={courtId}
@@ -245,6 +249,7 @@ export default function AgendaPage() {
             selection.dayDate,
             agenda.reservations,
             agenda.maintenanceBlocks,
+            agenda.recurringMaintenanceBlocks,
           )}
           priceRules={agenda.priceRules}
           onClose={() => setSelection(null)}

@@ -1,4 +1,4 @@
-import type { PriceRule } from './courts'
+import type { PriceRule, RecurringMaintenanceBlock } from './courts'
 import type { MaintenanceBlock, Reservation } from './reservations'
 
 export const WEEKDAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
@@ -51,12 +51,17 @@ export function buildGridRows(priceRules: PriceRule[]): GridRow[] {
 }
 
 export interface CellOccupant {
-  type: 'reservation' | 'block'
+  type: 'reservation' | 'block' | 'recurringBlock'
   reservation?: Reservation
   block?: MaintenanceBlock
+  recurringBlock?: RecurringMaintenanceBlock
 }
 
 function rangeOverlaps(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
+  return aStart < bEnd && aEnd > bStart
+}
+
+function minutesOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number) {
   return aStart < bEnd && aEnd > bStart
 }
 
@@ -66,6 +71,7 @@ export function findOccupant(
   endMinute: number,
   reservations: Reservation[],
   blocks: MaintenanceBlock[],
+  recurringBlocks: RecurringMaintenanceBlock[] = [],
 ): CellOccupant | null {
   const cellStart = new Date(dayDate)
   cellStart.setMinutes(startMinute)
@@ -79,6 +85,12 @@ export function findOccupant(
 
   const block = blocks.find((b) => rangeOverlaps(new Date(b.startsAt), new Date(b.endsAt), cellStart, cellEnd))
   if (block) return { type: 'block', block }
+
+  const dayOfWeek = dayDate.getDay()
+  const recurringBlock = recurringBlocks.find(
+    (b) => b.dayOfWeek === dayOfWeek && minutesOverlap(b.startMinute, b.endMinute, startMinute, endMinute),
+  )
+  if (recurringBlock) return { type: 'recurringBlock', recurringBlock }
 
   return null
 }
@@ -94,6 +106,7 @@ export function getBookableEndOptions(
   dayDate: Date,
   reservations: Reservation[],
   blocks: MaintenanceBlock[],
+  recurringBlocks: RecurringMaintenanceBlock[] = [],
 ): number[] {
   const dayRules = priceRules
     .filter((r) => r.dayOfWeek === dayOfWeek)
@@ -106,7 +119,7 @@ export function getBookableEndOptions(
     const rule = dayRules.find((r) => r.startMinute === cursor)
     if (!rule) break
 
-    const occupant = findOccupant(dayDate, rule.startMinute, rule.endMinute, reservations, blocks)
+    const occupant = findOccupant(dayDate, rule.startMinute, rule.endMinute, reservations, blocks, recurringBlocks)
     if (occupant) break
 
     cursor = rule.endMinute

@@ -1,5 +1,5 @@
 import { authFetch, parseApiError } from './api'
-import type { PriceRule } from './courts'
+import type { PriceRule, RecurringMaintenanceBlock } from './courts'
 
 export type ReservationStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW'
 
@@ -23,6 +23,8 @@ export interface MaintenanceBlock {
   startsAt: string
   endsAt: string
   reason: string | null
+  cost: string | null
+  completedAt: string | null
   createdAt: string
 }
 
@@ -30,6 +32,7 @@ export interface AgendaResponse {
   reservations: Reservation[]
   maintenanceBlocks: MaintenanceBlock[]
   priceRules: PriceRule[]
+  recurringMaintenanceBlocks: RecurringMaintenanceBlock[]
 }
 
 export interface CreateReservationInput {
@@ -112,6 +115,29 @@ export async function deleteMaintenanceBlock(courtId: string, id: string): Promi
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Não foi possível remover o bloqueio'))
   }
+}
+
+export async function fetchMaintenanceHistory(courtId: string): Promise<MaintenanceBlock[]> {
+  const response = await authFetch(`/courts/${courtId}/maintenance-blocks`)
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível carregar o histórico de manutenção'))
+  }
+  return response.json()
+}
+
+export async function updateMaintenanceBlock(
+  courtId: string,
+  id: string,
+  input: { cost?: number; completedAt?: string },
+): Promise<MaintenanceBlock> {
+  const response = await authFetch(`/courts/${courtId}/maintenance-blocks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível salvar o bloqueio'))
+  }
+  return response.json()
 }
 
 export async function fetchTodayReservations(): Promise<TodayReservation[]> {

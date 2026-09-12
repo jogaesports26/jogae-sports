@@ -12,6 +12,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
+import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 
 const CANCELLATION_MIN_NOTICE_MS = 2 * 60 * 60 * 1000;
 
@@ -110,7 +111,12 @@ export class ReservationsService {
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
 
-    const [reservations, maintenanceBlocks, priceRules] = await Promise.all([
+    const [
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: {
           courtId,
@@ -126,9 +132,18 @@ export class ReservationsService {
         where: { courtId },
         orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
       }),
+      this.prisma.recurringMaintenanceBlock.findMany({
+        where: { courtId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+      }),
     ]);
 
-    return { reservations, maintenanceBlocks, priceRules };
+    return {
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    };
   }
 
   async createForPlayer(
@@ -377,7 +392,12 @@ export class ReservationsService {
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
 
-    const [reservations, maintenanceBlocks, priceRules] = await Promise.all([
+    const [
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: { courtId, startsAt: { gte: start, lt: end } },
         orderBy: { startsAt: 'asc' },
@@ -390,9 +410,18 @@ export class ReservationsService {
         where: { courtId },
         orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
       }),
+      this.prisma.recurringMaintenanceBlock.findMany({
+        where: { courtId },
+        orderBy: [{ dayOfWeek: 'asc' }, { startMinute: 'asc' }],
+      }),
     ]);
 
-    return { reservations, maintenanceBlocks, priceRules };
+    return {
+      reservations,
+      maintenanceBlocks,
+      priceRules,
+      recurringMaintenanceBlocks,
+    };
   }
 
   async create(courtId: string, ownerId: string, dto: CreateReservationDto) {
@@ -559,6 +588,39 @@ export class ReservationsService {
     return this.prisma.maintenanceBlock.delete({ where: { id: blockId } });
   }
 
+  async listMaintenanceHistory(courtId: string, ownerId: string) {
+    await this.courtsService.findOneOrThrow(courtId, ownerId);
+
+    return this.prisma.maintenanceBlock.findMany({
+      where: { courtId },
+      orderBy: { startsAt: 'desc' },
+    });
+  }
+
+  async updateMaintenanceBlock(
+    courtId: string,
+    ownerId: string,
+    blockId: string,
+    dto: UpdateMaintenanceBlockDto,
+  ) {
+    await this.courtsService.findOneOrThrow(courtId, ownerId);
+
+    const block = await this.prisma.maintenanceBlock.findFirst({
+      where: { id: blockId, courtId },
+    });
+    if (!block) {
+      throw new NotFoundException('Bloqueio não encontrado');
+    }
+
+    return this.prisma.maintenanceBlock.update({
+      where: { id: blockId },
+      data: {
+        cost: dto.cost,
+        completedAt: dto.completedAt ? new Date(dto.completedAt) : undefined,
+      },
+    });
+  }
+
   private async findReservationOrThrow(courtId: string, reservationId: string) {
     const reservation = await this.prisma.reservation.findFirst({
       where: { id: reservationId, courtId },
@@ -595,6 +657,26 @@ export class ReservationsService {
     });
 
     if (overlappingBlock) {
+      throw new ConflictException(
+        'Esse horário está bloqueado para manutenção',
+      );
+    }
+
+    const dayOfWeek = startsAt.getDay();
+    const startMinute = this.toMinutesSinceMidnight(startsAt);
+    const endMinute = this.toMinutesSinceMidnight(endsAt);
+
+    const overlappingRecurringBlock =
+      await this.prisma.recurringMaintenanceBlock.findFirst({
+        where: {
+          courtId,
+          dayOfWeek,
+          startMinute: { lt: endMinute },
+          endMinute: { gt: startMinute },
+        },
+      });
+
+    if (overlappingRecurringBlock) {
       throw new ConflictException(
         'Esse horário está bloqueado para manutenção',
       );
