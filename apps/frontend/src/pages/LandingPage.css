@@ -5,16 +5,16 @@
   --color-accent-green: #acec00;
   --color-dark-navy: #00182e;
   --color-white: #ffffff;
-  --color-surface: rgba(255, 255, 255, 0.95);
+  --color-surface: #ffffff;
   --color-surface-dark: #00182e;
-  --color-border: rgba(0, 24, 46, 0.1);
-  --border-subtle: 1px solid var(--color-border);
+  --color-border: var(--color-dark-navy);
+  --border-subtle: 2px solid var(--color-border);
   --font-heading: 'Inter Tight', 'Syne', sans-serif;
 
-  --radius-card: 20px;
+  --radius-card: 10px;
   --radius-pill: 9999px;
 
-  --shadow-neo: 4px 4px 0px var(--color-dark-navy);
+  --shadow-neo: 5px 5px 0px var(--color-dark-navy);
 
   /* aliases: mantêm os nomes genéricos já usados nos componentes
      apontando pra paleta oficial acima, sem precisar reescrever cada regra */
@@ -46,7 +46,7 @@
   justify-content: space-between;
   padding: 20px 6vw;
   background: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .landing__logo {
@@ -78,13 +78,16 @@
   background: var(--color-primary);
   color: #ffffff !important;
   padding: 10px 20px;
+  border: 2px solid var(--color-dark-navy);
   border-radius: var(--radius-pill);
+  box-shadow: 3px 3px 0px var(--color-dark-navy);
   white-space: nowrap;
-  transition: opacity 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .landing__nav-cta:hover {
-  opacity: 0.88;
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px var(--color-dark-navy);
 }
 
 .landing__button {
@@ -98,19 +101,17 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
-.landing__button:hover {
-  transform: translate(-2px, -2px);
-}
-
 .landing__button--primary {
   background: var(--color-accent-green, var(--color-accent));
   color: var(--color-dark-navy, var(--color-dark));
   font-weight: 700;
+  border: 2px solid var(--color-dark-navy);
   box-shadow: var(--shadow-neo);
 }
 
 .landing__button--primary:hover {
-  box-shadow: 6px 6px 0px var(--color-dark);
+  transform: translate(5px, 5px);
+  box-shadow: 0px 0px 0px var(--color-dark);
 }
 
 .landing__button--ghost {
@@ -134,7 +135,8 @@
     transition: none;
   }
 
-  .landing__button:hover {
+  .landing__button:hover,
+  .landing__nav-cta:hover {
     transform: none;
   }
 }
@@ -171,15 +173,16 @@
 
 .landing__feature-card {
   background: var(--color-surface);
-  border: var(--border-subtle, 1px solid var(--color-border));
+  border: var(--border-subtle);
   border-radius: var(--radius-card);
   padding: 28px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: var(--shadow-neo);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .landing__feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-neo);
+  transform: translate(5px, 5px);
+  box-shadow: 0px 0px 0px var(--color-dark-navy);
 }
 
 .landing__feature-icon {

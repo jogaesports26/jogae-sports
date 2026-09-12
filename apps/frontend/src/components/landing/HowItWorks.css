@@ -28,15 +28,16 @@
 .how-it-works__card {
   position: relative;
   background: var(--color-surface);
-  border: var(--border-subtle, 1px solid var(--color-border));
-  border-radius: var(--radius-card, 20px);
+  border: var(--border-subtle);
+  border-radius: var(--radius-card, 10px);
   padding: 32px 28px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: var(--shadow-neo);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .how-it-works__card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-neo, 4px 4px 0px #111111);
+  transform: translate(5px, 5px);
+  box-shadow: 0px 0px 0px var(--color-dark-navy);
 }
 
 .how-it-works__number {
