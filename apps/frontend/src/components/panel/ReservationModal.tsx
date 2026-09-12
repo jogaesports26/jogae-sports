@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { PriceRule } from '../../lib/courts'
 import { createReservation } from '../../lib/reservations'
+import { fetchInstructors } from '../../lib/instructors'
+import type { Instructor } from '../../lib/instructors'
 import { formatMinutes } from '../../lib/weekGrid'
 import './ReservationModal.css'
 
@@ -54,8 +56,18 @@ export default function ReservationModal({
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [endMinute, setEndMinute] = useState(endOptions[0])
+  const [instructorId, setInstructorId] = useState('')
+  const [instructors, setInstructors] = useState<Instructor[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchInstructors()
+      .then((all) => setInstructors(all.filter((i) => i.active)))
+      .catch(() => {
+        // seletor de instrutor é auxiliar — uma falha aqui não deve travar a criação da reserva
+      })
+  }, [])
 
   const price = calcPrice(dayOfWeek, startMinute, endMinute, priceRules)
 
@@ -70,6 +82,7 @@ export default function ReservationModal({
         guestPhone,
         startsAt: toISOAt(dayDate, startMinute),
         endsAt: toISOAt(dayDate, endMinute),
+        instructorId: instructorId || undefined,
       })
       onCreated()
     } catch (err) {
@@ -122,6 +135,20 @@ export default function ReservationModal({
               ))}
             </select>
           </label>
+
+          {instructors.length > 0 && (
+            <label className="reservation-modal__field">
+              <span>Instrutor (opcional)</span>
+              <select value={instructorId} onChange={(e) => setInstructorId(e.target.value)}>
+                <option value="">Sem instrutor</option>
+                {instructors.map((instructor) => (
+                  <option key={instructor.id} value={instructor.id}>
+                    {instructor.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <p className="reservation-modal__price">
             Total: <strong>R$ {price.toFixed(2).replace('.', ',')}</strong>
