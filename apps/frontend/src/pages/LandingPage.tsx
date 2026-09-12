@@ -149,6 +149,9 @@ export default function LandingPage() {
         <span className="landing__logo">Jogaê Sports</span>
         <nav className="landing__nav-links">
           <a href="#funcionalidades">Funcionalidades</a>
+          <Link to="/reservar" className="landing__nav-login">
+            Sou jogador
+          </Link>
           <Link to="/login" className="landing__nav-login">
             Entrar
           </Link>

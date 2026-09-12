@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { CourtsModule } from './courts/courts.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { PlayerAuthModule } from './player-auth/player-auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     AuthModule,
     CourtsModule,
     ReservationsModule,
+    PlayerAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
