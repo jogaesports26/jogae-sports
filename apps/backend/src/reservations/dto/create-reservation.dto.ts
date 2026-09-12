@@ -1,4 +1,4 @@
-import { IsISO8601, IsString, MinLength } from 'class-validator';
+import { IsISO8601, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateReservationDto {
   @IsString()
@@ -14,4 +14,8 @@ export class CreateReservationDto {
 
   @IsISO8601()
   endsAt: string;
+
+  @IsOptional()
+  @IsString()
+  instructorId?: string;
 }

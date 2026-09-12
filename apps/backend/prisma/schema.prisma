@@ -25,6 +25,7 @@ model User {
 
   courts              Court[]
   passwordResetTokens PasswordResetToken[]
+  instructors         Instructor[]
 }
 
 enum Role {
@@ -90,6 +91,8 @@ model Reservation {
   priceSnapshot  Decimal           @db.Decimal(10, 2)
   cancelledAt    DateTime?
   reminderSentAt DateTime?
+  instructorId   String?
+  instructor     Instructor?       @relation(fields: [instructorId], references: [id])
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -97,6 +100,7 @@ model Reservation {
 
   @@index([courtId, startsAt, endsAt])
   @@index([playerId])
+  @@index([instructorId])
 }
 
 model Waitlist {
@@ -190,4 +194,18 @@ model RecurringMaintenanceBlock {
   createdAt   DateTime @default(now())
 
   @@index([courtId, dayOfWeek])
+}
+
+model Instructor {
+  id        String   @id @default(uuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  name      String
+  phone     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  reservations Reservation[]
+
+  @@index([ownerId])
 }

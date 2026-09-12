@@ -13,6 +13,8 @@ export interface Reservation {
   status: ReservationStatus
   priceSnapshot: string
   cancelledAt: string | null
+  instructorId: string | null
+  instructor: { id: string; name: string } | null
   createdAt: string
   updatedAt: string
 }
@@ -40,6 +42,7 @@ export interface CreateReservationInput {
   guestPhone: string
   startsAt: string
   endsAt: string
+  instructorId?: string
 }
 
 export interface TodayReservation extends Reservation {

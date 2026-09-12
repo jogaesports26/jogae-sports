@@ -14,6 +14,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { CustomersModule } from './customers/customers.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
+import { InstructorsModule } from './instructors/instructors.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { WaitlistModule } from './waitlist/waitlist.module';
     CustomersModule,
     NotificationsModule,
     WaitlistModule,
+    InstructorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

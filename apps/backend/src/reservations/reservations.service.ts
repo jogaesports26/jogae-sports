@@ -10,6 +10,7 @@ import { CourtsService } from '../courts/courts.service';
 import { ReviewsService } from '../reviews/reviews.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
+import { InstructorsService } from '../instructors/instructors.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
@@ -24,6 +25,7 @@ export class ReservationsService {
     private readonly reviewsService: ReviewsService,
     private readonly notificationsService: NotificationsService,
     private readonly waitlistService: WaitlistService,
+    private readonly instructorsService: InstructorsService,
   ) {}
 
   async getEstablishmentBySlug(slug: string) {
@@ -272,7 +274,10 @@ export class ReservationsService {
         startsAt: { gte: start, lt: end },
         status: { not: 'CANCELLED' },
       },
-      include: { court: { select: { id: true, name: true } } },
+      include: {
+        court: { select: { id: true, name: true } },
+        instructor: { select: { id: true, name: true } },
+      },
       orderBy: { startsAt: 'asc' },
     });
   }
@@ -400,6 +405,7 @@ export class ReservationsService {
     ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: { courtId, startsAt: { gte: start, lt: end } },
+        include: { instructor: { select: { id: true, name: true } } },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.maintenanceBlock.findMany({
@@ -445,6 +451,10 @@ export class ReservationsService {
     const priceSnapshot = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
+    if (dto.instructorId) {
+      await this.instructorsService.findOneOrThrow(dto.instructorId, ownerId);
+    }
+
     const reservation = await this.prisma.reservation.create({
       data: {
         courtId,
@@ -453,6 +463,7 @@ export class ReservationsService {
         startsAt,
         endsAt,
         priceSnapshot,
+        instructorId: dto.instructorId,
       },
     });
 

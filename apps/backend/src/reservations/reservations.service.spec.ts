@@ -104,12 +104,16 @@ describe('ReservationsService', () => {
     const waitlistService = {
       notifyForFreedSlot: jest.fn().mockResolvedValue(null),
     };
+    const instructorsService = {
+      findOneOrThrow: jest.fn(),
+    };
     service = new ReservationsService(
       prisma as any,
       courtsService as any,
       reviewsService as any,
       notificationsService as any,
       waitlistService as any,
+      instructorsService as any,
     );
   });
 
