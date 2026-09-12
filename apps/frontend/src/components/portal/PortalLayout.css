@@ -1,20 +1,8 @@
 .portal {
-  --color-primary: #013ff6;
-  --color-accent-green: #acec00;
-  --color-dark-navy: #00182e;
-  --color-white: #ffffff;
-  --color-border: var(--color-dark-navy);
-  --border-subtle: 2px solid var(--color-border);
-  --font-heading: 'Inter Tight', 'Syne', sans-serif;
-
+  /* Tokens de marca vêm do :root (index.css) — aqui só o que difere de
+     verdade nessa área. Raio ainda no valor antigo até a fase 4 (redesign
+     do portal/lojinha) trazer o novo raio maior de forma intencional. */
   --radius-card: 10px;
-  --radius-pill: 9999px;
-
-  --shadow-neo: 5px 5px 0px var(--color-dark-navy);
-
-  --color-accent: var(--color-accent-green);
-  --color-dark: var(--color-dark-navy);
-  --color-background: #f4f5fa;
 
   min-height: 100svh;
   background: var(--color-background);
