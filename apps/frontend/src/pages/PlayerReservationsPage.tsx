@@ -9,6 +9,7 @@ import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
 import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
+import { buildGoogleCalendarUrl } from '../lib/calendar'
 import './PlayerReservationsPage.css'
 
 const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
@@ -131,6 +132,19 @@ export default function PlayerReservationsPage() {
                     >
                       Convidar pra jogar
                     </button>
+                    <a
+                      className="player-reservation-card__share-button"
+                      href={buildGoogleCalendarUrl({
+                        title: reservation.court.name,
+                        details: `Reserva no Jogaê Sports — ${reservation.court.name}`,
+                        startsAt: reservation.startsAt,
+                        endsAt: reservation.endsAt,
+                      })}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Google Calendar
+                    </a>
                     <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
                   </>
                 )}

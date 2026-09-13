@@ -15,6 +15,7 @@ import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
+import { buildGoogleCalendarUrl } from '../../lib/calendar'
 import './BookingFlowModal.css'
 
 type Step = 'confirm' | 'phone' | 'code' | 'success'
@@ -315,6 +316,19 @@ export default function BookingFlowModal({
             {shareResult === 'failed' && (
               <p className="booking-modal__hint">Não deu pra compartilhar automaticamente — copie o link da barra de endereço.</p>
             )}
+            <a
+              className="booking-modal__invite"
+              href={buildGoogleCalendarUrl({
+                title: courtName,
+                details: `Reserva no Jogaê Sports — ${courtName}`,
+                startsAt: toISOAt(dayDate, startMinute),
+                endsAt: toISOAt(dayDate, endMinute),
+              })}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Adicionar ao Google Calendar
+            </a>
             <button className="booking-modal__submit" onClick={onClose}>
               Fechar
             </button>

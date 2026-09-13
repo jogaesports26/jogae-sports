@@ -26,7 +26,7 @@ interface SlotSelection {
 
 export default function AgendaPage() {
   const { courtId } = useParams<{ courtId: string }>()
-  const { onSessionExpired } = useCourtDetailContext()
+  const { court, onSessionExpired } = useCourtDetailContext()
 
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
@@ -186,6 +186,7 @@ export default function AgendaPage() {
       {activeReservation && courtId && (
         <ReservationActionsModal
           courtId={courtId}
+          courtName={court.name}
           reservation={activeReservation}
           onClose={() => setActiveReservation(null)}
           onChanged={handleChanged}
