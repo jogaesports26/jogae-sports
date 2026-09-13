@@ -59,6 +59,8 @@ export interface CourtReview {
   rating: number
   comment: string | null
   createdAt: string
+  ownerReply: string | null
+  ownerRepliedAt: string | null
   player: { name: string | null }
 }
 

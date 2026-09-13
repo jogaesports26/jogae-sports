@@ -244,6 +244,12 @@ export default function CourtBookingPage() {
                   <span className="booking-review__author">{review.player.name ?? 'Jogador'}</span>
                 </div>
                 {review.comment && <p className="booking-review__comment">{review.comment}</p>}
+                {review.ownerReply && (
+                  <div className="booking-review__reply">
+                    <span className="booking-review__reply-label">Resposta do estabelecimento</span>
+                    <p>{review.ownerReply}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

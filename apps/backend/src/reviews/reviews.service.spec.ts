@@ -11,6 +11,8 @@ function buildPrismaMock() {
     review: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
       aggregate: jest.fn(),
       groupBy: jest.fn(),
     },
@@ -86,5 +88,41 @@ describe('ReviewsService', () => {
         }),
       }),
     );
+  });
+
+  it('rejeita responder uma avaliação que não pertence ao dono', async () => {
+    prisma.review.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.replyAsOwner('owner-1', 'review-1', { reply: 'Obrigado!' }),
+    ).rejects.toThrow(NotFoundException);
+  });
+
+  it('salva a resposta do dono numa avaliação', async () => {
+    prisma.review.findFirst.mockResolvedValue({ id: 'review-1' });
+    prisma.review.update.mockImplementation(({ data }: any) =>
+      Promise.resolve({ id: 'review-1', ...data }),
+    );
+
+    const result = await service.replyAsOwner('owner-1', 'review-1', {
+      reply: 'Obrigado pela avaliação!',
+    });
+
+    expect(result.ownerReply).toBe('Obrigado pela avaliação!');
+    expect(result.ownerRepliedAt).toBeInstanceOf(Date);
+  });
+
+  it('limpa a resposta quando o dono envia texto vazio', async () => {
+    prisma.review.findFirst.mockResolvedValue({ id: 'review-1' });
+    prisma.review.update.mockImplementation(({ data }: any) =>
+      Promise.resolve({ id: 'review-1', ...data }),
+    );
+
+    const result = await service.replyAsOwner('owner-1', 'review-1', {
+      reply: '   ',
+    });
+
+    expect(result.ownerReply).toBeNull();
+    expect(result.ownerRepliedAt).toBeNull();
   });
 });
