@@ -16,6 +16,7 @@ import { formatMinutes } from '../../lib/weekGrid'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
+import ReceiptModal from './ReceiptModal'
 import './BookingFlowModal.css'
 
 type Step = 'confirm' | 'phone' | 'code' | 'success'
@@ -23,6 +24,7 @@ type Step = 'confirm' | 'phone' | 'code' | 'success'
 interface BookingFlowModalProps {
   courtId: string
   courtName: string
+  establishmentName?: string | null
   slug: string
   dayLabel: string
   dayDate: Date
@@ -42,6 +44,7 @@ function toISOAt(dayDate: Date, minutes: number) {
 export default function BookingFlowModal({
   courtId,
   courtName,
+  establishmentName,
   slug,
   dayLabel,
   dayDate,
@@ -66,6 +69,7 @@ export default function BookingFlowModal({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
+  const [showReceipt, setShowReceipt] = useState(false)
 
   useEffect(() => {
     fetchActiveEquipmentForCourt(courtId)
@@ -329,12 +333,26 @@ export default function BookingFlowModal({
             >
               Adicionar ao Google Calendar
             </a>
+            <button type="button" className="booking-modal__invite" onClick={() => setShowReceipt(true)}>
+              Ver comprovante
+            </button>
             <button className="booking-modal__submit" onClick={onClose}>
               Fechar
             </button>
           </div>
         )}
       </div>
+
+      {showReceipt && (
+        <ReceiptModal
+          courtName={courtName}
+          establishmentName={establishmentName ?? null}
+          dateLabel={`${dayLabel} · ${formatMinutes(startMinute)}–${formatMinutes(endMinute)}`}
+          price={finalPrice}
+          shareUrl={`${window.location.origin}/${slug}/${courtId}`}
+          onClose={() => setShowReceipt(false)}
+        />
+      )}
     </div>
   )
 }

@@ -1,0 +1,63 @@
+.receipt-modal__eyebrow {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.receipt-modal__date {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+.receipt-modal__price {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  color: var(--color-primary);
+  margin: 6px 0 16px;
+}
+
+.receipt-modal__qr {
+  display: block;
+  margin: 0 auto 20px;
+  border-radius: var(--radius-sm);
+}
+
+.receipt-modal__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.receipt-modal__actions .booking-modal__invite {
+  flex: 1;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+
+  .booking-modal__overlay {
+    position: static;
+    background: none;
+    padding: 0;
+  }
+
+  .receipt-print {
+    box-shadow: none;
+    margin: 40px auto;
+  }
+
+  .receipt-modal__no-print {
+    display: none;
+  }
+}
