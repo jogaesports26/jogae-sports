@@ -16,6 +16,7 @@ import { formatMinutes } from '../../lib/weekGrid'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
+import { showToast } from '../../lib/toast'
 import './BookingFlowModal.css'
 
 type Step = 'confirm' | 'phone' | 'code' | 'success'
@@ -64,7 +65,6 @@ export default function BookingFlowModal({
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
   const [equipmentQuantities, setEquipmentQuantities] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
 
   useEffect(() => {
@@ -118,13 +118,12 @@ export default function BookingFlowModal({
   async function handleRequestOtp(event: FormEvent) {
     event.preventDefault()
     setIsLoading(true)
-    setError('')
     try {
       const result = await requestOtp(phone)
       setDevCode(result.devCode)
       setStep('code')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível enviar o código')
+      showToast(err instanceof Error ? err.message : 'Não foi possível enviar o código', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -133,20 +132,18 @@ export default function BookingFlowModal({
   async function handleVerifyOtp(event: FormEvent) {
     event.preventDefault()
     setIsLoading(true)
-    setError('')
     try {
       const result = await verifyOtp(phone, code)
       savePlayerSession(result.accessToken, result.player)
       await handleConfirm()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Código inválido')
+      showToast(err instanceof Error ? err.message : 'Código inválido', 'error')
       setIsLoading(false)
     }
   }
 
   async function handleConfirm() {
     setIsLoading(true)
-    setError('')
     try {
       await createPlayerReservation(courtId, {
         startsAt: toISOAt(dayDate, startMinute),
@@ -159,7 +156,7 @@ export default function BookingFlowModal({
       setStep('success')
       onBooked()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível confirmar a reserva')
+      showToast(err instanceof Error ? err.message : 'Não foi possível confirmar a reserva', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -244,8 +241,6 @@ export default function BookingFlowModal({
             <>R$ {price.toFixed(2).replace('.', ',')}</>
           )}
         </p>
-
-        {error && <p className="booking-modal__error">{error}</p>}
 
         {step === 'confirm' && (
           <div className="booking-modal__form">

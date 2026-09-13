@@ -4,6 +4,7 @@ import { SessionExpiredError } from '../../lib/api'
 import type { Reservation } from '../../lib/reservations'
 import { cancelReservation, updateReservationStatus } from '../../lib/reservations'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
+import { showToast } from '../../lib/toast'
 import './ReservationModal.css'
 
 const STATUS_LABELS: Record<Reservation['status'], string> = {
@@ -32,20 +33,19 @@ export default function ReservationActionsModal({
 }: ReservationActionsModalProps) {
   useEscapeToClose(onClose)
   const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState('')
 
-  async function run(action: () => Promise<unknown>) {
+  async function run(action: () => Promise<unknown>, successMessage: string) {
     setIsSaving(true)
-    setError('')
     try {
       await action()
+      showToast(successMessage, 'success')
       onChanged()
     } catch (err) {
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
         return
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível concluir a ação')
+      showToast(err instanceof Error ? err.message : 'Não foi possível concluir a ação', 'error')
     } finally {
       setIsSaving(false)
     }
@@ -80,8 +80,6 @@ export default function ReservationActionsModal({
             <p className="reservation-modal__price">Instrutor: {reservation.instructor.name}</p>
           )}
 
-          {error && <p className="reservation-modal__error">{error}</p>}
-
           {reservation.status === 'CONFIRMED' && (
             <>
               <a
@@ -103,7 +101,9 @@ export default function ReservationActionsModal({
                 type="button"
                 className="reservation-modal__submit"
                 disabled={isSaving}
-                onClick={() => run(() => updateReservationStatus(courtId, reservation.id, 'COMPLETED'))}
+                onClick={() =>
+                  run(() => updateReservationStatus(courtId, reservation.id, 'COMPLETED'), 'Reserva marcada como concluída.')
+                }
               >
                 Marcar como concluída
               </button>
@@ -111,7 +111,9 @@ export default function ReservationActionsModal({
                 type="button"
                 className="reservation-modal__submit"
                 disabled={isSaving}
-                onClick={() => run(() => updateReservationStatus(courtId, reservation.id, 'NO_SHOW'))}
+                onClick={() =>
+                  run(() => updateReservationStatus(courtId, reservation.id, 'NO_SHOW'), 'Reserva marcada como não compareceu.')
+                }
               >
                 Marcar não compareceu
               </button>
@@ -119,7 +121,7 @@ export default function ReservationActionsModal({
                 type="button"
                 className="reservation-modal__submit"
                 disabled={isSaving || !canCancel}
-                onClick={() => run(() => cancelReservation(courtId, reservation.id))}
+                onClick={() => run(() => cancelReservation(courtId, reservation.id), 'Reserva cancelada.')}
               >
                 Cancelar reserva
               </button>

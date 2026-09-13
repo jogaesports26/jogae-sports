@@ -278,15 +278,6 @@
   padding: 10px 12px;
 }
 
-.settings-page__success {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-positive-text);
-  background: var(--color-positive-bg);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-}
-
 .settings-page__loading {
   font-family: var(--font-body);
   color: var(--color-dark);

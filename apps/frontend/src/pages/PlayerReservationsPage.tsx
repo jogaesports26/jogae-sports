@@ -10,6 +10,7 @@ import ReviewModal from '../components/portal/ReviewModal'
 import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
 import { buildGoogleCalendarUrl } from '../lib/calendar'
+import { showToast } from '../lib/toast'
 import './PlayerReservationsPage.css'
 
 const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
@@ -27,7 +28,6 @@ export default function PlayerReservationsPage() {
   const player = getPlayerUser()
   const [reservations, setReservations] = useState<PlayerReservation[] | null>(null)
   const [error, setError] = useState('')
-  const [actionError, setActionError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
   const [shareResultId, setShareResultId] = useState<{ id: string; result: ShareResult } | null>(null)
 
@@ -48,12 +48,12 @@ export default function PlayerReservationsPage() {
   }, [player])
 
   async function handleCancel(id: string) {
-    setActionError('')
     try {
       await cancelPlayerReservation(id)
+      showToast('Reserva cancelada.', 'success')
       load()
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Não foi possível cancelar')
+      showToast(err instanceof Error ? err.message : 'Não foi possível cancelar', 'error')
     }
   }
 
@@ -86,7 +86,6 @@ export default function PlayerReservationsPage() {
       <h1>Minhas reservas</h1>
 
       {error && <p className="player-reservations-page__error">{error}</p>}
-      {actionError && <p className="player-reservations-page__error">{actionError}</p>}
 
       {!error && reservations === null && <p className="player-reservations-page__loading">Carregando...</p>}
 

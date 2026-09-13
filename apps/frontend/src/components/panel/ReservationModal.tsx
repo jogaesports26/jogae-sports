@@ -11,6 +11,7 @@ import type { CouponPreview } from '../../lib/coupons'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
+import { showToast } from '../../lib/toast'
 import './ReservationModal.css'
 
 interface ReservationModalProps {
@@ -69,7 +70,6 @@ export default function ReservationModal({
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
   const [equipmentQuantities, setEquipmentQuantities] = useState<Record<string, number>>({})
   const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState('')
 
   useEffect(() => {
     fetchInstructors()
@@ -119,7 +119,6 @@ export default function ReservationModal({
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setIsSaving(true)
-    setError('')
 
     try {
       await createReservation(courtId, {
@@ -133,13 +132,14 @@ export default function ReservationModal({
           .filter(([, quantity]) => quantity > 0)
           .map(([equipmentId, quantity]) => ({ equipmentId, quantity })),
       })
+      showToast('Reserva criada.', 'success')
       onCreated()
     } catch (err) {
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
         return
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível criar a reserva')
+      showToast(err instanceof Error ? err.message : 'Não foi possível criar a reserva', 'error')
     } finally {
       setIsSaving(false)
     }
@@ -272,8 +272,6 @@ export default function ReservationModal({
               </>
             )}
           </p>
-
-          {error && <p className="reservation-modal__error">{error}</p>}
 
           <button type="submit" className="reservation-modal__submit" disabled={isSaving}>
             {isSaving ? 'Salvando...' : 'Confirmar reserva'}
