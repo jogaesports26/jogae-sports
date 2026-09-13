@@ -1,5 +1,41 @@
+.establishment-page__cover {
+  width: 100%;
+  aspect-ratio: 16 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 24px;
+}
+
 .establishment-page__header {
   margin-bottom: 32px;
+}
+
+.establishment-page__amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.establishment-page__about {
+  margin-top: 40px;
+  max-width: 640px;
+}
+
+.establishment-page__about h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-dark);
+  margin-bottom: 8px;
+}
+
+.establishment-page__about p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .establishment-page h1 {

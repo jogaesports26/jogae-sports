@@ -37,6 +37,9 @@ export interface Establishment {
   establishmentName: string | null
   establishmentAddress: string | null
   establishmentPhone: string | null
+  aboutDescription: string | null
+  coverPhotoUrl: string | null
+  amenities: string[]
   courts: EstablishmentCourt[]
 }
 

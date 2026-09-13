@@ -10,6 +10,9 @@ export interface Profile {
   establishmentAddress: string | null
   establishmentSlug: string | null
   monthlyRevenueGoal: number | null
+  aboutDescription: string | null
+  coverPhotoUrl: string | null
+  amenities: string[]
 }
 
 export interface ProfileInput {
@@ -18,6 +21,9 @@ export interface ProfileInput {
   establishmentAddress: string
   establishmentSlug: string
   monthlyRevenueGoal?: number | null
+  aboutDescription?: string
+  coverPhotoUrl?: string
+  amenities?: string[]
 }
 
 export async function fetchProfile(): Promise<Profile> {

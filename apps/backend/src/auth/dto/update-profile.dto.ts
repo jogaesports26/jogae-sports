@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsNumber,
   IsOptional,
   IsString,
@@ -37,4 +39,20 @@ export class UpdateProfileDto {
   @IsNumber()
   @Min(0)
   monthlyRevenueGoal?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  aboutDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  coverPhotoUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(20)
+  amenities?: string[];
 }

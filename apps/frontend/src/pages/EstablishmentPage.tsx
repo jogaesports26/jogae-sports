@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { fetchEstablishment } from '../lib/player'
 import type { Establishment } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
+import { amenityLabel } from '../lib/amenities'
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import './EstablishmentPage.css'
 
@@ -42,6 +43,10 @@ export default function EstablishmentPage() {
 
   return (
     <div className="establishment-page">
+      {establishment.coverPhotoUrl && (
+        <img src={establishment.coverPhotoUrl} alt="" className="establishment-page__cover" />
+      )}
+
       <div className="establishment-page__header">
         <h1>{establishment.establishmentName ?? 'Reserve sua quadra'}</h1>
         {establishment.establishmentAddress && (
@@ -50,6 +55,15 @@ export default function EstablishmentPage() {
         <p className="establishment-page__subtitle">
           Escolha a quadra, veja os horários disponíveis e confirme sua reserva na hora.
         </p>
+        {establishment.amenities.length > 0 && (
+          <div className="establishment-page__amenities">
+            {establishment.amenities.map((amenity) => (
+              <span key={amenity} className="pill pill--neutral">
+                {amenityLabel(amenity)}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {establishment.courts.length === 0 ? (
@@ -87,6 +101,13 @@ export default function EstablishmentPage() {
               <span className="establishment-card__cta">Ver horários →</span>
             </Link>
           ))}
+        </div>
+      )}
+
+      {establishment.aboutDescription && (
+        <div className="establishment-page__about">
+          <h2>Sobre</h2>
+          <p>{establishment.aboutDescription}</p>
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { fetchProfile, updateProfile } from '../lib/profile'
 import { fetchCep } from '../lib/cep'
+import { AMENITY_OPTIONS } from '../lib/amenities'
 import './SettingsPage.css'
 
 function slugify(value: string) {
@@ -25,6 +26,9 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
   const [monthlyRevenueGoal, setMonthlyRevenueGoal] = useState('')
+  const [aboutDescription, setAboutDescription] = useState('')
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState('')
+  const [amenities, setAmenities] = useState<string[]>([])
   const [cep, setCep] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [cepError, setCepError] = useState('')
@@ -63,6 +67,9 @@ export default function SettingsPage() {
         setMonthlyRevenueGoal(
           profile.monthlyRevenueGoal !== null ? String(profile.monthlyRevenueGoal) : '',
         )
+        setAboutDescription(profile.aboutDescription ?? '')
+        setCoverPhotoUrl(profile.coverPhotoUrl ?? '')
+        setAmenities(profile.amenities)
       })
       .catch((err) => {
         if (err instanceof SessionExpiredError) {
@@ -89,6 +96,9 @@ export default function SettingsPage() {
         establishmentPhone: phone,
         establishmentAddress: address,
         establishmentSlug: slug,
+        aboutDescription,
+        coverPhotoUrl,
+        amenities,
         ...(parsedGoal ? { monthlyRevenueGoal: Number(parsedGoal) } : {}),
       })
       setSaved(true)
@@ -113,6 +123,10 @@ export default function SettingsPage() {
   function handleSlugChange(value: string) {
     setSlugTouched(true)
     setSlug(slugify(value))
+  }
+
+  function toggleAmenity(value: string) {
+    setAmenities((prev) => (prev.includes(value) ? prev.filter((a) => a !== value) : [...prev, value]))
   }
 
   async function handleCopyLink() {
@@ -203,6 +217,51 @@ export default function SettingsPage() {
               placeholder="Rua, número, bairro, cidade"
             />
           </label>
+
+          <label className="settings-page__field">
+            <span>Foto de capa da lojinha (URL)</span>
+            <input
+              value={coverPhotoUrl}
+              onChange={(event) => setCoverPhotoUrl(event.target.value)}
+              placeholder="https://..."
+            />
+            <span className="settings-page__hint">
+              Aparece no topo da sua lojinha pública. Cole o link de uma imagem já hospedada em algum
+              lugar (Instagram, Google Drive público, etc.).
+            </span>
+            {coverPhotoUrl && (
+              <img src={coverPhotoUrl} alt="Prévia da foto de capa" className="settings-page__cover-preview" />
+            )}
+          </label>
+
+          <label className="settings-page__field">
+            <span>Sobre o estabelecimento</span>
+            <textarea
+              value={aboutDescription}
+              onChange={(event) => setAboutDescription(event.target.value)}
+              placeholder="Conte um pouco sobre o espaço: história, diferenciais, horário de funcionamento..."
+              rows={4}
+              maxLength={1000}
+            />
+            <span className="settings-page__hint">Aparece na sua lojinha pública, abaixo das quadras.</span>
+          </label>
+
+          <div className="settings-page__field">
+            <span>Comodidades</span>
+            <div className="settings-page__amenities">
+              {AMENITY_OPTIONS.map((option) => (
+                <label key={option.value} className="settings-page__amenity">
+                  <input
+                    type="checkbox"
+                    checked={amenities.includes(option.value)}
+                    onChange={() => toggleAmenity(option.value)}
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+            <span className="settings-page__hint">Aparecem como tags na sua lojinha pública.</span>
+          </div>
 
           <label className="settings-page__field">
             <span>Meta de faturamento mensal</span>
