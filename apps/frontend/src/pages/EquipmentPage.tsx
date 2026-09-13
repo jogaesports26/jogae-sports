@@ -13,6 +13,10 @@ export default function EquipmentPage() {
   const [pricePerUnit, setPricePerUnit] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPrice, setEditPrice] = useState('')
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
 
   function load() {
     fetchEquipment()
@@ -59,6 +63,34 @@ export default function EquipmentPage() {
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
       }
+    }
+  }
+
+  function startEdit(item: Equipment) {
+    setEditingId(item.id)
+    setEditName(item.name)
+    setEditPrice(String(item.pricePerUnit))
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+  }
+
+  async function handleSaveEdit(id: string) {
+    setIsSavingEdit(true)
+    setError('')
+    try {
+      const updated = await updateEquipment(id, { name: editName, pricePerUnit: Number(editPrice) })
+      setEquipment((prev) => (prev ? prev.map((e) => (e.id === updated.id ? updated : e)) : prev))
+      setEditingId(null)
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar o equipamento')
+    } finally {
+      setIsSavingEdit(false)
     }
   }
 
@@ -127,23 +159,70 @@ export default function EquipmentPage() {
             <div className="equipment-page__list">
               {active.map((item) => (
                 <div key={item.id} className="equipment-page__item">
-                  <span className="equipment-page__name">{item.name}</span>
-                  <span className="equipment-page__price">
-                    R$ {item.pricePerUnit.toFixed(2).replace('.', ',')} <small>/ unidade</small>
-                  </span>
-                  <div className="equipment-page__item-actions">
-                    <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(item)}>
-                      Desativar
-                    </button>
-                    <button
-                      type="button"
-                      className="equipment-page__remove"
-                      onClick={() => handleRemove(item.id)}
-                      aria-label="Remover equipamento"
-                    >
-                      ×
-                    </button>
-                  </div>
+                  {editingId === item.id ? (
+                    <div className="equipment-page__edit">
+                      <label className="equipment-page__field">
+                        <span>Nome</span>
+                        <input
+                          value={editName}
+                          onChange={(event) => setEditName(event.target.value)}
+                          minLength={2}
+                          maxLength={60}
+                        />
+                      </label>
+                      <label className="equipment-page__field">
+                        <span>Preço por unidade (R$)</span>
+                        <input
+                          type="number"
+                          min={0.01}
+                          step="0.01"
+                          value={editPrice}
+                          onChange={(event) => setEditPrice(event.target.value)}
+                        />
+                      </label>
+                      <div className="equipment-page__item-actions">
+                        <button
+                          type="button"
+                          className="btn btn--ghost btn--sm"
+                          onClick={cancelEdit}
+                          disabled={isSavingEdit}
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--primary btn--sm"
+                          onClick={() => handleSaveEdit(item.id)}
+                          disabled={isSavingEdit || !editName.trim() || !editPrice}
+                        >
+                          {isSavingEdit ? 'Salvando...' : 'Salvar'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="equipment-page__name">{item.name}</span>
+                      <span className="equipment-page__price">
+                        R$ {item.pricePerUnit.toFixed(2).replace('.', ',')} <small>/ unidade</small>
+                      </span>
+                      <div className="equipment-page__item-actions">
+                        <button type="button" className="btn btn--ghost btn--sm" onClick={() => startEdit(item)}>
+                          Editar
+                        </button>
+                        <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(item)}>
+                          Desativar
+                        </button>
+                        <button
+                          type="button"
+                          className="equipment-page__remove"
+                          onClick={() => handleRemove(item.id)}
+                          aria-label="Remover equipamento"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
