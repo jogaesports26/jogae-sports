@@ -102,6 +102,21 @@ export async function cancelReservation(courtId: string, id: string): Promise<Re
   return response.json()
 }
 
+export async function rescheduleReservation(
+  courtId: string,
+  id: string,
+  input: { startsAt: string; endsAt: string },
+): Promise<Reservation> {
+  const response = await authFetch(`/courts/${courtId}/reservations/${id}/reschedule`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível reagendar a reserva'))
+  }
+  return response.json()
+}
+
 export async function updateReservationStatus(
   courtId: string,
   id: string,

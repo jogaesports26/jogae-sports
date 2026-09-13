@@ -16,6 +16,7 @@ import { CouponsService } from '../coupons/coupons.service';
 import { EquipmentService } from '../equipment/equipment.service';
 import { ReservationEquipmentItemDto } from '../equipment/dto/reservation-equipment-item.dto';
 import { CreateReservationDto } from './dto/create-reservation.dto';
+import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 
@@ -311,6 +312,58 @@ export class ReservationsService {
     );
 
     return updated;
+  }
+
+  async rescheduleForPlayer(
+    playerId: string,
+    reservationId: string,
+    dto: RescheduleReservationDto,
+  ) {
+    const reservation = await this.prisma.reservation.findFirst({
+      where: { id: reservationId, playerId },
+      include: {
+        court: { select: { name: true } },
+        player: { select: { phone: true } },
+      },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reserva não encontrada');
+    }
+
+    if (reservation.status !== 'CONFIRMED') {
+      throw new BadRequestException(
+        'Só é possível reagendar reservas confirmadas',
+      );
+    }
+
+    if (
+      reservation.startsAt.getTime() - Date.now() <
+      CANCELLATION_MIN_NOTICE_MS
+    ) {
+      throw new BadRequestException(
+        'Só é possível reagendar até 2 horas antes do horário reservado',
+      );
+    }
+
+    const { startsAt, endsAt, oldStartsAt, oldEndsAt } =
+      await this.validateAndApplyReschedule(reservation, dto);
+
+    if (reservation.player) {
+      await this.notificationsService.notifyReservationRescheduled(
+        reservation.player.phone,
+        reservation.court.name,
+        startsAt,
+        endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      reservation.courtId,
+      oldStartsAt,
+      oldEndsAt,
+    );
+
+    return this.prisma.reservation.findUnique({ where: { id: reservationId } });
   }
 
   async getPlayerReservations(playerId: string) {
@@ -631,6 +684,45 @@ export class ReservationsService {
     return updated;
   }
 
+  async reschedule(
+    courtId: string,
+    ownerId: string,
+    reservationId: string,
+    dto: RescheduleReservationDto,
+  ) {
+    const court = await this.courtsService.findOneOrThrow(courtId, ownerId);
+    const reservation = await this.findReservationOrThrow(
+      courtId,
+      reservationId,
+    );
+
+    if (reservation.status !== 'CONFIRMED') {
+      throw new BadRequestException(
+        'Só é possível reagendar reservas confirmadas',
+      );
+    }
+
+    const { startsAt, endsAt, oldStartsAt, oldEndsAt } =
+      await this.validateAndApplyReschedule(reservation, dto);
+
+    const phone = reservation.player?.phone ?? reservation.guestPhone;
+    if (phone) {
+      await this.notificationsService.notifyReservationRescheduled(
+        phone,
+        court.name,
+        startsAt,
+        endsAt,
+      );
+    }
+    await this.waitlistService.notifyForFreedSlot(
+      courtId,
+      oldStartsAt,
+      oldEndsAt,
+    );
+
+    return this.prisma.reservation.findUnique({ where: { id: reservationId } });
+  }
+
   async updateStatus(
     courtId: string,
     ownerId: string,
@@ -754,10 +846,50 @@ export class ReservationsService {
     return reservation;
   }
 
+  private async validateAndApplyReschedule(
+    reservation: { id: string; courtId: string; startsAt: Date; endsAt: Date },
+    dto: RescheduleReservationDto,
+  ) {
+    const startsAt = new Date(dto.startsAt);
+    const endsAt = new Date(dto.endsAt);
+
+    if (endsAt <= startsAt) {
+      throw new BadRequestException(
+        'O horário final deve ser depois do horário inicial',
+      );
+    }
+
+    if (startsAt.getTime() < Date.now()) {
+      throw new BadRequestException(
+        'Não é possível reagendar para um horário no passado',
+      );
+    }
+
+    await this.assertNoConflict(
+      reservation.courtId,
+      startsAt,
+      endsAt,
+      reservation.id,
+    );
+
+    await this.prisma.reservation.update({
+      where: { id: reservation.id },
+      data: { startsAt, endsAt },
+    });
+
+    return {
+      startsAt,
+      endsAt,
+      oldStartsAt: reservation.startsAt,
+      oldEndsAt: reservation.endsAt,
+    };
+  }
+
   private async assertNoConflict(
     courtId: string,
     startsAt: Date,
     endsAt: Date,
+    excludeReservationId?: string,
   ) {
     const overlappingReservation = await this.prisma.reservation.findFirst({
       where: {
@@ -765,6 +897,7 @@ export class ReservationsService {
         status: { not: 'CANCELLED' },
         startsAt: { lt: endsAt },
         endsAt: { gt: startsAt },
+        ...(excludeReservationId ? { id: { not: excludeReservationId } } : {}),
       },
     });
 

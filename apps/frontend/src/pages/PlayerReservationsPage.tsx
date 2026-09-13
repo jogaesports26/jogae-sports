@@ -4,6 +4,7 @@ import {
   fetchPlayerReservations,
   getPlayerUser,
   PlayerSessionExpiredError,
+  reschedulePlayerReservation,
 } from '../lib/player'
 import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
@@ -23,6 +24,12 @@ function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+function toDatetimeLocalValue(date: Date): string {
+  const offset = date.getTimezoneOffset()
+  const local = new Date(date.getTime() - offset * 60000)
+  return local.toISOString().slice(0, 16)
+}
+
 export default function PlayerReservationsPage() {
   const player = getPlayerUser()
   const [reservations, setReservations] = useState<PlayerReservation[] | null>(null)
@@ -30,6 +37,10 @@ export default function PlayerReservationsPage() {
   const [actionError, setActionError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
   const [shareResultId, setShareResultId] = useState<{ id: string; result: ShareResult } | null>(null)
+  const [reschedulingId, setReschedulingId] = useState<string | null>(null)
+  const [newStartsAt, setNewStartsAt] = useState('')
+  const [newEndsAt, setNewEndsAt] = useState('')
+  const [rescheduleError, setRescheduleError] = useState('')
 
   function load() {
     fetchPlayerReservations()
@@ -54,6 +65,27 @@ export default function PlayerReservationsPage() {
       load()
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Não foi possível cancelar')
+    }
+  }
+
+  function startRescheduling(reservation: PlayerReservation) {
+    setReschedulingId(reservation.id)
+    setNewStartsAt(toDatetimeLocalValue(new Date(reservation.startsAt)))
+    setNewEndsAt(toDatetimeLocalValue(new Date(reservation.endsAt)))
+    setRescheduleError('')
+  }
+
+  async function handleReschedule(id: string) {
+    setRescheduleError('')
+    try {
+      await reschedulePlayerReservation(id, {
+        startsAt: new Date(newStartsAt).toISOString(),
+        endsAt: new Date(newEndsAt).toISOString(),
+      })
+      setReschedulingId(null)
+      load()
+    } catch (err) {
+      setRescheduleError(err instanceof Error ? err.message : 'Não foi possível reagendar')
     }
   }
 
@@ -117,6 +149,45 @@ export default function PlayerReservationsPage() {
                 {shareResultId?.id === reservation.id && shareResultId.result === 'copied' && (
                   <p className="player-reservation-card__share-feedback">Link copiado! Cole numa conversa.</p>
                 )}
+                {reschedulingId === reservation.id && (
+                  <div className="player-reservation-card__reschedule-form">
+                    <label>
+                      <span>Novo início</span>
+                      <input
+                        type="datetime-local"
+                        value={newStartsAt}
+                        onChange={(e) => setNewStartsAt(e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>Novo fim</span>
+                      <input
+                        type="datetime-local"
+                        value={newEndsAt}
+                        onChange={(e) => setNewEndsAt(e.target.value)}
+                      />
+                    </label>
+                    {rescheduleError && (
+                      <p className="player-reservations-page__error">{rescheduleError}</p>
+                    )}
+                    <div className="player-reservation-card__reschedule-actions">
+                      <button
+                        type="button"
+                        className="player-reservation-card__reschedule-cancel"
+                        onClick={() => setReschedulingId(null)}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        className="player-reservation-card__reschedule-confirm"
+                        onClick={() => handleReschedule(reservation.id)}
+                      >
+                        Confirmar novo horário
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="player-reservation-card__actions">
                 <span
@@ -145,6 +216,12 @@ export default function PlayerReservationsPage() {
                     >
                       Google Calendar
                     </a>
+                    <button
+                      className="player-reservation-card__share-button"
+                      onClick={() => startRescheduling(reservation)}
+                    >
+                      Reagendar
+                    </button>
                     <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
                   </>
                 )}

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ReservationsService } from './reservations.service';
 import { CreatePlayerReservationDto } from './dto/create-player-reservation.dto';
+import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -42,6 +44,15 @@ export class PlayerReservationsController {
   @Get('me/reservations')
   myReservations(@CurrentUser() user: AuthenticatedUser) {
     return this.reservationsService.getPlayerReservations(user.sub);
+  }
+
+  @Patch('me/reservations/:id/reschedule')
+  reschedule(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: RescheduleReservationDto,
+  ) {
+    return this.reservationsService.rescheduleForPlayer(user.sub, id, dto);
   }
 
   @Delete('me/reservations/:id')

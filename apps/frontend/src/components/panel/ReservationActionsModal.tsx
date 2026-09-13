@@ -2,9 +2,15 @@ import { useState } from 'react'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { Reservation } from '../../lib/reservations'
-import { cancelReservation, updateReservationStatus } from '../../lib/reservations'
+import { cancelReservation, rescheduleReservation, updateReservationStatus } from '../../lib/reservations'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
 import './ReservationModal.css'
+
+function toDatetimeLocalValue(date: Date): string {
+  const offset = date.getTimezoneOffset()
+  const local = new Date(date.getTime() - offset * 60000)
+  return local.toISOString().slice(0, 16)
+}
 
 const STATUS_LABELS: Record<Reservation['status'], string> = {
   CONFIRMED: 'Confirmada',
@@ -33,6 +39,37 @@ export default function ReservationActionsModal({
   useEscapeToClose(onClose)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [isRescheduling, setIsRescheduling] = useState(false)
+  const [newStartsAt, setNewStartsAt] = useState('')
+  const [newEndsAt, setNewEndsAt] = useState('')
+
+  function startRescheduling() {
+    setNewStartsAt(toDatetimeLocalValue(new Date(reservation.startsAt)))
+    setNewEndsAt(toDatetimeLocalValue(new Date(reservation.endsAt)))
+    setError('')
+    setIsRescheduling(true)
+  }
+
+  async function handleReschedule() {
+    setIsSaving(true)
+    setError('')
+    try {
+      await rescheduleReservation(courtId, reservation.id, {
+        startsAt: new Date(newStartsAt).toISOString(),
+        endsAt: new Date(newEndsAt).toISOString(),
+      })
+      setIsRescheduling(false)
+      onChanged()
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível reagendar a reserva')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   async function run(action: () => Promise<unknown>) {
     setIsSaving(true)
@@ -115,6 +152,48 @@ export default function ReservationActionsModal({
               >
                 Marcar não compareceu
               </button>
+
+              {isRescheduling ? (
+                <>
+                  <label className="reservation-modal__field">
+                    <span>Novo início</span>
+                    <input
+                      type="datetime-local"
+                      value={newStartsAt}
+                      onChange={(e) => setNewStartsAt(e.target.value)}
+                    />
+                  </label>
+                  <label className="reservation-modal__field">
+                    <span>Novo fim</span>
+                    <input
+                      type="datetime-local"
+                      value={newEndsAt}
+                      onChange={(e) => setNewEndsAt(e.target.value)}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="reservation-modal__submit"
+                    disabled={isSaving}
+                    onClick={handleReschedule}
+                  >
+                    {isSaving ? 'Salvando...' : 'Confirmar novo horário'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--ghost btn--sm"
+                    disabled={isSaving}
+                    onClick={() => setIsRescheduling(false)}
+                  >
+                    Cancelar reagendamento
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="reservation-modal__submit" disabled={isSaving} onClick={startRescheduling}>
+                  Reagendar
+                </button>
+              )}
+
               <button
                 type="button"
                 className="reservation-modal__submit"

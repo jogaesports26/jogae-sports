@@ -17,6 +17,7 @@ import { RequireManage } from '../auth/decorators/require-manage.decorator';
 import { CurrentOwnerId } from '../auth/decorators/current-owner-id.decorator';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
+import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 import { UpdateReservationStatusDto } from './dto/update-reservation-status.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
@@ -68,6 +69,18 @@ export class ReservationsController {
       id,
       dto.status,
     );
+  }
+
+  @Patch('reservations/:id/reschedule')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
+  reschedule(
+    @CurrentOwnerId() ownerId: string,
+    @Param('courtId') courtId: string,
+    @Param('id') id: string,
+    @Body() dto: RescheduleReservationDto,
+  ) {
+    return this.reservationsService.reschedule(courtId, ownerId, id, dto);
   }
 
   @Delete('reservations/:id')
