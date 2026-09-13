@@ -33,6 +33,7 @@ export default function SettingsPage() {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [qrError, setQrError] = useState('')
 
   async function handleCepLookup() {
     if (cep.replace(/\D/g, '').length !== 8) {
@@ -126,6 +127,29 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleDownloadQr() {
+    setQrError('')
+    const link = `${window.location.origin}/${slug}`
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(link)}`
+    try {
+      const response = await fetch(qrUrl)
+      if (!response.ok) throw new Error('QR indisponível')
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = blobUrl
+      anchor.download = `qrcode-${slug}.png`
+      document.body.appendChild(anchor)
+      anchor.click()
+      document.body.removeChild(anchor)
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      // serviço de QR indisponível — abre numa aba nova pra o dono salvar manualmente
+      window.open(qrUrl, '_blank')
+      setQrError('Não deu pra baixar direto — abrimos numa aba nova, clique com o botão direito e "Salvar imagem".')
+    }
+  }
+
   return (
     <div className="settings-page">
       <h1>Configurações do estabelecimento</h1>
@@ -166,6 +190,24 @@ export default function SettingsPage() {
                 <button type="button" onClick={handleCopyLink}>
                   {linkCopied ? 'Copiado!' : 'Copiar link'}
                 </button>
+              </div>
+            )}
+            {slug && (
+              <div className="settings-page__qrcode">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`${window.location.origin}/${slug}`)}`}
+                  alt={`QR code da lojinha ${slug}`}
+                  width={96}
+                  height={96}
+                />
+                <div className="settings-page__qrcode-info">
+                  <span>QR code da lojinha</span>
+                  <p>Imprima e deixe na recepção pra clientes escanearem e reservarem direto pelo celular.</p>
+                  <button type="button" onClick={handleDownloadQr}>
+                    Baixar QR code
+                  </button>
+                  {qrError && <span className="settings-page__qrcode-error">{qrError}</span>}
+                </div>
               </div>
             )}
           </label>
