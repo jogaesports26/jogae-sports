@@ -8,6 +8,7 @@ import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT }
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
+import HeartToggle from '../components/HeartToggle'
 import './CourtBookingPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -117,6 +118,7 @@ export default function CourtBookingPage() {
           <Link to={`/${slug}`} className="booking-hero__back" aria-label="Voltar pra lojinha">
             ←
           </Link>
+          <HeartToggle courtId={court.id} className="booking-hero__favorite" />
           <div className="booking-hero__content">
             <h1>{court.name}</h1>
             {court.reviewCount > 0 && (
