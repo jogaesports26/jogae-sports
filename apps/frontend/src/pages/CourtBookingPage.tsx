@@ -5,6 +5,7 @@ import type { AgendaResponse } from '../lib/reservations'
 import type { CourtReview, PublicCourt } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
 import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT } from '../lib/weekGrid'
+import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import './CourtBookingPage.css'
@@ -13,7 +14,22 @@ const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.valu
 const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
 
-interface SelectedSlot {
+const SPORT_ICONS: Record<string, typeof SoccerBall> = {
+  FUTEBOL: SoccerBall,
+  FUTSAL: SoccerBall,
+  SOCIETY: SoccerBall,
+  VOLEI: Volleyball,
+  BEACH_TENNIS: TennisBall,
+  TENIS: TennisBall,
+  BASQUETE: Basketball,
+}
+
+function sportIcon(value: string) {
+  const Icon = SPORT_ICONS[value] ?? Trophy
+  return <Icon />
+}
+
+interface PendingSlot {
   dayDate: Date
   dayLabel: string
   startMinute: number
@@ -34,7 +50,9 @@ export default function CourtBookingPage() {
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [reviews, setReviews] = useState<CourtReview[]>([])
   const [error, setError] = useState('')
-  const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null)
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0)
+  const [pendingSlot, setPendingSlot] = useState<PendingSlot | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<PendingSlot | null>(null)
   const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
 
   async function load() {
@@ -66,112 +84,155 @@ export default function CourtBookingPage() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const days = Array.from({ length: 7 }, (_, i) => addDays(today, i))
+  const selectedDay = days[selectedDayIndex]
+  const selectedDayOfWeek = selectedDay.getDay()
+  const selectedDayLabel = `${WEEKDAY_SHORT[selectedDayOfWeek]} ${selectedDay.getDate()}`
+
+  const dayRules = agenda.priceRules
+    .filter((r) => r.dayOfWeek === selectedDayOfWeek)
+    .sort((a, b) => a.startMinute - b.startMinute)
+
+  const heroPhoto = court.photoUrls[0]
+  const establishmentName = court.owner.establishmentName
+
+  function selectDay(index: number) {
+    setSelectedDayIndex(index)
+    setPendingSlot(null)
+  }
+
+  function confirmPendingSlot() {
+    if (pendingSlot) setSelectedSlot(pendingSlot)
+  }
 
   return (
     <div className="booking-page">
-      <Link to={`/${slug}`} className="booking-page__back">
-        ← Voltar
-      </Link>
-      <h1>{court.name}</h1>
-      <p className="booking-page__meta">
-        {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}
-        {court.hasLighting ? ' · Com iluminação' : ''}
-        {court.reviewCount > 0 && (
-          <span className="booking-page__rating">
-            {' '}
-            · ★ {court.averageRating?.toFixed(1)} ({court.reviewCount} avaliações)
-          </span>
+      <div className="booking-hero">
+        <div className="booking-hero__media">
+          {heroPhoto ? (
+            <img src={heroPhoto} alt="" className="booking-hero__photo" />
+          ) : (
+            <div className="booking-hero__fallback">{sportIcon(court.sport)}</div>
+          )}
+          <div className="booking-hero__scrim" />
+          <Link to={`/${slug}`} className="booking-hero__back" aria-label="Voltar pra lojinha">
+            ←
+          </Link>
+          <div className="booking-hero__content">
+            <h1>{court.name}</h1>
+            {court.reviewCount > 0 && (
+              <span className="booking-hero__rating">
+                ★ {court.averageRating?.toFixed(1)} · {court.reviewCount} avaliações
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="booking-hero__tags">
+          <span className="pill pill--info">{sportLabel(court.sport)}</span>
+          <span className="pill pill--neutral">{surfaceLabel(court.surfaceType)}</span>
+          {court.hasLighting && <span className="pill pill--neutral">Com iluminação</span>}
+        </div>
+
+        {establishmentName && (
+          <p className="booking-hero__establishment">
+            {establishmentName}
+            {court.owner.establishmentAddress ? ` · ${court.owner.establishmentAddress}` : ''}
+          </p>
         )}
-      </p>
-      {court.owner.establishmentName && (
-        <p className="booking-page__establishment">
-          {court.owner.establishmentName}
-          {court.owner.establishmentAddress ? ` · ${court.owner.establishmentAddress}` : ''}
-        </p>
-      )}
-
-      <div className="booking-page__days">
-        {days.map((day) => {
-          const dayOfWeek = day.getDay()
-          const dayRules = agenda.priceRules
-            .filter((r) => r.dayOfWeek === dayOfWeek)
-            .sort((a, b) => a.startMinute - b.startMinute)
-
-          return (
-            <div className="booking-day" key={day.toISOString()}>
-              <div className="booking-day__header">
-                <span>{WEEKDAY_SHORT[dayOfWeek]}</span>
-                <strong>{day.getDate()}</strong>
-              </div>
-
-              {dayRules.length === 0 ? (
-                <p className="booking-day__empty">Sem horários</p>
-              ) : (
-                <div className="booking-day__slots">
-                  {dayRules.map((rule) => {
-                    const occupant = findOccupant(
-                      day,
-                      rule.startMinute,
-                      rule.endMinute,
-                      agenda.reservations,
-                      agenda.maintenanceBlocks,
-                      agenda.recurringMaintenanceBlocks,
-                    )
-
-                    if (!occupant) {
-                      return (
-                        <button
-                          key={rule.id}
-                          className="booking-day__slot"
-                          onClick={() =>
-                            setSelectedSlot({
-                              dayDate: day,
-                              dayLabel: `${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()}`,
-                              startMinute: rule.startMinute,
-                              endMinute: rule.endMinute,
-                              price: Number(rule.pricePerHour) * ((rule.endMinute - rule.startMinute) / 60),
-                            })
-                          }
-                        >
-                          {formatMinutes(rule.startMinute)}
-                        </button>
-                      )
-                    }
-
-                    if (occupant.type === 'reservation') {
-                      return (
-                        <div key={rule.id} className="booking-day__slot booking-day__slot--taken">
-                          <span>{formatMinutes(rule.startMinute)}</span>
-                          <button
-                            type="button"
-                            className="booking-day__notify"
-                            onClick={() =>
-                              setWaitlistSlot({
-                                dayDate: day,
-                                dayLabel: `${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()}`,
-                                startMinute: rule.startMinute,
-                                endMinute: rule.endMinute,
-                              })
-                            }
-                          >
-                            Avise-me
-                          </button>
-                        </div>
-                      )
-                    }
-
-                    return null
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
       </div>
 
+      <section className="booking-section">
+        <h2 className="booking-section__title">Escolha o dia</h2>
+        <div className="day-pills">
+          {days.map((day, index) => {
+            const dayOfWeek = day.getDay()
+            const active = index === selectedDayIndex
+            return (
+              <button
+                key={day.toISOString()}
+                type="button"
+                className={`day-pill${active ? ' day-pill--active' : ''}`}
+                onClick={() => selectDay(index)}
+                aria-pressed={active}
+              >
+                <span className="day-pill__weekday">{WEEKDAY_SHORT[dayOfWeek]}</span>
+                <span className="day-pill__number">{day.getDate()}</span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="booking-section">
+        <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>
+        {dayRules.length === 0 ? (
+          <p className="booking-section__empty">Sem horários disponíveis nesse dia.</p>
+        ) : (
+          <div className="time-pills">
+            {dayRules.map((rule) => {
+              const occupant = findOccupant(
+                selectedDay,
+                rule.startMinute,
+                rule.endMinute,
+                agenda.reservations,
+                agenda.maintenanceBlocks,
+                agenda.recurringMaintenanceBlocks,
+              )
+
+              if (occupant && occupant.type !== 'reservation') return null
+
+              const price = Number(rule.pricePerHour) * ((rule.endMinute - rule.startMinute) / 60)
+              // pendingSlot é sempre limpo ao trocar de dia (selectDay), então só precisa comparar o horário.
+              const isPending = pendingSlot?.startMinute === rule.startMinute
+
+              if (occupant?.type === 'reservation') {
+                return (
+                  <div key={rule.id} className="time-pill time-pill--taken">
+                    <span>{formatMinutes(rule.startMinute)}</span>
+                    <button
+                      type="button"
+                      className="time-pill__notify"
+                      onClick={() =>
+                        setWaitlistSlot({
+                          dayDate: selectedDay,
+                          dayLabel: selectedDayLabel,
+                          startMinute: rule.startMinute,
+                          endMinute: rule.endMinute,
+                        })
+                      }
+                    >
+                      Avise-me
+                    </button>
+                  </div>
+                )
+              }
+
+              return (
+                <button
+                  key={rule.id}
+                  type="button"
+                  className={`time-pill${isPending ? ' time-pill--active' : ''}`}
+                  onClick={() =>
+                    setPendingSlot({
+                      dayDate: selectedDay,
+                      dayLabel: selectedDayLabel,
+                      startMinute: rule.startMinute,
+                      endMinute: rule.endMinute,
+                      price,
+                    })
+                  }
+                >
+                  {formatMinutes(rule.startMinute)}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
       {reviews.length > 0 && (
-        <div className="booking-page__reviews">
-          <h2>O que os clientes acharam</h2>
+        <section className="booking-section booking-page__reviews">
+          <h2 className="booking-section__title">O que os clientes acharam</h2>
           <div className="booking-page__reviews-list">
             {reviews.map((review) => (
               <div className="booking-review" key={review.id}>
@@ -183,6 +244,20 @@ export default function CourtBookingPage() {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {pendingSlot && (
+        <div className="booking-summary-bar">
+          <div className="booking-summary-bar__info">
+            <strong>
+              {pendingSlot.dayLabel} · {formatMinutes(pendingSlot.startMinute)}–{formatMinutes(pendingSlot.endMinute)}
+            </strong>
+            <span>R$ {pendingSlot.price.toFixed(2).replace('.', ',')}</span>
+          </div>
+          <button type="button" className="btn btn--primary" onClick={confirmPendingSlot}>
+            Reservar agora
+          </button>
         </div>
       )}
 
@@ -196,7 +271,10 @@ export default function CourtBookingPage() {
           endMinute={selectedSlot.endMinute}
           price={selectedSlot.price}
           onClose={() => setSelectedSlot(null)}
-          onBooked={load}
+          onBooked={() => {
+            setPendingSlot(null)
+            load()
+          }}
         />
       )}
 

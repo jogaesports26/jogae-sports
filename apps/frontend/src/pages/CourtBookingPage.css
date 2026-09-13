@@ -1,49 +1,251 @@
-.booking-page__back {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-primary);
-  text-decoration: none;
-  margin-bottom: 16px;
+.booking-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-bottom: 96px;
 }
 
-.booking-page h1 {
-  font-family: var(--font-heading);
-  font-size: 28px;
+.booking-page__error,
+.booking-page__loading {
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+}
+
+/* Hero */
+
+.booking-hero__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-soft);
+}
+
+.booking-hero__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.booking-hero__fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-hero__fallback svg {
+  width: 96px;
+  height: 96px;
+  opacity: 0.85;
+}
+
+.booking-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 24, 46, 0.78) 0%, rgba(0, 24, 46, 0) 55%);
+  pointer-events: none;
+}
+
+.booking-hero__back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
   color: var(--color-dark);
+  font-size: 18px;
+  text-decoration: none;
+  box-shadow: var(--shadow-soft-sm);
+}
+
+.booking-hero__back:hover {
+  background: var(--color-white);
+}
+
+.booking-hero__content {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 16px;
+  color: var(--color-white);
+}
+
+.booking-hero__content h1 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  color: var(--color-white);
   margin-bottom: 4px;
 }
 
-.booking-page__meta {
+.booking-hero__rating {
   font-family: var(--font-body);
-  color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-white);
+  opacity: 0.95;
 }
 
-.booking-page__establishment {
+.booking-hero__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.booking-hero__establishment {
   font-family: var(--font-body);
   color: var(--color-text-secondary);
   font-size: 13px;
-  margin-bottom: 24px;
+  margin-top: 8px;
 }
 
-.booking-page__rating {
-  color: #b8860b;
-  font-weight: 700;
-  opacity: 1;
+/* Seções (dia / horário / avaliações) */
+
+.booking-section {
+  margin-top: 28px;
 }
 
-.booking-page__reviews {
-  margin-top: 32px;
-}
-
-.booking-page__reviews h2 {
+.booking-section__title {
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: 16px;
   color: var(--color-dark);
   margin-bottom: 12px;
 }
+
+.booking-section__empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
+/* Seletor de dia */
+
+.day-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.day-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.day-pill {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 52px;
+  padding: 10px 8px;
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.day-pill__weekday {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.day-pill__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.day-pill--active .day-pill__number {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Seletor de horário */
+
+.time-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-pill {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-info-bg);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.time-pill:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.time-pill--active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.time-pill--taken {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-background);
+  border: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 8px 8px 8px 18px;
+  cursor: default;
+}
+
+.time-pill__notify {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.time-pill__notify:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Avaliações */
 
 .booking-page__reviews-list {
   display: flex;
@@ -85,110 +287,48 @@
   opacity: 0.8;
 }
 
-.booking-page__days {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
+/* Resumo fixo + confirmar */
+
+.booking-summary-bar {
+  position: sticky;
+  bottom: 16px;
   margin-top: 24px;
-}
-
-.booking-day {
-  background: var(--color-white);
-  border: none;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft-sm);
-  padding: 14px;
-}
-
-.booking-day__header {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 10px;
-  font-family: var(--font-body);
-}
-
-.booking-day__header span {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.booking-day__header strong {
-  font-family: var(--font-heading);
-  font-size: 16px;
-}
-
-.booking-day__slots {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.booking-day__slot {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-primary);
-  background: var(--color-info-bg);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 8px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.booking-day__slot:hover {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.booking-day__slot--taken {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  background: var(--color-background);
-  border-radius: var(--radius-pill);
-  padding: 8px 8px 8px 12px;
+  gap: 16px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-lg);
+  padding: 16px 16px 16px 20px;
 }
 
-.booking-day__notify {
+.booking-summary-bar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.booking-summary-bar__info strong {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: var(--color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.booking-summary-bar__info span {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-primary);
-  background: var(--color-white);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 5px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.booking-day__notify:hover {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.booking-day__empty {
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  opacity: 0.7;
-}
-
-.booking-page__error,
-.booking-page__loading {
-  font-family: var(--font-body);
-  color: var(--color-text-secondary);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .booking-day__slot {
+  .day-pill__number,
+  .time-pill {
     transition: none;
   }
 }
