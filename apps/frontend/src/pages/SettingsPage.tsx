@@ -5,6 +5,7 @@ import { SessionExpiredError } from '../lib/api'
 import { fetchProfile, updateProfile } from '../lib/profile'
 import { fetchCep } from '../lib/cep'
 import { AMENITY_OPTIONS } from '../lib/amenities'
+import { showToast } from '../lib/toast'
 import './SettingsPage.css'
 
 function slugify(value: string) {
@@ -35,7 +36,6 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
   const [qrError, setQrError] = useState('')
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false)
@@ -87,8 +87,6 @@ export default function SettingsPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setSaving(true)
-    setError('')
-    setSaved(false)
 
     try {
       const parsedGoal = monthlyRevenueGoal.replace(',', '.').trim()
@@ -103,13 +101,13 @@ export default function SettingsPage() {
         amenities,
         ...(parsedGoal ? { monthlyRevenueGoal: Number(parsedGoal) } : {}),
       })
-      setSaved(true)
+      showToast('Dados salvos.', 'success')
     } catch (err) {
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
         return
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível salvar')
+      showToast(err instanceof Error ? err.message : 'Não foi possível salvar', 'error')
     } finally {
       setSaving(false)
     }
@@ -351,7 +349,6 @@ export default function SettingsPage() {
           </label>
 
           {error && <p className="settings-page__error">{error}</p>}
-          {saved && <p className="settings-page__success">Dados salvos.</p>}
 
           <button type="submit" className="settings-page__submit" disabled={saving}>
             {saving ? 'Salvando...' : 'Salvar alterações'}

@@ -151,6 +151,8 @@ model Review {
   player        Player      @relation(fields: [playerId], references: [id])
   rating        Int
   comment       String?
+  ownerReply     String?
+  ownerRepliedAt DateTime?
   createdAt     DateTime    @default(now())
 
   @@index([courtId])

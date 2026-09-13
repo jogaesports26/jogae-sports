@@ -17,6 +17,7 @@ import CustomersPage from './pages/CustomersPage'
 import InstructorsPage from './pages/InstructorsPage'
 import CouponsPage from './pages/CouponsPage'
 import EquipmentPage from './pages/EquipmentPage'
+import AvaliacoesPage from './pages/AvaliacoesPage'
 import StaffPage from './pages/StaffPage'
 import SettingsPage from './pages/SettingsPage'
 import PortalLayout from './components/portal/PortalLayout'
@@ -24,10 +25,12 @@ import EmbedLayout from './components/portal/EmbedLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
 import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
+import ToastHost from './components/ToastHost'
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastHost />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -49,6 +52,7 @@ function App() {
           <Route path="equipe" element={<InstructorsPage />} />
           <Route path="cupons" element={<CouponsPage />} />
           <Route path="equipamentos" element={<EquipmentPage />} />
+          <Route path="avaliacoes" element={<AvaliacoesPage />} />
           <Route path="funcionarios" element={<StaffPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>
