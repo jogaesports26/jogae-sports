@@ -22,6 +22,9 @@ model User {
   establishmentAddress String?
   establishmentSlug    String?  @unique
   monthlyRevenueGoal   Decimal? @db.Decimal(10, 2)
+  aboutDescription     String?
+  coverPhotoUrl        String?
+  amenities            String[] @default([])
 
   courts              Court[]
   passwordResetTokens PasswordResetToken[]

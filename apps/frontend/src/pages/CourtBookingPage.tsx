@@ -261,10 +261,11 @@ export default function CourtBookingPage() {
         </div>
       )}
 
-      {selectedSlot && courtId && (
+      {selectedSlot && courtId && slug && (
         <BookingFlowModal
           courtId={courtId}
           courtName={court.name}
+          slug={slug}
           dayLabel={selectedSlot.dayLabel}
           dayDate={selectedSlot.dayDate}
           startMinute={selectedSlot.startMinute}

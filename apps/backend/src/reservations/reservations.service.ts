@@ -54,6 +54,9 @@ export class ReservationsService {
         establishmentName: true,
         establishmentAddress: true,
         establishmentPhone: true,
+        aboutDescription: true,
+        coverPhotoUrl: true,
+        amenities: true,
         courts: {
           where: { active: true },
           select: {
@@ -85,6 +88,9 @@ export class ReservationsService {
       establishmentName: owner.establishmentName,
       establishmentAddress: owner.establishmentAddress,
       establishmentPhone: owner.establishmentPhone,
+      aboutDescription: owner.aboutDescription,
+      coverPhotoUrl: owner.coverPhotoUrl,
+      amenities: owner.amenities,
       courts: owner.courts.map((court) => ({
         ...court,
         fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
@@ -315,7 +321,9 @@ export class ReservationsService {
           select: {
             id: true,
             name: true,
-            owner: { select: { establishmentName: true } },
+            owner: {
+              select: { establishmentName: true, establishmentSlug: true },
+            },
           },
         },
         review: { select: { id: true, rating: true, comment: true } },

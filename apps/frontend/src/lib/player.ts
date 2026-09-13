@@ -37,6 +37,9 @@ export interface Establishment {
   establishmentName: string | null
   establishmentAddress: string | null
   establishmentPhone: string | null
+  aboutDescription: string | null
+  coverPhotoUrl: string | null
+  amenities: string[]
   courts: EstablishmentCourt[]
 }
 
@@ -47,7 +50,7 @@ export interface PlayerReservation {
   endsAt: string
   status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW'
   priceSnapshot: string
-  court: { id: string; name: string; owner: { establishmentName: string | null } }
+  court: { id: string; name: string; owner: { establishmentName: string | null; establishmentSlug: string | null } }
   review: { id: string; rating: number; comment: string | null } | null
 }
 
