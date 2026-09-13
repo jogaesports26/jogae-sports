@@ -1,0 +1,29 @@
+.embed-layout {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-dark);
+  display: flex;
+  flex-direction: column;
+}
+
+.embed-layout__content {
+  flex: 1;
+  padding: 20px 16px 12px;
+}
+
+.embed-layout__footer {
+  display: block;
+  text-align: center;
+  padding: 10px 16px 16px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.embed-layout__footer:hover {
+  opacity: 1;
+  color: var(--color-primary);
+}

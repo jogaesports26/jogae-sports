@@ -36,7 +36,7 @@ export default function PortalLayout() {
       </header>
 
       <main className="portal__content">
-        <Outlet />
+        <Outlet context={{ basePath: slug ? `/${slug}` : '' }} />
       </main>
 
       <ChatWidget />
