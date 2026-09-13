@@ -7,6 +7,8 @@ import {
 } from '../lib/player'
 import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
+import { shareOrCopy } from '../lib/share'
+import type { ShareResult } from '../lib/share'
 import './PlayerReservationsPage.css'
 
 const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
@@ -26,6 +28,7 @@ export default function PlayerReservationsPage() {
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
+  const [shareResultId, setShareResultId] = useState<{ id: string; result: ShareResult } | null>(null)
 
   function load() {
     fetchPlayerReservations()
@@ -51,6 +54,17 @@ export default function PlayerReservationsPage() {
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Não foi possível cancelar')
     }
+  }
+
+  async function handleShare(reservation: PlayerReservation) {
+    const slug = reservation.court.owner.establishmentSlug
+    const startTime = new Date(reservation.startsAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+    const result = await shareOrCopy({
+      title: reservation.court.name,
+      text: `Bora jogar? Tenho uma reserva em ${reservation.court.name} pra ${startTime}.`,
+      url: slug ? `${window.location.origin}/${slug}/${reservation.court.id}` : window.location.origin,
+    })
+    setShareResultId({ id: reservation.id, result })
   }
 
   if (!player) {
@@ -99,6 +113,9 @@ export default function PlayerReservationsPage() {
                 <p className="player-reservation-card__price">
                   R$ {Number(reservation.priceSnapshot).toFixed(2).replace('.', ',')}
                 </p>
+                {shareResultId?.id === reservation.id && shareResultId.result === 'copied' && (
+                  <p className="player-reservation-card__share-feedback">Link copiado! Cole numa conversa.</p>
+                )}
               </div>
               <div className="player-reservation-card__actions">
                 <span
@@ -107,7 +124,15 @@ export default function PlayerReservationsPage() {
                   {STATUS_LABELS[reservation.status]}
                 </span>
                 {reservation.status === 'CONFIRMED' && (
-                  <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
+                  <>
+                    <button
+                      className="player-reservation-card__share-button"
+                      onClick={() => handleShare(reservation)}
+                    >
+                      Convidar pra jogar
+                    </button>
+                    <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
+                  </>
                 )}
                 {reservation.status === 'COMPLETED' && !reservation.review && (
                   <button

@@ -13,6 +13,8 @@ import type { CouponPreview } from '../../lib/player'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
+import { shareOrCopy } from '../../lib/share'
+import type { ShareResult } from '../../lib/share'
 import './BookingFlowModal.css'
 
 type Step = 'confirm' | 'phone' | 'code' | 'success'
@@ -20,6 +22,7 @@ type Step = 'confirm' | 'phone' | 'code' | 'success'
 interface BookingFlowModalProps {
   courtId: string
   courtName: string
+  slug: string
   dayLabel: string
   dayDate: Date
   startMinute: number
@@ -38,6 +41,7 @@ function toISOAt(dayDate: Date, minutes: number) {
 export default function BookingFlowModal({
   courtId,
   courtName,
+  slug,
   dayLabel,
   dayDate,
   startMinute,
@@ -60,6 +64,7 @@ export default function BookingFlowModal({
   const [equipmentQuantities, setEquipmentQuantities] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [shareResult, setShareResult] = useState<ShareResult | null>(null)
 
   useEffect(() => {
     fetchActiveEquipmentForCourt(courtId)
@@ -83,6 +88,15 @@ export default function BookingFlowModal({
 
   function setEquipmentQuantity(id: string, quantity: number) {
     setEquipmentQuantities((prev) => ({ ...prev, [id]: Math.max(0, quantity) }))
+  }
+
+  async function handleInvite() {
+    const result = await shareOrCopy({
+      title: courtName,
+      text: `Bora jogar? Reservei ${courtName} pra ${dayLabel} às ${formatMinutes(startMinute)}.`,
+      url: `${window.location.origin}/${slug}/${courtId}`,
+    })
+    setShareResult(result)
   }
 
   async function handleApplyCoupon() {
@@ -292,6 +306,15 @@ export default function BookingFlowModal({
         {step === 'success' && (
           <div className="booking-modal__form">
             <p className="booking-modal__success">Reserva confirmada! Você já pode fechar esta janela.</p>
+            <button type="button" className="booking-modal__invite" onClick={handleInvite}>
+              Convidar pra jogar
+            </button>
+            {shareResult === 'copied' && (
+              <p className="booking-modal__hint">Link copiado! Cole numa conversa pra convidar.</p>
+            )}
+            {shareResult === 'failed' && (
+              <p className="booking-modal__hint">Não deu pra compartilhar automaticamente — copie o link da barra de endereço.</p>
+            )}
             <button className="booking-modal__submit" onClick={onClose}>
               Fechar
             </button>
