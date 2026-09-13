@@ -107,6 +107,64 @@
   gap: 8px;
 }
 
+.settings-page__qrcode {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 10px;
+}
+
+.settings-page__qrcode img {
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  flex-shrink: 0;
+}
+
+.settings-page__qrcode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.settings-page__qrcode-info span {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.settings-page__qrcode-info p {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.settings-page__qrcode-info button {
+  align-self: flex-start;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.settings-page__qrcode-error {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-negative-text);
+}
+
 .settings-page__cep-row input {
   flex: 1;
 }
