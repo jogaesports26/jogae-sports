@@ -30,6 +30,29 @@ function birthDate(month: number, day: number, year: number): Date {
   return new Date(Date.UTC(year, month, day));
 }
 
+function unsplash(photoId: string, width: number, height: number): string {
+  return `https://images.unsplash.com/photo-${photoId}?w=${width}&h=${height}&fit=crop&q=80`;
+}
+
+// Fotos reais (Unsplash, licença livre) escolhidas por esporte/tipo de piso, pra fazer
+// sentido com o nicho de cada quadra em vez de fotos aleatórias sem relação nenhuma.
+const COURT_PHOTOS_BY_KEY: Record<string, [string, string]> = {
+  'Futebol Society': ['1517747614396-d21a78b850e8', '1556056504-5c7696c4c28d'],
+  'Futebol Fut7': ['1556056504-5c7696c4c28d', '1517747614396-d21a78b850e8'],
+  Futsal: ['1517747614396-d21a78b850e8', '1556056504-5c7696c4c28d'],
+  'Tênis|Saibro': ['1750856698821-29e3878dec73', '1751904138831-13c36ce9a5e7'],
+  'Tênis|Piso rápido': ['1761404984667-16d6c9158c59', '1692288720754-743fbd1f2155'],
+  'Vôlei de Praia': ['1530869685324-333806073961', '1666129793624-1e037acbbc07'],
+  Vôlei: ['1547347298-4074fc3086f0', '1666901356149-93f2eb3ba5a2'],
+  Basquete: ['1716822117132-3955c818d2b6', '1528410480231-e3af485e80f8'],
+};
+
+function courtPhotoUrls(sport: string, surfaceType: string): [string, string] {
+  const bySurface = COURT_PHOTOS_BY_KEY[`${sport}|${surfaceType}`];
+  const ids = bySurface ?? COURT_PHOTOS_BY_KEY[sport] ?? COURT_PHOTOS_BY_KEY['Futebol Society'];
+  return [unsplash(ids[0], 900, 600), unsplash(ids[1], 900, 600)];
+}
+
 async function hash(plain: string): Promise<string> {
   return bcrypt.hash(plain, 10);
 }
@@ -89,6 +112,7 @@ interface EstablishmentSeed {
   phone: string;
   address: string;
   slug: string;
+  coverPhotoUrl: string;
   revenueGoal: number;
   courts: CourtSeed[];
   instructors: { name: string; phone: string }[];
@@ -105,6 +129,7 @@ const ESTABLISHMENTS: EstablishmentSeed[] = [
     phone: '11977771001',
     address: 'Rua das Palmeiras, 450 - São Paulo/SP',
     slug: 'arena-vitoria',
+    coverPhotoUrl: unsplash('1517747614396-d21a78b850e8', 1200, 400),
     revenueGoal: 15000,
     courts: [
       { name: 'Quadra 1 - Society', sport: 'Futebol Society', surfaceType: 'Grama sintética', hasLighting: true },
@@ -151,6 +176,7 @@ const ESTABLISHMENTS: EstablishmentSeed[] = [
     phone: '11977772001',
     address: 'Av. dos Ipês, 1200 - Campinas/SP',
     slug: 'ace-tenis',
+    coverPhotoUrl: unsplash('1750856698821-29e3878dec73', 1200, 400),
     revenueGoal: 12000,
     courts: [
       { name: 'Quadra 1 - Saibro', sport: 'Tênis', surfaceType: 'Saibro', hasLighting: true },
@@ -197,6 +223,7 @@ const ESTABLISHMENTS: EstablishmentSeed[] = [
     phone: '11977773001',
     address: 'Av. Beira Mar, 300 - Santos/SP',
     slug: 'praiana-volei',
+    coverPhotoUrl: unsplash('1530869685324-333806073961', 1200, 400),
     revenueGoal: 9000,
     courts: [
       { name: 'Quadra 1 - Areia', sport: 'Vôlei de Praia', surfaceType: 'Areia', hasLighting: true },
@@ -240,6 +267,7 @@ const ESTABLISHMENTS: EstablishmentSeed[] = [
     phone: '11977774001',
     address: 'Rua Ouro Preto, 88 - Belo Horizonte/MG',
     slug: 'move-mais',
+    coverPhotoUrl: unsplash('1716822117132-3955c818d2b6', 1200, 400),
     revenueGoal: 18000,
     courts: [
       { name: 'Quadra 1 - Basquete', sport: 'Basquete', surfaceType: 'Piso emborrachado', hasLighting: true },
@@ -471,6 +499,7 @@ async function seedEstablishment(spec: EstablishmentSeed, playersByPhone: Map<st
       establishmentPhone: spec.phone,
       establishmentAddress: spec.address,
       establishmentSlug: spec.slug,
+      coverPhotoUrl: spec.coverPhotoUrl,
       monthlyRevenueGoal: spec.revenueGoal,
     },
     create: {
@@ -482,6 +511,7 @@ async function seedEstablishment(spec: EstablishmentSeed, playersByPhone: Map<st
       establishmentPhone: spec.phone,
       establishmentAddress: spec.address,
       establishmentSlug: spec.slug,
+      coverPhotoUrl: spec.coverPhotoUrl,
       monthlyRevenueGoal: spec.revenueGoal,
     },
   });
@@ -536,7 +566,7 @@ async function seedEstablishment(spec: EstablishmentSeed, playersByPhone: Map<st
         sport: c.sport,
         surfaceType: c.surfaceType,
         hasLighting: c.hasLighting,
-        photoUrls: [`https://picsum.photos/seed/${spec.slug}-${ci}-a/900/600`, `https://picsum.photos/seed/${spec.slug}-${ci}-b/900/600`],
+        photoUrls: courtPhotoUrls(c.sport, c.surfaceType),
         priceRules: {
           create: [
             { dayOfWeek: 1, startMinute: 8 * 60, endMinute: 18 * 60, pricePerHour: weekdayPrice },
