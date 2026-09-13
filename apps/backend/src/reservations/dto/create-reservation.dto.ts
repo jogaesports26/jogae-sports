@@ -1,4 +1,14 @@
-import { IsISO8601, IsOptional, IsString, MinLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsISO8601,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+import { ReservationEquipmentItemDto } from '../../equipment/dto/reservation-equipment-item.dto';
 
 export class CreateReservationDto {
   @IsString()
@@ -22,4 +32,11 @@ export class CreateReservationDto {
   @IsOptional()
   @IsString()
   couponCode?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => ReservationEquipmentItemDto)
+  equipmentItems?: ReservationEquipmentItemDto[];
 }

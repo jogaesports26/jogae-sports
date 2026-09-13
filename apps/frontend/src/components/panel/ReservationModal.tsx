@@ -8,6 +8,8 @@ import { fetchInstructors } from '../../lib/instructors'
 import type { Instructor } from '../../lib/instructors'
 import { validateCouponForCourt } from '../../lib/coupons'
 import type { CouponPreview } from '../../lib/coupons'
+import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
+import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
 import './ReservationModal.css'
 
@@ -64,6 +66,8 @@ export default function ReservationModal({
   const [couponPreview, setCouponPreview] = useState<CouponPreview | null>(null)
   const [couponError, setCouponError] = useState('')
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
+  const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
+  const [equipmentQuantities, setEquipmentQuantities] = useState<Record<string, number>>({})
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -73,7 +77,12 @@ export default function ReservationModal({
       .catch(() => {
         // seletor de instrutor é auxiliar — uma falha aqui não deve travar a criação da reserva
       })
-  }, [])
+    fetchActiveEquipmentForCourt(courtId)
+      .then(setEquipmentList)
+      .catch(() => {
+        // seletor de equipamento é auxiliar — uma falha aqui não deve travar a criação da reserva
+      })
+  }, [courtId])
 
   const price = calcPrice(dayOfWeek, startMinute, endMinute, priceRules)
   const discount = couponPreview
@@ -82,7 +91,15 @@ export default function ReservationModal({
         price,
       )
     : 0
-  const finalPrice = price - discount
+  const equipmentTotal = equipmentList.reduce(
+    (sum, item) => sum + (equipmentQuantities[item.id] ?? 0) * item.pricePerUnit,
+    0,
+  )
+  const finalPrice = price - discount + equipmentTotal
+
+  function setEquipmentQuantity(id: string, quantity: number) {
+    setEquipmentQuantities((prev) => ({ ...prev, [id]: Math.max(0, quantity) }))
+  }
 
   async function handleApplyCoupon() {
     setCouponError('')
@@ -112,6 +129,9 @@ export default function ReservationModal({
         endsAt: toISOAt(dayDate, endMinute),
         instructorId: instructorId || undefined,
         couponCode: couponPreview ? couponCode.trim() : undefined,
+        equipmentItems: Object.entries(equipmentQuantities)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([equipmentId, quantity]) => ({ equipmentId, quantity })),
       })
       onCreated()
     } catch (err) {
@@ -209,8 +229,39 @@ export default function ReservationModal({
             </p>
           )}
 
+          {equipmentList.length > 0 && (
+            <div className="reservation-modal__field">
+              <span>Equipamento (opcional)</span>
+              <div className="reservation-modal__equipment-list">
+                {equipmentList.map((item) => (
+                  <div key={item.id} className="reservation-modal__equipment-item">
+                    <span>
+                      {item.name} <small>R$ {item.pricePerUnit.toFixed(2).replace('.', ',')}</small>
+                    </span>
+                    <div className="reservation-modal__equipment-stepper">
+                      <button
+                        type="button"
+                        onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) - 1)}
+                        disabled={(equipmentQuantities[item.id] ?? 0) === 0}
+                      >
+                        −
+                      </button>
+                      <span>{equipmentQuantities[item.id] ?? 0}</span>
+                      <button
+                        type="button"
+                        onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <p className="reservation-modal__price">
-            {couponPreview ? (
+            {couponPreview || equipmentTotal > 0 ? (
               <>
                 <span className="reservation-modal__price-original">R$ {price.toFixed(2).replace('.', ',')}</span>
                 {' '}Total: <strong>R$ {finalPrice.toFixed(2).replace('.', ',')}</strong>

@@ -6,6 +6,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { WaitlistModule } from '../waitlist/waitlist.module';
 import { InstructorsModule } from '../instructors/instructors.module';
 import { CouponsModule } from '../coupons/coupons.module';
+import { EquipmentModule } from '../equipment/equipment.module';
 import { ReservationsController } from './reservations.controller';
 import { OverviewController } from './overview.controller';
 import { PublicCourtsController } from './public-courts.controller';
@@ -22,6 +23,7 @@ import { ReservationsService } from './reservations.service';
     WaitlistModule,
     InstructorsModule,
     CouponsModule,
+    EquipmentModule,
   ],
   controllers: [
     ReservationsController,

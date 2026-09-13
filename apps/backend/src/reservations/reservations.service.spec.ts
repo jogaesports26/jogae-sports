@@ -27,6 +27,9 @@ function buildPrismaMock() {
     coupon: {
       update: jest.fn(),
     },
+    equipment: {
+      findMany: jest.fn(),
+    },
     court: { findFirst: jest.fn() },
     player: { findUnique: jest.fn() },
   };
@@ -119,6 +122,10 @@ describe('ReservationsService', () => {
       validateForCourt: jest.fn(),
       computeDiscount: jest.fn(),
     };
+    const equipmentService = {
+      resolveForOwner: jest.fn().mockResolvedValue({ total: 0, records: [] }),
+      resolveForCourt: jest.fn().mockResolvedValue({ total: 0, records: [] }),
+    };
     service = new ReservationsService(
       prisma,
       courtsService as any,
@@ -127,6 +134,7 @@ describe('ReservationsService', () => {
       waitlistService as any,
       instructorsService as any,
       couponsService as any,
+      equipmentService as any,
     );
   });
 
@@ -356,6 +364,146 @@ describe('ReservationsService', () => {
         where: { id: 'coupon-2' },
         data: { usageCount: { increment: 1 } },
       });
+    });
+  });
+
+  describe('aluguel de equipamento', () => {
+    let equipmentService: {
+      resolveForOwner: jest.Mock;
+      resolveForCourt: jest.Mock;
+    };
+
+    beforeEach(() => {
+      equipmentService = (service as any).equipmentService;
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
+    });
+
+    it('soma o valor dos itens de equipamento ao preço da reserva', async () => {
+      const records = [
+        { equipmentId: 'eq-1', name: 'Colete', unitPrice: 10, quantity: 2 },
+      ];
+      equipmentService.resolveForOwner.mockResolvedValue({
+        total: 20,
+        records,
+      });
+
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+        equipmentItems: [{ equipmentId: 'eq-1', quantity: 2 }],
+      });
+
+      expect(equipmentService.resolveForOwner).toHaveBeenCalledWith('owner-1', [
+        { equipmentId: 'eq-1', quantity: 2 },
+      ]);
+      expect(result.priceSnapshot).toBe(200);
+      expect(result.equipmentItems).toEqual({ create: records });
+    });
+
+    it('cria a reserva sem itens quando nenhum equipamento é informado', async () => {
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+      });
+
+      expect(equipmentService.resolveForOwner).toHaveBeenCalledWith(
+        'owner-1',
+        undefined,
+      );
+      expect(result.priceSnapshot).toBe(180);
+      expect(result.equipmentItems).toEqual({ create: [] });
+    });
+
+    it('aplica cupom e equipamento juntos — desconto só no preço da quadra', async () => {
+      const couponsService = (service as any).couponsService as {
+        validateForOwner: jest.Mock;
+        computeDiscount: jest.Mock;
+      };
+      const coupon = {
+        id: 'coupon-1',
+        discountType: 'FIXED',
+        discountValue: 20,
+      };
+      couponsService.validateForOwner.mockResolvedValue(coupon);
+      couponsService.computeDiscount.mockReturnValue(20);
+      equipmentService.resolveForOwner.mockResolvedValue({
+        total: 15,
+        records: [
+          { equipmentId: 'eq-1', name: 'Bola', unitPrice: 15, quantity: 1 },
+        ],
+      });
+
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+        couponCode: 'PROMO20',
+        equipmentItems: [{ equipmentId: 'eq-1', quantity: 1 }],
+      });
+
+      // 180 (quadra) - 20 (desconto) + 15 (equipamento, sem desconto) = 175
+      expect(result.priceSnapshot).toBe(175);
+    });
+
+    it('rejeita quando o item de equipamento é inválido ou indisponível', async () => {
+      equipmentService.resolveForOwner.mockRejectedValue(
+        new BadRequestException('Equipamento não encontrado ou indisponível'),
+      );
+
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente Teste',
+          guestPhone: '85999998888',
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(16).toISOString(),
+          equipmentItems: [{ equipmentId: 'eq-inexistente', quantity: 1 }],
+        } as any),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
+    });
+
+    it('aplica equipamento em createForPlayer', async () => {
+      prisma.court.findFirst.mockResolvedValue({
+        id: 'court-1',
+        name: 'Quadra 1',
+        sport: 'FUTSAL',
+        surfaceType: 'QUADRA_POLIESPORTIVA',
+        hasLighting: true,
+        photoUrls: [],
+        owner: {},
+      });
+      prisma.player.findUnique.mockResolvedValue({ id: 'player-1' });
+      equipmentService.resolveForCourt.mockResolvedValue({
+        total: 10,
+        records: [
+          { equipmentId: 'eq-1', name: 'Colete', unitPrice: 10, quantity: 1 },
+        ],
+      });
+
+      const result = await service.createForPlayer(
+        'court-1',
+        'player-1',
+        nextSaturdayAt(14).toISOString(),
+        nextSaturdayAt(16).toISOString(),
+        undefined,
+        [{ equipmentId: 'eq-1', quantity: 1 }],
+      );
+
+      expect(equipmentService.resolveForCourt).toHaveBeenCalledWith('court-1', [
+        { equipmentId: 'eq-1', quantity: 1 },
+      ]);
+      expect(result.priceSnapshot).toBe(190);
     });
   });
 
