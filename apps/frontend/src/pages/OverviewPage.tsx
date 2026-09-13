@@ -9,6 +9,8 @@ import type { Court } from '../lib/courts'
 import { fetchProfile } from '../lib/profile'
 import { fetchReports } from '../lib/reports'
 import type { FinancialReport } from '../lib/reports'
+import { fetchCustomers, INACTIVE_THRESHOLD_DAYS, isBirthdayThisMonth } from '../lib/customers'
+import type { Customer } from '../lib/customers'
 import { toDateInputValue } from '../lib/weekGrid'
 import './OverviewPage.css'
 
@@ -34,6 +36,7 @@ export default function OverviewPage() {
   const [hasSlug, setHasSlug] = useState<boolean | null>(null)
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthReport, setMonthReport] = useState<FinancialReport | null>(null)
+  const [customers, setCustomers] = useState<Customer[] | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -48,9 +51,10 @@ export default function OverviewPage() {
       fetchCourts(),
       fetchProfile(),
       fetchReports({ from: toDateInputValue(monthStart), to: toDateInputValue(today) }),
-    ]).then(([reservationsResult, courtsResult, profileResult, reportResult]) => {
+      fetchCustomers(),
+    ]).then(([reservationsResult, courtsResult, profileResult, reportResult, customersResult]) => {
       if (
-        [reservationsResult, courtsResult, profileResult, reportResult].some(
+        [reservationsResult, courtsResult, profileResult, reportResult, customersResult].some(
           (result) => result.status === 'rejected' && result.reason instanceof SessionExpiredError,
         )
       ) {
@@ -76,6 +80,10 @@ export default function OverviewPage() {
       if (reportResult.status === 'fulfilled') {
         setMonthReport(reportResult.value)
       }
+
+      if (customersResult.status === 'fulfilled') {
+        setCustomers(customersResult.value)
+      }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -99,6 +107,10 @@ export default function OverviewPage() {
 
   const goalProgress =
     monthlyGoal && monthlyGoal > 0 && monthReport ? Math.min(monthReport.totalRevenue / monthlyGoal, 1) : null
+
+  const currentMonth = new Date().getMonth()
+  const birthdaysCount = customers?.filter((c) => isBirthdayThisMonth(c.birthDate, currentMonth)).length ?? 0
+  const inactiveCount = customers?.filter((c) => c.daysSinceLastReservation >= INACTIVE_THRESHOLD_DAYS).length ?? 0
 
   return (
     <div className="overview-page">
@@ -176,6 +188,33 @@ export default function OverviewPage() {
             <div className="overview-page__goal-bar-fill" style={{ width: `${Math.round(goalProgress * 100)}%` }} />
           </div>
         </Link>
+      )}
+
+      {(birthdaysCount > 0 || inactiveCount > 0) && (
+        <div className="overview-page__alerts">
+          {birthdaysCount > 0 && (
+            <Link to="/painel/clientes?filtro=birthdays" className="overview-page__alert card">
+              <span className="overview-page__alert-icon" aria-hidden="true">
+                🎂
+              </span>
+              <span className="overview-page__alert-body">
+                <strong>{birthdaysCount}</strong>
+                <span>{birthdaysCount === 1 ? 'aniversariante esse mês' : 'aniversariantes esse mês'}</span>
+              </span>
+            </Link>
+          )}
+          {inactiveCount > 0 && (
+            <Link to="/painel/clientes?filtro=inactive" className="overview-page__alert card">
+              <span className="overview-page__alert-icon" aria-hidden="true">
+                💤
+              </span>
+              <span className="overview-page__alert-body">
+                <strong>{inactiveCount}</strong>
+                <span>{inactiveCount === 1 ? 'cliente inativo' : 'clientes inativos'}</span>
+              </span>
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="overview-page__section">

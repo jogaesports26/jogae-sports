@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import CustomerHistoryModal from '../components/panel/CustomerHistoryModal'
 import { SessionExpiredError } from '../lib/api'
-import { downloadCustomersCsv, fetchCustomers } from '../lib/customers'
+import {
+  downloadCustomersCsv,
+  fetchCustomers,
+  INACTIVE_THRESHOLD_DAYS,
+  isBirthdayThisMonth,
+  NO_SHOW_ALERT_THRESHOLD,
+} from '../lib/customers'
 import type { Customer } from '../lib/customers'
 import './CustomersPage.css'
 
 type FilterTab = 'all' | 'inactive' | 'birthdays' | 'noShows'
-
-const INACTIVE_THRESHOLD_DAYS = 30
-const NO_SHOW_ALERT_THRESHOLD = 2
 
 const FILTER_LABELS: Record<FilterTab, string> = {
   all: 'Todos',
@@ -18,9 +22,8 @@ const FILTER_LABELS: Record<FilterTab, string> = {
   noShows: 'Faltas recorrentes',
 }
 
-function isBirthdayThisMonth(birthDate: string | null, currentMonth: number) {
-  if (!birthDate) return false
-  return new Date(birthDate).getUTCMonth() === currentMonth
+function isFilterTab(value: string | null): value is FilterTab {
+  return value === 'all' || value === 'inactive' || value === 'birthdays' || value === 'noShows'
 }
 
 function formatLastSeen(days: number) {
@@ -31,9 +34,13 @@ function formatLastSeen(days: number) {
 
 export default function CustomersPage() {
   const { onSessionExpired } = usePainelContext()
+  const [searchParams] = useSearchParams()
   const [customers, setCustomers] = useState<Customer[] | null>(null)
   const [error, setError] = useState('')
-  const [filter, setFilter] = useState<FilterTab>('all')
+  const [filter, setFilter] = useState<FilterTab>(() => {
+    const fromUrl = searchParams.get('filtro')
+    return isFilterTab(fromUrl) ? fromUrl : 'all'
+  })
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Customer | null>(null)
   const [exporting, setExporting] = useState(false)

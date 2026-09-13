@@ -12,6 +12,14 @@ export interface Customer {
   daysSinceLastReservation: number
 }
 
+export const INACTIVE_THRESHOLD_DAYS = 30
+export const NO_SHOW_ALERT_THRESHOLD = 2
+
+export function isBirthdayThisMonth(birthDate: string | null, currentMonth: number): boolean {
+  if (!birthDate) return false
+  return new Date(birthDate).getUTCMonth() === currentMonth
+}
+
 export interface CustomerReservation {
   id: string
   startsAt: string
