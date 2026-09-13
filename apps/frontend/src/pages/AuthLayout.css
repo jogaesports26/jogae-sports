@@ -82,6 +82,34 @@
   margin-bottom: 32px;
 }
 
+.auth__role-toggle {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 24, 46, 0.06);
+  margin-bottom: 24px;
+}
+
+.auth__role-toggle-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-dark);
+  opacity: 0.6;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.auth__role-toggle-btn--active {
+  background: var(--color-white);
+  opacity: 1;
+  box-shadow: var(--shadow-soft-sm);
+}
+
 .auth__field {
   display: flex;
   flex-direction: column;

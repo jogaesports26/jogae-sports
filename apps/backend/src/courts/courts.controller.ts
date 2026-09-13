@@ -9,13 +9,12 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import {
-  JwtAuthGuard,
-  type AuthenticatedUser,
-} from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentOwnerId } from '../auth/decorators/current-owner-id.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../auth/guards/jwt-auth.guard';
 import { CourtsService } from './courts.service';
 import { CreateCourtDto } from './dto/create-court.dto';
 import { UpdateCourtDto } from './dto/update-court.dto';
@@ -29,8 +28,9 @@ export class CourtsController {
   constructor(private readonly courtsService: CourtsService) {}
 
   @Get()
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.courtsService.findAllByOwner(user.sub);
+  @Roles('COURT_OWNER', 'STAFF')
+  findAll(@CurrentOwnerId() ownerId: string) {
+    return this.courtsService.findAllByOwner(ownerId);
   }
 
   @Post()
@@ -39,8 +39,9 @@ export class CourtsController {
   }
 
   @Get(':id')
-  findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.courtsService.findOneOrThrow(id, user.sub);
+  @Roles('COURT_OWNER', 'STAFF')
+  findOne(@CurrentOwnerId() ownerId: string, @Param('id') id: string) {
+    return this.courtsService.findOneOrThrow(id, ownerId);
   }
 
   @Patch(':id')

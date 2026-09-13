@@ -9,13 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {
-  JwtAuthGuard,
-  type AuthenticatedUser,
-} from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { StaffPermissionGuard } from '../auth/guards/staff-permission.guard';
+import { RequireManage } from '../auth/decorators/require-manage.decorator';
+import { CurrentOwnerId } from '../auth/decorators/current-owner-id.decorator';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationStatusDto } from './dto/update-reservation-status.dto';
@@ -24,101 +23,115 @@ import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 import { AgendaQueryDto } from './dto/agenda-query.dto';
 
 @Controller('courts/:courtId')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, StaffPermissionGuard)
 @Roles('COURT_OWNER')
 export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
   @Get('agenda')
+  @Roles('COURT_OWNER', 'STAFF')
   getAgenda(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Query() query: AgendaQueryDto,
   ) {
     return this.reservationsService.getAgenda(
       courtId,
-      user.sub,
+      ownerId,
       query.weekStart,
     );
   }
 
   @Post('reservations')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   create(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Body() dto: CreateReservationDto,
   ) {
-    return this.reservationsService.create(courtId, user.sub, dto);
+    return this.reservationsService.create(courtId, ownerId, dto);
   }
 
   @Patch('reservations/:id/status')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   updateStatus(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Param('id') id: string,
     @Body() dto: UpdateReservationStatusDto,
   ) {
     return this.reservationsService.updateStatus(
       courtId,
-      user.sub,
+      ownerId,
       id,
       dto.status,
     );
   }
 
   @Delete('reservations/:id')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   cancel(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Param('id') id: string,
   ) {
-    return this.reservationsService.cancel(courtId, user.sub, id);
+    return this.reservationsService.cancel(courtId, ownerId, id);
   }
 
   @Post('maintenance-blocks')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   createBlock(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Body() dto: CreateMaintenanceBlockDto,
   ) {
     return this.reservationsService.createMaintenanceBlock(
       courtId,
-      user.sub,
+      ownerId,
       dto,
     );
   }
 
   @Delete('maintenance-blocks/:id')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   removeBlock(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Param('id') id: string,
   ) {
     return this.reservationsService.removeMaintenanceBlock(
       courtId,
-      user.sub,
+      ownerId,
       id,
     );
   }
 
   @Get('maintenance-blocks')
+  @Roles('COURT_OWNER', 'STAFF')
   listMaintenanceHistory(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
   ) {
-    return this.reservationsService.listMaintenanceHistory(courtId, user.sub);
+    return this.reservationsService.listMaintenanceHistory(courtId, ownerId);
   }
 
   @Patch('maintenance-blocks/:id')
+  @Roles('COURT_OWNER', 'STAFF')
+  @RequireManage()
   updateBlock(
-    @CurrentUser() user: AuthenticatedUser,
+    @CurrentOwnerId() ownerId: string,
     @Param('courtId') courtId: string,
     @Param('id') id: string,
     @Body() dto: UpdateMaintenanceBlockDto,
   ) {
     return this.reservationsService.updateMaintenanceBlock(
       courtId,
-      user.sub,
+      ownerId,
       id,
       dto,
     );

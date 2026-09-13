@@ -17,6 +17,8 @@ import { WaitlistModule } from './waitlist/waitlist.module';
 import { InstructorsModule } from './instructors/instructors.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { StaffModule } from './staff/staff.module';
+import { StaffAuthModule } from './staff-auth/staff-auth.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { EquipmentModule } from './equipment/equipment.module';
     InstructorsModule,
     CouponsModule,
     EquipmentModule,
+    StaffModule,
+    StaffAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

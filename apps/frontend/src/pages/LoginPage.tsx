@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
-import { API_URL, parseApiError, saveSession, type AuthResponse } from '../lib/api'
+import { API_URL, parseApiError, saveSession, staffLogin, type AuthResponse } from '../lib/api'
+
+type LoginAs = 'owner' | 'staff'
 
 interface FormErrors {
   email?: string
@@ -28,6 +30,7 @@ function validate(email: string, password: string): FormErrors {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [loginAs, setLoginAs] = useState<LoginAs>('owner')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
@@ -44,17 +47,23 @@ export default function LoginPage() {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
+      let data: AuthResponse
+      if (loginAs === 'staff') {
+        data = await staffLogin(email, password)
+      } else {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        })
 
-      if (!response.ok) {
-        throw new Error(await parseApiError(response, 'E-mail ou senha inválidos'))
+        if (!response.ok) {
+          throw new Error(await parseApiError(response, 'E-mail ou senha inválidos'))
+        }
+
+        data = await response.json()
       }
 
-      const data: AuthResponse = await response.json()
       saveSession(data)
       navigate('/painel')
     } catch (err) {
@@ -72,7 +81,30 @@ export default function LoginPage() {
       <div className="auth__brand">Jogaê Sports - Gestão</div>
 
       <h1>Bem-vindo de volta</h1>
-      <p className="auth__subtitle">Entre para administrar sua quadra</p>
+      <p className="auth__subtitle">
+        {loginAs === 'staff' ? 'Entre com os dados que o dono cadastrou pra você' : 'Entre para administrar sua quadra'}
+      </p>
+
+      <div className="auth__role-toggle" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={loginAs === 'owner'}
+          className={loginAs === 'owner' ? 'auth__role-toggle-btn auth__role-toggle-btn--active' : 'auth__role-toggle-btn'}
+          onClick={() => setLoginAs('owner')}
+        >
+          Sou dono
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={loginAs === 'staff'}
+          className={loginAs === 'staff' ? 'auth__role-toggle-btn auth__role-toggle-btn--active' : 'auth__role-toggle-btn'}
+          onClick={() => setLoginAs('staff')}
+        >
+          Sou funcionário
+        </button>
+      </div>
 
       {formError && <div className="auth__error">{formError}</div>}
 
@@ -110,12 +142,19 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="auth__footer">
-        <Link to="/esqueci-senha">Esqueci minha senha</Link>
-      </div>
-      <div className="auth__footer">
-        Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
-      </div>
+      {loginAs === 'owner' && (
+        <>
+          <div className="auth__footer">
+            <Link to="/esqueci-senha">Esqueci minha senha</Link>
+          </div>
+          <div className="auth__footer">
+            Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
+          </div>
+        </>
+      )}
+      {loginAs === 'staff' && (
+        <div className="auth__footer">Esqueceu a senha? Peça pro dono da quadra redefinir.</div>
+      )}
     </AuthLayout>
   )
 }

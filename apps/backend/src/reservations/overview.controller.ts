@@ -6,6 +6,7 @@ import {
 } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentOwnerId } from '../auth/decorators/current-owner-id.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ReservationsService } from './reservations.service';
 import { ReportsQueryDto } from './dto/reports-query.dto';
@@ -31,8 +32,9 @@ export class OverviewController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
   @Get('today')
-  getToday(@CurrentUser() user: AuthenticatedUser) {
-    return this.reservationsService.getTodayReservations(user.sub);
+  @Roles('COURT_OWNER', 'STAFF')
+  getToday(@CurrentOwnerId() ownerId: string) {
+    return this.reservationsService.getTodayReservations(ownerId);
   }
 
   @Get('reports')
