@@ -269,6 +269,7 @@
 }
 
 .booking-modal__invite {
+  display: block;
   padding: 12px;
   background: var(--color-white);
   color: var(--color-primary);
@@ -277,6 +278,8 @@
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 700;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
 }
 

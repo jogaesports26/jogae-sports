@@ -211,6 +211,25 @@
   cursor: not-allowed;
 }
 
+.reservation-modal__calendar-link {
+  display: block;
+  padding: 12px;
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.reservation-modal__calendar-link:hover {
+  background: var(--color-info-bg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reservation-modal__submit {
     transition: none;

@@ -3,6 +3,7 @@ import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { Reservation } from '../../lib/reservations'
 import { cancelReservation, updateReservationStatus } from '../../lib/reservations'
+import { buildGoogleCalendarUrl } from '../../lib/calendar'
 import './ReservationModal.css'
 
 const STATUS_LABELS: Record<Reservation['status'], string> = {
@@ -14,6 +15,7 @@ const STATUS_LABELS: Record<Reservation['status'], string> = {
 
 interface ReservationActionsModalProps {
   courtId: string
+  courtName: string
   reservation: Reservation
   onClose: () => void
   onChanged: () => void
@@ -22,6 +24,7 @@ interface ReservationActionsModalProps {
 
 export default function ReservationActionsModal({
   courtId,
+  courtName,
   reservation,
   onClose,
   onChanged,
@@ -81,6 +84,21 @@ export default function ReservationActionsModal({
 
           {reservation.status === 'CONFIRMED' && (
             <>
+              <a
+                className="reservation-modal__calendar-link"
+                href={buildGoogleCalendarUrl({
+                  title: reservation.guestName ? `${courtName} — ${reservation.guestName}` : courtName,
+                  details: reservation.guestPhone
+                    ? `Reserva no Jogaê Sports. Telefone: ${reservation.guestPhone}`
+                    : 'Reserva no Jogaê Sports.',
+                  startsAt: reservation.startsAt,
+                  endsAt: reservation.endsAt,
+                })}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Adicionar ao Google Calendar
+              </a>
               <button
                 type="button"
                 className="reservation-modal__submit"
