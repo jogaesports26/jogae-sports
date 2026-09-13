@@ -120,6 +120,12 @@
   color: var(--color-text-secondary);
 }
 
+.equipment-page__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .equipment-page__item-actions {
   display: flex;
   align-items: center;

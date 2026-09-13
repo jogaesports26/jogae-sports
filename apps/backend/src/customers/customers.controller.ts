@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
 import {
   JwtAuthGuard,
   type AuthenticatedUser,
@@ -8,6 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CustomersService } from './customers.service';
 import { UpdateBirthDateDto } from './dto/update-birth-date.dto';
+import { toCsv } from '../common/csv.util';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -18,6 +28,39 @@ export class CustomersController {
   @Get()
   list(@CurrentUser() user: AuthenticatedUser) {
     return this.customersService.listCustomers(user.sub);
+  }
+
+  @Get('export')
+  async export(@CurrentUser() user: AuthenticatedUser, @Res() res: Response) {
+    const customers = await this.customersService.listCustomers(user.sub);
+
+    const header = [
+      'Nome',
+      'Telefone',
+      'Nascimento',
+      'Reservas',
+      'Total gasto (R$)',
+      'Faltas',
+      'Última reserva',
+      'Dias desde a última reserva',
+    ];
+
+    const rows = customers.map((customer) => [
+      customer.name,
+      customer.phone,
+      customer.birthDate ? customer.birthDate.toLocaleDateString('pt-BR') : '',
+      String(customer.totalReservations),
+      customer.totalSpent.toFixed(2).replace('.', ','),
+      String(customer.noShowCount),
+      customer.lastReservationAt.toLocaleDateString('pt-BR'),
+      String(customer.daysSinceLastReservation),
+    ]);
+
+    const csv = toCsv(header, rows);
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="clientes.csv"');
+    res.send('﻿' + csv);
   }
 
   @Get(':phone')

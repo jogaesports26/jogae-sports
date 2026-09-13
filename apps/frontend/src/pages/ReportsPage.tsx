@@ -5,8 +5,8 @@ import { SessionExpiredError } from '../lib/api'
 import { fetchCourts } from '../lib/courts'
 import type { Court } from '../lib/courts'
 import { fetchProfile } from '../lib/profile'
-import { downloadReportsCsv, fetchReports } from '../lib/reports'
-import type { FinancialReport } from '../lib/reports'
+import { downloadReportsCsv, fetchCommercialReport, fetchReports } from '../lib/reports'
+import type { CommercialReport, FinancialReport } from '../lib/reports'
 import { toDateInputValue } from '../lib/weekGrid'
 import './ReportsPage.css'
 
@@ -66,6 +66,7 @@ export default function ReportsPage() {
 
   const [courts, setCourts] = useState<Court[]>([])
   const [report, setReport] = useState<FinancialReport | null>(null)
+  const [commercialReport, setCommercialReport] = useState<CommercialReport | null>(null)
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthRevenue, setMonthRevenue] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
@@ -114,13 +115,17 @@ export default function ReportsPage() {
     const requestId = ++latestRequestRef.current
     setLoading(true)
     setError('')
-    fetchReports({ from, to, courtId: courtId || undefined })
-      .then((data) => {
+    Promise.all([
+      fetchReports({ from, to, courtId: courtId || undefined }),
+      fetchCommercialReport({ from, to, courtId: courtId || undefined }),
+    ])
+      .then(([data, commercialData]) => {
         // Descarta a resposta se um filtro mais recente já disparou outra
         // busca — sem isso, uma resposta mais lenta podia chegar por último
         // e sobrescrever o estado com os dados de um período errado.
         if (requestId !== latestRequestRef.current) return
         setReport(data)
+        setCommercialReport(commercialData)
       })
       .catch((err) => {
         if (requestId !== latestRequestRef.current) return
@@ -310,6 +315,42 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+
+          {commercialReport && (
+            <div className="reports-page__grid">
+              <div className="card reports-page__courts">
+                <h2>Cupom mais usado</h2>
+                {commercialReport.topCoupons.length === 0 && (
+                  <p className="reports-page__empty">Nenhum cupom usado nesse período.</p>
+                )}
+                {commercialReport.topCoupons.map((coupon, index) => (
+                  <div key={coupon.couponId} className="reports-page__court-row">
+                    <span className="reports-page__court-rank">{index + 1}º</span>
+                    <span className="reports-page__court-name">{coupon.code}</span>
+                    <span className="reports-page__court-count">
+                      {coupon.usageCount} {coupon.usageCount === 1 ? 'uso' : 'usos'}
+                    </span>
+                    <strong className="reports-page__court-revenue">{formatCurrency(coupon.totalDiscount)}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="card reports-page__courts">
+                <h2>Equipamento mais alugado</h2>
+                {commercialReport.topEquipment.length === 0 && (
+                  <p className="reports-page__empty">Nenhum equipamento alugado nesse período.</p>
+                )}
+                {commercialReport.topEquipment.map((item, index) => (
+                  <div key={item.equipmentId} className="reports-page__court-row">
+                    <span className="reports-page__court-rank">{index + 1}º</span>
+                    <span className="reports-page__court-name">{item.name}</span>
+                    <span className="reports-page__court-count">{item.quantityRented} un.</span>
+                    <strong className="reports-page__court-revenue">{formatCurrency(item.revenue)}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

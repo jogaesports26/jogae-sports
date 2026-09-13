@@ -1,15 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import CustomerHistoryModal from '../components/panel/CustomerHistoryModal'
 import { SessionExpiredError } from '../lib/api'
-import { fetchCustomers } from '../lib/customers'
+import {
+  downloadCustomersCsv,
+  fetchCustomers,
+  INACTIVE_THRESHOLD_DAYS,
+  isBirthdayThisMonth,
+  NO_SHOW_ALERT_THRESHOLD,
+} from '../lib/customers'
 import type { Customer } from '../lib/customers'
 import './CustomersPage.css'
 
 type FilterTab = 'all' | 'inactive' | 'birthdays' | 'noShows'
-
-const INACTIVE_THRESHOLD_DAYS = 30
-const NO_SHOW_ALERT_THRESHOLD = 2
 
 const FILTER_LABELS: Record<FilterTab, string> = {
   all: 'Todos',
@@ -18,9 +22,8 @@ const FILTER_LABELS: Record<FilterTab, string> = {
   noShows: 'Faltas recorrentes',
 }
 
-function isBirthdayThisMonth(birthDate: string | null, currentMonth: number) {
-  if (!birthDate) return false
-  return new Date(birthDate).getUTCMonth() === currentMonth
+function isFilterTab(value: string | null): value is FilterTab {
+  return value === 'all' || value === 'inactive' || value === 'birthdays' || value === 'noShows'
 }
 
 function formatLastSeen(days: number) {
@@ -31,11 +34,16 @@ function formatLastSeen(days: number) {
 
 export default function CustomersPage() {
   const { onSessionExpired } = usePainelContext()
+  const [searchParams] = useSearchParams()
   const [customers, setCustomers] = useState<Customer[] | null>(null)
   const [error, setError] = useState('')
-  const [filter, setFilter] = useState<FilterTab>('all')
+  const [filter, setFilter] = useState<FilterTab>(() => {
+    const fromUrl = searchParams.get('filtro')
+    return isFilterTab(fromUrl) ? fromUrl : 'all'
+  })
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Customer | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchCustomers()
@@ -72,6 +80,21 @@ export default function CustomersPage() {
     setSelected(updated)
   }
 
+  async function handleExport() {
+    setExporting(true)
+    try {
+      await downloadCustomersCsv()
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível exportar os clientes')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="customers-page">
       <h1>Clientes</h1>
@@ -99,6 +122,15 @@ export default function CustomersPage() {
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Buscar por nome ou telefone"
         />
+
+        <button
+          type="button"
+          className="btn btn--outline btn--sm"
+          onClick={handleExport}
+          disabled={exporting || !customers || customers.length === 0}
+        >
+          {exporting ? 'Exportando...' : 'Exportar CSV'}
+        </button>
       </div>
 
       {error && <p className="customers-page__error">{error}</p>}

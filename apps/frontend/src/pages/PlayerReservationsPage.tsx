@@ -8,6 +8,7 @@ import {
 } from '../lib/player'
 import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
+import ReceiptModal from '../components/portal/ReceiptModal'
 import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
 import { buildGoogleCalendarUrl } from '../lib/calendar'
@@ -36,6 +37,7 @@ export default function PlayerReservationsPage() {
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
+  const [receiptReservation, setReceiptReservation] = useState<PlayerReservation | null>(null)
   const [shareResultId, setShareResultId] = useState<{ id: string; result: ShareResult } | null>(null)
   const [reschedulingId, setReschedulingId] = useState<string | null>(null)
   const [newStartsAt, setNewStartsAt] = useState('')
@@ -218,12 +220,26 @@ export default function PlayerReservationsPage() {
                     </a>
                     <button
                       className="player-reservation-card__share-button"
+                      onClick={() => setReceiptReservation(reservation)}
+                    >
+                      Comprovante
+                    </button>
+                    <button
+                      className="player-reservation-card__share-button"
                       onClick={() => startRescheduling(reservation)}
                     >
                       Reagendar
                     </button>
                     <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
                   </>
+                )}
+                {reservation.status === 'COMPLETED' && (
+                  <button
+                    className="player-reservation-card__share-button"
+                    onClick={() => setReceiptReservation(reservation)}
+                  >
+                    Comprovante
+                  </button>
                 )}
                 {reservation.status === 'COMPLETED' && !reservation.review && (
                   <button
@@ -254,6 +270,21 @@ export default function PlayerReservationsPage() {
             setReviewingReservation(null)
             load()
           }}
+        />
+      )}
+
+      {receiptReservation && (
+        <ReceiptModal
+          courtName={receiptReservation.court.name}
+          establishmentName={receiptReservation.court.owner.establishmentName}
+          dateLabel={`${formatDateTime(receiptReservation.startsAt)} – ${new Date(receiptReservation.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`}
+          price={Number(receiptReservation.priceSnapshot)}
+          shareUrl={
+            receiptReservation.court.owner.establishmentSlug
+              ? `${window.location.origin}/${receiptReservation.court.owner.establishmentSlug}/${receiptReservation.court.id}`
+              : window.location.origin
+          }
+          onClose={() => setReceiptReservation(null)}
         />
       )}
     </div>

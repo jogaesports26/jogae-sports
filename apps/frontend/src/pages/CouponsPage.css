@@ -141,6 +141,22 @@
   margin-top: 4px;
 }
 
+.coupons-page__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: var(--border-subtle);
+}
+
+.coupons-page__edit .coupons-page__field {
+  gap: 4px;
+}
+
+.coupons-page__edit .coupons-page__item-actions {
+  justify-content: flex-end;
+}
+
 .coupons-page__remove {
   width: 26px;
   height: 26px;
