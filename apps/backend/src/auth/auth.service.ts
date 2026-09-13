@@ -82,6 +82,9 @@ export class AuthService {
       monthlyRevenueGoal: user.monthlyRevenueGoal
         ? Number(user.monthlyRevenueGoal)
         : null,
+      aboutDescription: user.aboutDescription,
+      coverPhotoUrl: user.coverPhotoUrl,
+      amenities: user.amenities,
     };
   }
 
@@ -100,6 +103,9 @@ export class AuthService {
       monthlyRevenueGoal: user.monthlyRevenueGoal
         ? Number(user.monthlyRevenueGoal)
         : null,
+      aboutDescription: user.aboutDescription,
+      coverPhotoUrl: user.coverPhotoUrl,
+      amenities: user.amenities,
     };
   }
 
