@@ -10,6 +10,7 @@ import { CurrentOwnerId } from '../auth/decorators/current-owner-id.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ReservationsService } from './reservations.service';
 import { ReportsQueryDto } from './dto/reports-query.dto';
+import { toCsv } from '../common/csv.util';
 
 const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: 'Confirmada',
@@ -17,13 +18,6 @@ const STATUS_LABELS: Record<string, string> = {
   COMPLETED: 'Concluída',
   NO_SHOW: 'Não compareceu',
 };
-
-function csvEscape(value: string) {
-  if (/[",\n;]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
 
 @Controller('reservations')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -74,28 +68,24 @@ export class OverviewController {
       'Valor (R$)',
     ];
 
-    const lines = rows.map((row) =>
-      [
-        row.startsAt.toLocaleDateString('pt-BR'),
-        row.startsAt.toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        row.endsAt.toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        row.courtName,
-        row.guestName ?? '',
-        row.guestPhone ?? '',
-        STATUS_LABELS[row.status] ?? row.status,
-        Number(row.priceSnapshot).toFixed(2).replace('.', ','),
-      ]
-        .map((value) => csvEscape(String(value)))
-        .join(';'),
-    );
+    const rowsData = rows.map((row) => [
+      row.startsAt.toLocaleDateString('pt-BR'),
+      row.startsAt.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      row.endsAt.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      row.courtName,
+      row.guestName ?? '',
+      row.guestPhone ?? '',
+      STATUS_LABELS[row.status] ?? row.status,
+      Number(row.priceSnapshot).toFixed(2).replace('.', ','),
+    ]);
 
-    const csv = [header.join(';'), ...lines].join('\n');
+    const csv = toCsv(header, rowsData);
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader(

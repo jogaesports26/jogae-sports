@@ -47,3 +47,20 @@ export async function updateCustomerBirthDate(playerId: string, birthDate: strin
   }
   return response.json()
 }
+
+export async function downloadCustomersCsv(): Promise<void> {
+  const response = await authFetch('/customers/export')
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível exportar os clientes'))
+  }
+
+  const blob = await response.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'clientes.csv'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
