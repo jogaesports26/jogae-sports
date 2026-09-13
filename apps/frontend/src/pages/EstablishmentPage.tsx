@@ -5,6 +5,7 @@ import type { Establishment } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
 import { amenityLabel } from '../lib/amenities'
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
+import HeartToggle from '../components/HeartToggle'
 import './EstablishmentPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -116,6 +117,7 @@ export default function EstablishmentPage() {
                     ★ {court.averageRating?.toFixed(1)} ({court.reviewCount})
                   </span>
                 )}
+                <HeartToggle courtId={court.id} className="establishment-card__favorite" />
               </div>
               <div className="establishment-card__body">
                 <h3>{court.name}</h3>
