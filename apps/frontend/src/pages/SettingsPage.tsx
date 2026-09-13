@@ -38,6 +38,7 @@ export default function SettingsPage() {
   const [error, setError] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
   const [qrError, setQrError] = useState('')
+  const [embedCodeCopied, setEmbedCodeCopied] = useState(false)
 
   async function handleCepLookup() {
     if (cep.replace(/\D/g, '').length !== 8) {
@@ -139,6 +140,21 @@ export default function SettingsPage() {
     }
   }
 
+  function buildEmbedCode() {
+    const embedUrl = `${window.location.origin}/${slug}/embed`
+    return `<iframe src="${embedUrl}" width="100%" height="640" style="border:0" title="Reservar quadra"></iframe>`
+  }
+
+  async function handleCopyEmbedCode() {
+    try {
+      await navigator.clipboard.writeText(buildEmbedCode())
+      setEmbedCodeCopied(true)
+      setTimeout(() => setEmbedCodeCopied(false), 2000)
+    } catch {
+      // clipboard indisponível — sem tratamento especial
+    }
+  }
+
   async function handleDownloadQr() {
     setQrError('')
     const link = `${window.location.origin}/${slug}`
@@ -220,6 +236,19 @@ export default function SettingsPage() {
                   </button>
                   {qrError && <span className="settings-page__qrcode-error">{qrError}</span>}
                 </div>
+              </div>
+            )}
+            {slug && (
+              <div className="settings-page__embed">
+                <span className="settings-page__embed-title">Widget pra embutir no seu site</span>
+                <p className="settings-page__hint">
+                  Cole esse código numa página do seu site pra mostrar suas quadras e deixar os
+                  clientes reservarem sem sair de lá.
+                </p>
+                <code className="settings-page__embed-code">{buildEmbedCode()}</code>
+                <button type="button" onClick={handleCopyEmbedCode}>
+                  {embedCodeCopied ? 'Copiado!' : 'Copiar código'}
+                </button>
               </div>
             )}
           </label>

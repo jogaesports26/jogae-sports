@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
 import type { AgendaResponse } from '../lib/reservations'
 import type { CourtReview, PublicCourt } from '../lib/player'
@@ -8,6 +8,7 @@ import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT }
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
+import HeartToggle from '../components/HeartToggle'
 import './CourtBookingPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -46,6 +47,7 @@ interface WaitlistSlot {
 
 export default function CourtBookingPage() {
   const { courtId, slug } = useParams<{ courtId: string; slug: string }>()
+  const { basePath } = useOutletContext<{ basePath: string }>()
   const [court, setCourt] = useState<PublicCourt | null>(null)
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [reviews, setReviews] = useState<CourtReview[]>([])
@@ -114,9 +116,10 @@ export default function CourtBookingPage() {
             <div className="booking-hero__fallback">{sportIcon(court.sport)}</div>
           )}
           <div className="booking-hero__scrim" />
-          <Link to={`/${slug}`} className="booking-hero__back" aria-label="Voltar pra lojinha">
+          <Link to={basePath} className="booking-hero__back" aria-label="Voltar pra lojinha">
             ←
           </Link>
+          <HeartToggle courtId={court.id} className="booking-hero__favorite" />
           <div className="booking-hero__content">
             <h1>{court.name}</h1>
             {court.reviewCount > 0 && (
@@ -265,6 +268,7 @@ export default function CourtBookingPage() {
         <BookingFlowModal
           courtId={courtId}
           courtName={court.name}
+          establishmentName={establishmentName}
           slug={slug}
           dayLabel={selectedSlot.dayLabel}
           dayDate={selectedSlot.dayDate}

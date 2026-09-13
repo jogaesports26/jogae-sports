@@ -20,6 +20,7 @@ import EquipmentPage from './pages/EquipmentPage'
 import StaffPage from './pages/StaffPage'
 import SettingsPage from './pages/SettingsPage'
 import PortalLayout from './components/portal/PortalLayout'
+import EmbedLayout from './components/portal/EmbedLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
 import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
@@ -55,6 +56,10 @@ function App() {
         </Route>
         <Route path="/minhas-reservas" element={<PortalLayout />}>
           <Route index element={<PlayerReservationsPage />} />
+        </Route>
+        <Route path="/:slug/embed" element={<EmbedLayout />}>
+          <Route index element={<EstablishmentPage />} />
+          <Route path=":courtId" element={<CourtBookingPage />} />
         </Route>
         <Route path="/:slug" element={<PortalLayout />}>
           <Route index element={<EstablishmentPage />} />

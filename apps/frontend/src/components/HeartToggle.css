@@ -1,0 +1,37 @@
+.heart-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft-sm);
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+
+.heart-toggle svg {
+  width: 17px;
+  height: 17px;
+}
+
+.heart-toggle--active {
+  color: #e63950;
+}
+
+.heart-toggle:active {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heart-toggle {
+    transition: none;
+  }
+
+  .heart-toggle:active {
+    transform: none;
+  }
+}

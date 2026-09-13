@@ -28,6 +28,10 @@ export default function CouponsPage() {
   const [usageLimit, setUsageLimit] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editValidUntil, setEditValidUntil] = useState('')
+  const [editUsageLimit, setEditUsageLimit] = useState('')
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
 
   function load() {
     fetchCoupons()
@@ -82,6 +86,37 @@ export default function CouponsPage() {
       if (err instanceof SessionExpiredError) {
         onSessionExpired()
       }
+    }
+  }
+
+  function startEdit(coupon: Coupon) {
+    setEditingId(coupon.id)
+    setEditValidUntil(coupon.validUntil ? coupon.validUntil.slice(0, 10) : '')
+    setEditUsageLimit(coupon.usageLimit ? String(coupon.usageLimit) : '')
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+  }
+
+  async function handleSaveEdit(id: string) {
+    setIsSavingEdit(true)
+    setError('')
+    try {
+      const updated = await updateCoupon(id, {
+        validUntil: editValidUntil || undefined,
+        usageLimit: editUsageLimit ? Number(editUsageLimit) : undefined,
+      })
+      setCoupons((prev) => (prev ? prev.map((c) => (c.id === updated.id ? updated : c)) : prev))
+      setEditingId(null)
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar o cupom')
+    } finally {
+      setIsSavingEdit(false)
     }
   }
 
@@ -189,25 +224,71 @@ export default function CouponsPage() {
                         <small>Até {new Date(coupon.validUntil).toLocaleDateString('pt-BR')}</small>
                       )}
                     </div>
-                    <div className="coupons-page__item-actions">
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--sm"
-                        onClick={() => handleToggleActive(coupon)}
-                      >
-                        {coupon.active ? 'Desativar' : 'Ativar'}
-                      </button>
-                      <button
-                        type="button"
-                        className="coupons-page__remove"
-                        onClick={() => handleRemove(coupon.id)}
-                        aria-label="Remover cupom"
-                        disabled={coupon.usageCount > 0}
-                        title={coupon.usageCount > 0 ? 'Cupons já usados só podem ser desativados' : 'Remover cupom'}
-                      >
-                        ×
-                      </button>
-                    </div>
+
+                    {editingId === coupon.id ? (
+                      <div className="coupons-page__edit">
+                        <label className="coupons-page__field">
+                          <span>Válido até</span>
+                          <input
+                            type="date"
+                            value={editValidUntil}
+                            onChange={(event) => setEditValidUntil(event.target.value)}
+                          />
+                        </label>
+                        <label className="coupons-page__field">
+                          <span>Limite de usos</span>
+                          <input
+                            type="number"
+                            min={1}
+                            step="1"
+                            value={editUsageLimit}
+                            onChange={(event) => setEditUsageLimit(event.target.value)}
+                            placeholder="Sem limite"
+                          />
+                        </label>
+                        <div className="coupons-page__item-actions">
+                          <button
+                            type="button"
+                            className="btn btn--ghost btn--sm"
+                            onClick={cancelEdit}
+                            disabled={isSavingEdit}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn--primary btn--sm"
+                            onClick={() => handleSaveEdit(coupon.id)}
+                            disabled={isSavingEdit}
+                          >
+                            {isSavingEdit ? 'Salvando...' : 'Salvar'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="coupons-page__item-actions">
+                        <button type="button" className="btn btn--ghost btn--sm" onClick={() => startEdit(coupon)}>
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost btn--sm"
+                          onClick={() => handleToggleActive(coupon)}
+                        >
+                          {coupon.active ? 'Desativar' : 'Ativar'}
+                        </button>
+                        <button
+                          type="button"
+                          className="coupons-page__remove"
+                          onClick={() => handleRemove(coupon.id)}
+                          aria-label="Remover cupom"
+                          disabled={coupon.usageCount > 0}
+                          title={coupon.usageCount > 0 ? 'Cupons já usados só podem ser desativados' : 'Remover cupom'}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )
               })}
