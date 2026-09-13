@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { ReplyReviewDto } from './dto/reply-review.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -54,9 +55,58 @@ export class ReviewsService {
         rating: true,
         comment: true,
         createdAt: true,
+        ownerReply: true,
+        ownerRepliedAt: true,
         player: { select: { name: true } },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async listForOwner(ownerId: string) {
+    return this.prisma.review.findMany({
+      where: { court: { ownerId } },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+        ownerReply: true,
+        ownerRepliedAt: true,
+        court: { select: { id: true, name: true } },
+        player: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async replyAsOwner(ownerId: string, reviewId: string, dto: ReplyReviewDto) {
+    const review = await this.prisma.review.findFirst({
+      where: { id: reviewId, court: { ownerId } },
+    });
+
+    if (!review) {
+      throw new NotFoundException('Avaliação não encontrada');
+    }
+
+    const reply = dto.reply.trim();
+
+    return this.prisma.review.update({
+      where: { id: reviewId },
+      data: {
+        ownerReply: reply || null,
+        ownerRepliedAt: reply ? new Date() : null,
+      },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+        ownerReply: true,
+        ownerRepliedAt: true,
+        court: { select: { id: true, name: true } },
+        player: { select: { name: true } },
+      },
     });
   }
 

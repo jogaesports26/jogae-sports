@@ -17,6 +17,7 @@ import CustomersPage from './pages/CustomersPage'
 import InstructorsPage from './pages/InstructorsPage'
 import CouponsPage from './pages/CouponsPage'
 import EquipmentPage from './pages/EquipmentPage'
+import AvaliacoesPage from './pages/AvaliacoesPage'
 import StaffPage from './pages/StaffPage'
 import SettingsPage from './pages/SettingsPage'
 import PortalLayout from './components/portal/PortalLayout'
@@ -48,6 +49,7 @@ function App() {
           <Route path="equipe" element={<InstructorsPage />} />
           <Route path="cupons" element={<CouponsPage />} />
           <Route path="equipamentos" element={<EquipmentPage />} />
+          <Route path="avaliacoes" element={<AvaliacoesPage />} />
           <Route path="funcionarios" element={<StaffPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>

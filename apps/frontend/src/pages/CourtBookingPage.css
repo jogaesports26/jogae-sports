@@ -287,6 +287,30 @@
   opacity: 0.8;
 }
 
+.booking-review__reply {
+  margin-top: 10px;
+  background: var(--color-info-bg);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.booking-review__reply-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-info-text);
+  margin-bottom: 2px;
+}
+
+.booking-review__reply p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  opacity: 0.85;
+  margin: 0;
+}
+
 /* Resumo fixo + confirmar */
 
 .booking-summary-bar {
