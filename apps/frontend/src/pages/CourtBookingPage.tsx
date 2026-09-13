@@ -265,6 +265,7 @@ export default function CourtBookingPage() {
         <BookingFlowModal
           courtId={courtId}
           courtName={court.name}
+          establishmentName={establishmentName}
           slug={slug}
           dayLabel={selectedSlot.dayLabel}
           dayDate={selectedSlot.dayDate}
