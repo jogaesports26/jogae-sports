@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
 import type { AgendaResponse } from '../lib/reservations'
 import type { CourtReview, PublicCourt } from '../lib/player'
@@ -46,6 +46,7 @@ interface WaitlistSlot {
 
 export default function CourtBookingPage() {
   const { courtId, slug } = useParams<{ courtId: string; slug: string }>()
+  const { basePath } = useOutletContext<{ basePath: string }>()
   const [court, setCourt] = useState<PublicCourt | null>(null)
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [reviews, setReviews] = useState<CourtReview[]>([])
@@ -114,7 +115,7 @@ export default function CourtBookingPage() {
             <div className="booking-hero__fallback">{sportIcon(court.sport)}</div>
           )}
           <div className="booking-hero__scrim" />
-          <Link to={`/${slug}`} className="booking-hero__back" aria-label="Voltar pra lojinha">
+          <Link to={basePath} className="booking-hero__back" aria-label="Voltar pra lojinha">
             ←
           </Link>
           <div className="booking-hero__content">
