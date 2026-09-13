@@ -11,6 +11,7 @@ function buildPrismaMock() {
     priceRule: { findMany: jest.fn() },
     reservation: {
       findFirst: jest.fn(),
+      findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       findMany: jest.fn(),
@@ -110,6 +111,7 @@ describe('ReservationsService', () => {
     const notificationsService = {
       notifyReservationConfirmed: jest.fn().mockResolvedValue(undefined),
       notifyReservationCancelled: jest.fn().mockResolvedValue(undefined),
+      notifyReservationRescheduled: jest.fn().mockResolvedValue(undefined),
     };
     const waitlistService = {
       notifyForFreedSlot: jest.fn().mockResolvedValue(null),
@@ -610,6 +612,128 @@ describe('ReservationsService', () => {
       await expect(
         service.cancel('court-1', 'owner-1', 'res-1'),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('reagendamento', () => {
+    beforeEach(() => {
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+    });
+
+    it('reagenda uma reserva do dono quando o novo horário está livre', async () => {
+      const reservation = {
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CONFIRMED',
+        startsAt: nextSaturdayAt(14),
+        endsAt: nextSaturdayAt(15),
+        guestPhone: '85999998888',
+        player: null,
+      };
+      prisma.reservation.findFirst
+        .mockResolvedValueOnce(reservation)
+        .mockResolvedValueOnce(null);
+      prisma.reservation.findUnique.mockResolvedValue({
+        id: 'res-1',
+        status: 'CONFIRMED',
+      });
+
+      const newStartsAt = nextSaturdayAt(16);
+      const newEndsAt = nextSaturdayAt(17);
+
+      const result = await service.reschedule('court-1', 'owner-1', 'res-1', {
+        startsAt: newStartsAt.toISOString(),
+        endsAt: newEndsAt.toISOString(),
+      });
+
+      expect(prisma.reservation.update).toHaveBeenCalledWith({
+        where: { id: 'res-1' },
+        data: { startsAt: newStartsAt, endsAt: newEndsAt },
+      });
+      expect(result).toEqual({ id: 'res-1', status: 'CONFIRMED' });
+    });
+
+    it('rejeita reagendar pra um horário que conflita com outra reserva', async () => {
+      const reservation = {
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CONFIRMED',
+        startsAt: nextSaturdayAt(14),
+        endsAt: nextSaturdayAt(15),
+        guestPhone: '85999998888',
+        player: null,
+      };
+      prisma.reservation.findFirst
+        .mockResolvedValueOnce(reservation)
+        .mockResolvedValueOnce({ id: 'outra-reserva' });
+
+      await expect(
+        service.reschedule('court-1', 'owner-1', 'res-1', {
+          startsAt: nextSaturdayAt(16).toISOString(),
+          endsAt: nextSaturdayAt(17).toISOString(),
+        }),
+      ).rejects.toThrow(ConflictException);
+
+      expect(prisma.reservation.update).not.toHaveBeenCalled();
+    });
+
+    it('rejeita reagendar uma reserva que não está confirmada', async () => {
+      prisma.reservation.findFirst.mockResolvedValueOnce({
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CANCELLED',
+        startsAt: nextSaturdayAt(14),
+        endsAt: nextSaturdayAt(15),
+      });
+
+      await expect(
+        service.reschedule('court-1', 'owner-1', 'res-1', {
+          startsAt: nextSaturdayAt(16).toISOString(),
+          endsAt: nextSaturdayAt(17).toISOString(),
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejeita reagendamento do jogador a menos de 2 horas do horário atual', async () => {
+      prisma.reservation.findFirst.mockResolvedValueOnce({
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CONFIRMED',
+        startsAt: new Date(Date.now() + 30 * 60 * 1000),
+        endsAt: new Date(Date.now() + 90 * 60 * 1000),
+        court: { name: 'Quadra 1' },
+        player: { phone: '85999998888' },
+      });
+
+      await expect(
+        service.rescheduleForPlayer('player-1', 'res-1', {
+          startsAt: nextSaturdayAt(16).toISOString(),
+          endsAt: nextSaturdayAt(17).toISOString(),
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('permite o jogador reagendar com mais de 2 horas de antecedência e sem conflito', async () => {
+      const reservation = {
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CONFIRMED',
+        startsAt: nextSaturdayAt(14),
+        endsAt: nextSaturdayAt(15),
+        court: { name: 'Quadra 1' },
+        player: { phone: '85999998888' },
+      };
+      prisma.reservation.findFirst
+        .mockResolvedValueOnce(reservation)
+        .mockResolvedValueOnce(null);
+      prisma.reservation.findUnique.mockResolvedValue({ id: 'res-1' });
+
+      const result = await service.rescheduleForPlayer('player-1', 'res-1', {
+        startsAt: nextSaturdayAt(18).toISOString(),
+        endsAt: nextSaturdayAt(19).toISOString(),
+      });
+
+      expect(result).toEqual({ id: 'res-1' });
     });
   });
 });

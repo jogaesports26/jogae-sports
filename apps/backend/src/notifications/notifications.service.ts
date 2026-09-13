@@ -58,6 +58,18 @@ export class NotificationsService {
     );
   }
 
+  notifyReservationRescheduled(
+    phone: string,
+    courtName: string,
+    startsAt: Date,
+    endsAt: Date,
+  ) {
+    return this.send(
+      phone,
+      `Reserva reagendada em ${courtName}: novo horário ${this.formatSlot(startsAt, endsAt)}.`,
+    );
+  }
+
   notifyReservationReminder(
     phone: string,
     courtName: string,

@@ -115,6 +115,66 @@
   margin-top: 4px;
 }
 
+.player-reservation-card__reschedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+  max-width: 260px;
+}
+
+.player-reservation-card__reschedule-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-dark);
+}
+
+.player-reservation-card__reschedule-form input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-dark);
+}
+
+.player-reservation-card__reschedule-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.player-reservation-card__actions .player-reservation-card__reschedule-cancel {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-border);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.player-reservation-card__actions .player-reservation-card__reschedule-confirm {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-white);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
 .player-reservation-card__actions button {
   font-family: var(--font-body);
   font-size: 12px;

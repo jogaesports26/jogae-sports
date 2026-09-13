@@ -175,6 +175,18 @@ export async function cancelPlayerReservation(id: string): Promise<void> {
   if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível cancelar a reserva'))
 }
 
+export async function reschedulePlayerReservation(
+  id: string,
+  input: { startsAt: string; endsAt: string },
+): Promise<PlayerReservation> {
+  const response = await playerFetch(`/me/reservations/${id}/reschedule`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível reagendar a reserva'))
+  return response.json()
+}
+
 export async function createReview(
   reservationId: string,
   input: { rating: number; comment?: string },
