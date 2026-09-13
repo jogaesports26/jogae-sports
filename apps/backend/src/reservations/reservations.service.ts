@@ -315,7 +315,9 @@ export class ReservationsService {
           select: {
             id: true,
             name: true,
-            owner: { select: { establishmentName: true } },
+            owner: {
+              select: { establishmentName: true, establishmentSlug: true },
+            },
           },
         },
         review: { select: { id: true, rating: true, comment: true } },
