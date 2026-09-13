@@ -58,20 +58,26 @@ export default function EstablishmentPage() {
         <div className="establishment-page__grid">
           {establishment.courts.map((court) => (
             <Link key={court.id} to={`/${slug}/${court.id}`} className="establishment-card">
-              <span className="establishment-card__icon" aria-hidden="true">
-                {sportIcon(court.sport)}
-              </span>
+              <div className="establishment-card__media">
+                {court.photoUrls[0] ? (
+                  <img src={court.photoUrls[0]} alt="" />
+                ) : (
+                  <span className="establishment-card__icon" aria-hidden="true">
+                    {sportIcon(court.sport)}
+                  </span>
+                )}
+                {court.reviewCount > 0 && (
+                  <span className="establishment-card__rating">
+                    ★ {court.averageRating?.toFixed(1)} ({court.reviewCount})
+                  </span>
+                )}
+              </div>
               <div className="establishment-card__body">
                 <h3>{court.name}</h3>
                 <p className="establishment-card__meta">
                   {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}
                   {court.hasLighting ? ' · Com iluminação' : ''}
                 </p>
-                {court.reviewCount > 0 && (
-                  <p className="establishment-card__rating">
-                    ★ {court.averageRating?.toFixed(1)} ({court.reviewCount})
-                  </p>
-                )}
                 {court.fromPricePerHour && (
                   <p className="establishment-card__price">
                     A partir de R$ {Number(court.fromPricePerHour).toFixed(2).replace('.', ',')}/h
