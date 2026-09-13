@@ -24,10 +24,12 @@ import EmbedLayout from './components/portal/EmbedLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
 import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
+import ToastHost from './components/ToastHost'
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastHost />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
