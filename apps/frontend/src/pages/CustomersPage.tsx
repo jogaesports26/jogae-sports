@@ -3,7 +3,13 @@ import { useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import CustomerHistoryModal from '../components/panel/CustomerHistoryModal'
 import { SessionExpiredError } from '../lib/api'
-import { fetchCustomers, INACTIVE_THRESHOLD_DAYS, isBirthdayThisMonth, NO_SHOW_ALERT_THRESHOLD } from '../lib/customers'
+import {
+  downloadCustomersCsv,
+  fetchCustomers,
+  INACTIVE_THRESHOLD_DAYS,
+  isBirthdayThisMonth,
+  NO_SHOW_ALERT_THRESHOLD,
+} from '../lib/customers'
 import type { Customer } from '../lib/customers'
 import './CustomersPage.css'
 
@@ -37,6 +43,7 @@ export default function CustomersPage() {
   })
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Customer | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchCustomers()
@@ -73,6 +80,21 @@ export default function CustomersPage() {
     setSelected(updated)
   }
 
+  async function handleExport() {
+    setExporting(true)
+    try {
+      await downloadCustomersCsv()
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível exportar os clientes')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="customers-page">
       <h1>Clientes</h1>
@@ -100,6 +122,15 @@ export default function CustomersPage() {
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Buscar por nome ou telefone"
         />
+
+        <button
+          type="button"
+          className="btn btn--outline btn--sm"
+          onClick={handleExport}
+          disabled={exporting || !customers || customers.length === 0}
+        >
+          {exporting ? 'Exportando...' : 'Exportar CSV'}
+        </button>
       </div>
 
       {error && <p className="customers-page__error">{error}</p>}
