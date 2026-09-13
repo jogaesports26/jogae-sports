@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import {
@@ -10,6 +10,8 @@ import {
   verifyOtp,
 } from '../../lib/player'
 import type { CouponPreview } from '../../lib/player'
+import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
+import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
 import './BookingFlowModal.css'
 
@@ -54,8 +56,18 @@ export default function BookingFlowModal({
   const [couponPreview, setCouponPreview] = useState<CouponPreview | null>(null)
   const [couponError, setCouponError] = useState('')
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
+  const [equipmentList, setEquipmentList] = useState<Equipment[]>([])
+  const [equipmentQuantities, setEquipmentQuantities] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchActiveEquipmentForCourt(courtId)
+      .then(setEquipmentList)
+      .catch(() => {
+        // seletor de equipamento é auxiliar — uma falha aqui não deve travar a reserva
+      })
+  }, [courtId])
 
   const discount = couponPreview
     ? Math.min(
@@ -63,7 +75,15 @@ export default function BookingFlowModal({
         price,
       )
     : 0
-  const finalPrice = price - discount
+  const equipmentTotal = equipmentList.reduce(
+    (sum, item) => sum + (equipmentQuantities[item.id] ?? 0) * item.pricePerUnit,
+    0,
+  )
+  const finalPrice = price - discount + equipmentTotal
+
+  function setEquipmentQuantity(id: string, quantity: number) {
+    setEquipmentQuantities((prev) => ({ ...prev, [id]: Math.max(0, quantity) }))
+  }
 
   async function handleApplyCoupon() {
     setCouponError('')
@@ -117,6 +137,9 @@ export default function BookingFlowModal({
         startsAt: toISOAt(dayDate, startMinute),
         endsAt: toISOAt(dayDate, endMinute),
         couponCode: couponPreview ? couponCode.trim() : undefined,
+        equipmentItems: Object.entries(equipmentQuantities)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([equipmentId, quantity]) => ({ equipmentId, quantity })),
       })
       setStep('success')
       onBooked()
@@ -168,8 +191,36 @@ export default function BookingFlowModal({
           </div>
         )}
 
+        {step !== 'success' && equipmentList.length > 0 && (
+          <div className="booking-modal__equipment">
+            {equipmentList.map((item) => (
+              <div key={item.id} className="booking-modal__equipment-item">
+                <span>
+                  {item.name} <small>R$ {item.pricePerUnit.toFixed(2).replace('.', ',')}</small>
+                </span>
+                <div className="booking-modal__equipment-stepper">
+                  <button
+                    type="button"
+                    onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) - 1)}
+                    disabled={(equipmentQuantities[item.id] ?? 0) === 0}
+                  >
+                    −
+                  </button>
+                  <span>{equipmentQuantities[item.id] ?? 0}</span>
+                  <button
+                    type="button"
+                    onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <p className="booking-modal__price">
-          {couponPreview ? (
+          {couponPreview || equipmentTotal > 0 ? (
             <>
               <span className="booking-modal__price-original">R$ {price.toFixed(2).replace('.', ',')}</span>{' '}
               R$ {finalPrice.toFixed(2).replace('.', ',')}

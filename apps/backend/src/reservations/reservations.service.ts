@@ -13,6 +13,8 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { WaitlistService } from '../waitlist/waitlist.service';
 import { InstructorsService } from '../instructors/instructors.service';
 import { CouponsService } from '../coupons/coupons.service';
+import { EquipmentService } from '../equipment/equipment.service';
+import { ReservationEquipmentItemDto } from '../equipment/dto/reservation-equipment-item.dto';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
@@ -29,6 +31,7 @@ export class ReservationsService {
     private readonly waitlistService: WaitlistService,
     private readonly instructorsService: InstructorsService,
     private readonly couponsService: CouponsService,
+    private readonly equipmentService: EquipmentService,
   ) {}
 
   private applyDiscount(coupon: Coupon, basePrice: number) {
@@ -170,6 +173,7 @@ export class ReservationsService {
     startsAtIso: string,
     endsAtIso: string,
     couponCode?: string,
+    equipmentItems?: ReservationEquipmentItemDto[],
   ) {
     const court = await this.getPublicCourt(courtId);
 
@@ -214,6 +218,10 @@ export class ReservationsService {
       } = this.applyDiscount(coupon, basePrice));
     }
 
+    const { total: equipmentTotal, records: equipmentRecords } =
+      await this.equipmentService.resolveForCourt(courtId, equipmentItems);
+    priceSnapshot = Math.round((priceSnapshot + equipmentTotal) * 100) / 100;
+
     const reservation = await this.prisma.$transaction(async (tx) => {
       if (couponId) {
         await tx.coupon.update({
@@ -231,7 +239,11 @@ export class ReservationsService {
           priceSnapshot,
           couponId,
           discountAmount,
+          equipmentItems: {
+            create: equipmentRecords,
+          },
         },
+        include: { equipmentItems: true },
       });
     });
 
@@ -307,6 +319,7 @@ export class ReservationsService {
           },
         },
         review: { select: { id: true, rating: true, comment: true } },
+        equipmentItems: true,
       },
       orderBy: { startsAt: 'desc' },
     });
@@ -455,7 +468,10 @@ export class ReservationsService {
     ] = await Promise.all([
       this.prisma.reservation.findMany({
         where: { courtId, startsAt: { gte: start, lt: end } },
-        include: { instructor: { select: { id: true, name: true } } },
+        include: {
+          instructor: { select: { id: true, name: true } },
+          equipmentItems: true,
+        },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.maintenanceBlock.findMany({
@@ -521,6 +537,10 @@ export class ReservationsService {
       } = this.applyDiscount(coupon, basePrice));
     }
 
+    const { total: equipmentTotal, records: equipmentRecords } =
+      await this.equipmentService.resolveForOwner(ownerId, dto.equipmentItems);
+    priceSnapshot = Math.round((priceSnapshot + equipmentTotal) * 100) / 100;
+
     const reservation = await this.prisma.$transaction(async (tx) => {
       if (couponId) {
         await tx.coupon.update({
@@ -540,7 +560,11 @@ export class ReservationsService {
           instructorId: dto.instructorId,
           couponId,
           discountAmount,
+          equipmentItems: {
+            create: equipmentRecords,
+          },
         },
+        include: { equipmentItems: true },
       });
     });
 

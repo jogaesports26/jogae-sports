@@ -27,6 +27,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   instructors         Instructor[]
   coupons             Coupon[]
+  equipment           Equipment[]
 }
 
 enum Role {
@@ -100,7 +101,8 @@ model Reservation {
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
-  review Review?
+  review         Review?
+  equipmentItems ReservationEquipment[]
 
   @@index([courtId, startsAt, endsAt])
   @@index([playerId])
@@ -238,4 +240,33 @@ model Coupon {
 
   @@unique([ownerId, code])
   @@index([ownerId])
+}
+
+model Equipment {
+  id           String   @id @default(uuid())
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id])
+  name         String
+  pricePerUnit Decimal  @db.Decimal(10, 2)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  reservationItems ReservationEquipment[]
+
+  @@index([ownerId])
+}
+
+model ReservationEquipment {
+  id            String      @id @default(uuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  equipmentId   String
+  equipment     Equipment   @relation(fields: [equipmentId], references: [id])
+  name          String
+  unitPrice     Decimal     @db.Decimal(10, 2)
+  quantity      Int
+  createdAt     DateTime    @default(now())
+
+  @@index([reservationId])
+  @@index([equipmentId])
 }

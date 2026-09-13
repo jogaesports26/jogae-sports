@@ -144,7 +144,12 @@ export async function verifyOtp(phone: string, code: string): Promise<{ accessTo
 
 export async function createPlayerReservation(
   courtId: string,
-  input: { startsAt: string; endsAt: string; couponCode?: string },
+  input: {
+    startsAt: string
+    endsAt: string
+    couponCode?: string
+    equipmentItems?: { equipmentId: string; quantity: number }[]
+  },
 ): Promise<PlayerReservation> {
   const response = await playerFetch(`/public/courts/${courtId}/reservations`, {
     method: 'POST',

@@ -35,6 +35,7 @@ export class PlayerReservationsController {
       dto.startsAt,
       dto.endsAt,
       dto.couponCode,
+      dto.equipmentItems,
     );
   }
 

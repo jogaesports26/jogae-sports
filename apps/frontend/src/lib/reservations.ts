@@ -3,6 +3,14 @@ import type { PriceRule, RecurringMaintenanceBlock } from './courts'
 
 export type ReservationStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW'
 
+export interface ReservationEquipmentItem {
+  id: string
+  equipmentId: string
+  name: string
+  unitPrice: string
+  quantity: number
+}
+
 export interface Reservation {
   id: string
   courtId: string
@@ -17,6 +25,7 @@ export interface Reservation {
   instructor: { id: string; name: string } | null
   couponId: string | null
   discountAmount: string | null
+  equipmentItems: ReservationEquipmentItem[]
   createdAt: string
   updatedAt: string
 }
@@ -39,6 +48,11 @@ export interface AgendaResponse {
   recurringMaintenanceBlocks: RecurringMaintenanceBlock[]
 }
 
+export interface ReservationEquipmentItemInput {
+  equipmentId: string
+  quantity: number
+}
+
 export interface CreateReservationInput {
   guestName: string
   guestPhone: string
@@ -46,6 +60,7 @@ export interface CreateReservationInput {
   endsAt: string
   instructorId?: string
   couponCode?: string
+  equipmentItems?: ReservationEquipmentItemInput[]
 }
 
 export interface TodayReservation extends Reservation {

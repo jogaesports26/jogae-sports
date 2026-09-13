@@ -35,6 +35,66 @@
   opacity: 0.7;
 }
 
+.booking-modal__equipment {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.booking-modal__equipment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+}
+
+.booking-modal__equipment-item span {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.booking-modal__equipment-item small {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.booking-modal__equipment-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.booking-modal__equipment-stepper button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-dark);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.booking-modal__equipment-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.booking-modal__equipment-stepper span {
+  min-width: 16px;
+  text-align: center;
+  font-weight: 600;
+}
+
 .booking-modal__price {
   font-family: var(--font-heading);
   font-size: 22px;
