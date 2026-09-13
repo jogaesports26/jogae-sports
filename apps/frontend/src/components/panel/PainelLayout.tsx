@@ -85,6 +85,16 @@ function IconEquipment() {
   )
 }
 
+function IconStaff() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="10.5" r="2.2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M8 15.5c.6-1.6 2-2.5 4-2.5s3.4.9 4 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconSettings() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -100,14 +110,15 @@ function IconSettings() {
 }
 
 const NAV_ITEMS = [
-  { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true },
-  { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false },
-  { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false },
-  { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, end: false },
-  { to: '/painel/equipe', label: 'Equipe', Icon: IconTeam, end: false },
-  { to: '/painel/cupons', label: 'Cupons', Icon: IconCoupon, end: false },
-  { to: '/painel/equipamentos', label: 'Equipamentos', Icon: IconEquipment, end: false },
-  { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false },
+  { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true, ownerOnly: false },
+  { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false, ownerOnly: false },
+  { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false, ownerOnly: true },
+  { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, end: false, ownerOnly: true },
+  { to: '/painel/equipe', label: 'Equipe', Icon: IconTeam, end: false, ownerOnly: true },
+  { to: '/painel/cupons', label: 'Cupons', Icon: IconCoupon, end: false, ownerOnly: true },
+  { to: '/painel/equipamentos', label: 'Equipamentos', Icon: IconEquipment, end: false, ownerOnly: true },
+  { to: '/painel/funcionarios', label: 'Funcionários', Icon: IconStaff, end: false, ownerOnly: true },
+  { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false, ownerOnly: true },
 ]
 
 export default function PainelLayout() {
@@ -137,13 +148,15 @@ export default function PainelLayout() {
 
   if (!user) return null
 
+  const navItems = NAV_ITEMS.filter((item) => !item.ownerOnly || user.role !== 'STAFF')
+
   return (
     <div className="painel">
       <aside className="painel__sidebar">
         <span className="painel__brand">Jogaê Sports</span>
 
         <nav className="painel__nav">
-          {NAV_ITEMS.map(({ to, label, Icon, end }) => (
+          {navItems.map(({ to, label, Icon, end }) => (
             <NavLink
               key={to}
               to={to}

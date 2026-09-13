@@ -21,15 +21,16 @@ const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
 
 const TABS = [
-  { to: 'agenda', label: 'Agenda' },
-  { to: 'precos', label: 'Preços & disponibilidade' },
-  { to: 'fila-de-espera', label: 'Fila de espera' },
-  { to: 'manutencao', label: 'Manutenção' },
+  { to: 'agenda', label: 'Agenda', ownerOnly: false },
+  { to: 'precos', label: 'Preços & disponibilidade', ownerOnly: true },
+  { to: 'fila-de-espera', label: 'Fila de espera', ownerOnly: false },
+  { to: 'manutencao', label: 'Manutenção', ownerOnly: false },
 ]
 
 export default function CourtDetailLayout() {
   const { courtId } = useParams<{ courtId: string }>()
-  const { onSessionExpired } = usePainelContext()
+  const { user, onSessionExpired } = usePainelContext()
+  const tabs = TABS.filter((tab) => !tab.ownerOnly || user.role !== 'STAFF')
   const [court, setCourt] = useState<Court | null>(null)
   const [error, setError] = useState('')
 
@@ -69,7 +70,7 @@ export default function CourtDetailLayout() {
       </div>
 
       <nav className="court-detail__tabs">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <NavLink
             key={tab.to}
             to={tab.to}

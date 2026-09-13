@@ -5,6 +5,7 @@ export interface AuthUser {
   name: string
   email: string
   role: string
+  permission?: string
 }
 
 export interface AuthResponse {
@@ -20,6 +21,18 @@ export function saveSession(auth: AuthResponse) {
 export function clearSession() {
   localStorage.removeItem('jogae_token')
   localStorage.removeItem('jogae_user')
+}
+
+export async function staffLogin(email: string, password: string): Promise<AuthResponse> {
+  const response = await fetch(`${API_URL}/staff-auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'E-mail ou senha inválidos'))
+  }
+  return response.json()
 }
 
 export async function parseApiError(response: Response, fallback: string): Promise<string> {

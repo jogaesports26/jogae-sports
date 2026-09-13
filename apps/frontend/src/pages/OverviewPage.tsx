@@ -40,26 +40,43 @@ export default function OverviewPage() {
     const today = new Date()
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
 
-    Promise.all([
+    // allSettled em vez de all: dono e funcionário compartilham essa tela, mas
+    // perfil/relatórios são só do dono — uma rejeição ali não pode derrubar as
+    // reservas de hoje e as quadras, que o funcionário também vê.
+    Promise.allSettled([
       fetchTodayReservations(),
       fetchCourts(),
       fetchProfile(),
       fetchReports({ from: toDateInputValue(monthStart), to: toDateInputValue(today) }),
-    ])
-      .then(([reservationsData, courtsData, profileData, reportData]) => {
-        setReservations(reservationsData)
-        setCourts(courtsData)
-        setHasSlug(Boolean(profileData.establishmentSlug))
-        setMonthlyGoal(profileData.monthlyRevenueGoal)
-        setMonthReport(reportData)
-      })
-      .catch((err) => {
-        if (err instanceof SessionExpiredError) {
-          onSessionExpired()
-          return
-        }
-        setError(err instanceof Error ? err.message : 'Erro ao carregar o painel')
-      })
+    ]).then(([reservationsResult, courtsResult, profileResult, reportResult]) => {
+      if (
+        [reservationsResult, courtsResult, profileResult, reportResult].some(
+          (result) => result.status === 'rejected' && result.reason instanceof SessionExpiredError,
+        )
+      ) {
+        onSessionExpired()
+        return
+      }
+
+      if (reservationsResult.status === 'fulfilled') {
+        setReservations(reservationsResult.value)
+      } else {
+        setError(reservationsResult.reason instanceof Error ? reservationsResult.reason.message : 'Erro ao carregar o painel')
+      }
+
+      if (courtsResult.status === 'fulfilled') {
+        setCourts(courtsResult.value)
+      }
+
+      if (profileResult.status === 'fulfilled') {
+        setHasSlug(Boolean(profileResult.value.establishmentSlug))
+        setMonthlyGoal(profileResult.value.monthlyRevenueGoal)
+      }
+
+      if (reportResult.status === 'fulfilled') {
+        setMonthReport(reportResult.value)
+      }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

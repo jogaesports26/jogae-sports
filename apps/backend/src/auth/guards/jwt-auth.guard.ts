@@ -12,6 +12,8 @@ export interface AuthenticatedUser {
   email?: string;
   phone?: string;
   role: string;
+  ownerId?: string;
+  permission?: string;
 }
 
 // Augmenting Express's Request type requires the `namespace` syntax it declares itself.

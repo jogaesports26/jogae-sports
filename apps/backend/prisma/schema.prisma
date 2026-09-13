@@ -28,6 +28,7 @@ model User {
   instructors         Instructor[]
   coupons             Coupon[]
   equipment           Equipment[]
+  staffMembers        StaffMember[]
 }
 
 enum Role {
@@ -269,4 +270,24 @@ model ReservationEquipment {
 
   @@index([reservationId])
   @@index([equipmentId])
+}
+
+enum StaffPermission {
+  MANAGE_RESERVATIONS
+  VIEW_ONLY
+}
+
+model StaffMember {
+  id         String          @id @default(uuid())
+  ownerId    String
+  owner      User            @relation(fields: [ownerId], references: [id])
+  name       String
+  email      String          @unique
+  password   String
+  permission StaffPermission @default(MANAGE_RESERVATIONS)
+  active     Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([ownerId])
 }
