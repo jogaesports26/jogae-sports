@@ -30,6 +30,7 @@ export default function EstablishmentPage() {
   const { slug } = useParams<{ slug: string }>()
   const [establishment, setEstablishment] = useState<Establishment | null>(null)
   const [error, setError] = useState('')
+  const [sportFilter, setSportFilter] = useState<string | null>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -40,6 +41,11 @@ export default function EstablishmentPage() {
 
   if (error) return <p className="establishment-page__error">{error}</p>
   if (!establishment) return <p className="establishment-page__loading">Carregando...</p>
+
+  const availableSports = [...new Set(establishment.courts.map((court) => court.sport))]
+  const visibleCourts = sportFilter
+    ? establishment.courts.filter((court) => court.sport === sportFilter)
+    : establishment.courts
 
   return (
     <div className="establishment-page">
@@ -66,11 +72,35 @@ export default function EstablishmentPage() {
         )}
       </div>
 
+      {availableSports.length > 1 && (
+        <div className="establishment-page__sport-filter">
+          <button
+            type="button"
+            className={`establishment-page__sport-pill${sportFilter === null ? ' establishment-page__sport-pill--active' : ''}`}
+            onClick={() => setSportFilter(null)}
+          >
+            Todas
+          </button>
+          {availableSports.map((sport) => (
+            <button
+              key={sport}
+              type="button"
+              className={`establishment-page__sport-pill${sportFilter === sport ? ' establishment-page__sport-pill--active' : ''}`}
+              onClick={() => setSportFilter(sport)}
+            >
+              {sportLabel(sport)}
+            </button>
+          ))}
+        </div>
+      )}
+
       {establishment.courts.length === 0 ? (
         <p className="establishment-page__empty">Nenhuma quadra disponível pra reserva no momento.</p>
+      ) : visibleCourts.length === 0 ? (
+        <p className="establishment-page__empty">Nenhuma quadra de {sportLabel(sportFilter ?? '')} por aqui.</p>
       ) : (
         <div className="establishment-page__grid">
-          {establishment.courts.map((court) => (
+          {visibleCourts.map((court) => (
             <Link key={court.id} to={`/${slug}/${court.id}`} className="establishment-card">
               <div className="establishment-card__media">
                 {court.photoUrls[0] ? (
