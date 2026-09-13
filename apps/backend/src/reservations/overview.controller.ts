@@ -44,6 +44,19 @@ export class OverviewController {
     );
   }
 
+  @Get('reports/commercial')
+  getCommercialReport(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ReportsQueryDto,
+  ) {
+    return this.reservationsService.getCommercialReport(
+      user.sub,
+      query.from,
+      query.to,
+      query.courtId,
+    );
+  }
+
   @Get('reports/export')
   async exportReports(
     @CurrentUser() user: AuthenticatedUser,

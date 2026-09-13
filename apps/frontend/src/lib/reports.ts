@@ -28,6 +28,27 @@ export interface ReportFilters {
   courtId?: string
 }
 
+export interface TopCoupon {
+  couponId: string
+  code: string
+  usageCount: number
+  totalDiscount: number
+}
+
+export interface TopEquipment {
+  equipmentId: string
+  name: string
+  quantityRented: number
+  revenue: number
+}
+
+export interface CommercialReport {
+  from: string
+  to: string
+  topCoupons: TopCoupon[]
+  topEquipment: TopEquipment[]
+}
+
 function buildQuery(filters: ReportFilters): string {
   const params = new URLSearchParams({ from: filters.from, to: filters.to })
   if (filters.courtId) params.set('courtId', filters.courtId)
@@ -38,6 +59,14 @@ export async function fetchReports(filters: ReportFilters): Promise<FinancialRep
   const response = await authFetch(`/reservations/reports?${buildQuery(filters)}`)
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Não foi possível carregar os relatórios'))
+  }
+  return response.json()
+}
+
+export async function fetchCommercialReport(filters: ReportFilters): Promise<CommercialReport> {
+  const response = await authFetch(`/reservations/reports/commercial?${buildQuery(filters)}`)
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível carregar o relatório comercial'))
   }
   return response.json()
 }

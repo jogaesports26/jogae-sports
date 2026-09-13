@@ -461,6 +461,101 @@ export class ReservationsService {
     }));
   }
 
+  async getCommercialReport(
+    ownerId: string,
+    from: string,
+    to: string,
+    courtId?: string,
+  ) {
+    const courts = await this.getOwnerCourtsForReport(ownerId, courtId);
+    const courtIds = courts.map((c) => c.id);
+    const { start, end } = this.parseReportRange(from, to);
+
+    const [couponReservations, equipmentItems] = await Promise.all([
+      this.prisma.reservation.findMany({
+        where: {
+          courtId: { in: courtIds },
+          startsAt: { gte: start, lt: end },
+          status: { not: 'CANCELLED' },
+          couponId: { not: null },
+        },
+        select: {
+          couponId: true,
+          discountAmount: true,
+          coupon: { select: { code: true } },
+        },
+      }),
+      this.prisma.reservationEquipment.findMany({
+        where: {
+          reservation: {
+            courtId: { in: courtIds },
+            startsAt: { gte: start, lt: end },
+            status: { not: 'CANCELLED' },
+          },
+        },
+        select: {
+          equipmentId: true,
+          name: true,
+          unitPrice: true,
+          quantity: true,
+        },
+      }),
+    ]);
+
+    const couponStats = new Map<
+      string,
+      { code: string; usageCount: number; totalDiscount: number }
+    >();
+    for (const reservation of couponReservations) {
+      if (!reservation.couponId || !reservation.coupon) continue;
+      const entry = couponStats.get(reservation.couponId) ?? {
+        code: reservation.coupon.code,
+        usageCount: 0,
+        totalDiscount: 0,
+      };
+      entry.usageCount += 1;
+      entry.totalDiscount += Number(reservation.discountAmount ?? 0);
+      couponStats.set(reservation.couponId, entry);
+    }
+
+    const equipmentStats = new Map<
+      string,
+      { name: string; quantityRented: number; revenue: number }
+    >();
+    for (const item of equipmentItems) {
+      const entry = equipmentStats.get(item.equipmentId) ?? {
+        name: item.name,
+        quantityRented: 0,
+        revenue: 0,
+      };
+      entry.quantityRented += item.quantity;
+      entry.revenue += Number(item.unitPrice) * item.quantity;
+      equipmentStats.set(item.equipmentId, entry);
+    }
+
+    const topCoupons = [...couponStats.entries()]
+      .map(([couponId, value]) => ({
+        couponId,
+        code: value.code,
+        usageCount: value.usageCount,
+        totalDiscount: this.round2(value.totalDiscount),
+      }))
+      .sort((a, b) => b.usageCount - a.usageCount)
+      .slice(0, 5);
+
+    const topEquipment = [...equipmentStats.entries()]
+      .map(([equipmentId, value]) => ({
+        equipmentId,
+        name: value.name,
+        quantityRented: value.quantityRented,
+        revenue: this.round2(value.revenue),
+      }))
+      .sort((a, b) => b.quantityRented - a.quantityRented)
+      .slice(0, 5);
+
+    return { from, to, topCoupons, topEquipment };
+  }
+
   async getAgenda(courtId: string, ownerId: string, weekStart: string) {
     await this.courtsService.findOneOrThrow(courtId, ownerId);
 
