@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { fetchEstablishment } from '../lib/player'
 import type { Establishment } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
@@ -28,6 +28,7 @@ function sportIcon(value: string) {
 
 export default function EstablishmentPage() {
   const { slug } = useParams<{ slug: string }>()
+  const { basePath } = useOutletContext<{ basePath: string }>()
   const [establishment, setEstablishment] = useState<Establishment | null>(null)
   const [error, setError] = useState('')
 
@@ -71,7 +72,7 @@ export default function EstablishmentPage() {
       ) : (
         <div className="establishment-page__grid">
           {establishment.courts.map((court) => (
-            <Link key={court.id} to={`/${slug}/${court.id}`} className="establishment-card">
+            <Link key={court.id} to={`${basePath}/${court.id}`} className="establishment-card">
               <div className="establishment-card__media">
                 {court.photoUrls[0] ? (
                   <img src={court.photoUrls[0]} alt="" />
