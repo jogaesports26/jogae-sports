@@ -194,6 +194,38 @@
   color: var(--color-white);
 }
 
+/* Seletor de duração */
+
+.duration-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.duration-pill {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.duration-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.duration-pill--active {
+  background: var(--color-dark-navy);
+  border-color: var(--color-dark-navy);
+  color: var(--color-white);
+}
+
 /* Seletor de horário */
 
 .time-pills {

@@ -95,6 +95,123 @@
   font-weight: 600;
 }
 
+.court-pricing-page__gen-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.court-pricing-page__gen-day {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.court-pricing-page__gen-day--active {
+  background: var(--color-dark-navy);
+  border-color: var(--color-dark-navy);
+  color: #fff;
+}
+
+.court-pricing-page__gen-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.court-pricing-page__gen-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.court-pricing-page__gen-field input,
+.court-pricing-page__gen-field select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-dark);
+}
+
+.court-pricing-page__settings {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.court-pricing-page__day-group {
+  margin-bottom: 14px;
+}
+
+.court-pricing-page__day-group strong {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+}
+
+.court-pricing-page__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.court-pricing-page__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 6px 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.court-pricing-page__chip button {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 24, 46, 0.12);
+  color: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.court-pricing-page__manual {
+  margin: 16px 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.court-pricing-page__manual summary {
+  cursor: pointer;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
 @media (max-width: 640px) {
   .court-pricing-page__row {
     grid-template-columns: 1fr 1fr;

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Court" ADD COLUMN "minBookingMinutes" INTEGER NOT NULL DEFAULT 60,
+ADD COLUMN "slotStepMinutes" INTEGER NOT NULL DEFAULT 60;

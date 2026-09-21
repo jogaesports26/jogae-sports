@@ -27,6 +27,8 @@ export interface Court {
   hasLighting: boolean
   photoUrls: string[]
   active: boolean
+  minBookingMinutes: number
+  slotStepMinutes: number
   createdAt: string
   updatedAt: string
   priceRules: PriceRule[]
@@ -39,6 +41,11 @@ export interface CourtInput {
   surfaceType: string
   hasLighting: boolean
   photoUrls: string[]
+}
+
+export interface CourtBookingSettingsInput {
+  minBookingMinutes: number
+  slotStepMinutes: number
 }
 
 export interface PriceRuleInput {
@@ -102,7 +109,10 @@ export async function createCourt(input: CourtInput): Promise<Court> {
   return response.json()
 }
 
-export async function updateCourt(id: string, input: Partial<CourtInput>): Promise<Court> {
+export async function updateCourt(
+  id: string,
+  input: Partial<CourtInput & CourtBookingSettingsInput>,
+): Promise<Court> {
   const response = await authFetch(`/courts/${id}`, { method: 'PATCH', body: JSON.stringify(input) })
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Não foi possível salvar a quadra'))
