@@ -229,6 +229,28 @@ describe('ReservationsService', () => {
       ).rejects.toThrow(ConflictException);
     });
 
+    it('ignora bloqueio de manutenção já concluído ao checar conflito', async () => {
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
+
+      await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(15).toISOString(),
+      });
+
+      expect(prisma.maintenanceBlock.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ completedAt: null }),
+        }),
+      );
+    });
+
     it('rejeita reserva sobreposta a um bloqueio recorrente', async () => {
       prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
       prisma.reservation.findFirst.mockResolvedValue(null);

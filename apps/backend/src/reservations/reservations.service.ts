@@ -154,7 +154,7 @@ export class ReservationsService {
         select: { id: true, startsAt: true, endsAt: true, status: true },
       }),
       this.prisma.maintenanceBlock.findMany({
-        where: { courtId, startsAt: { gte: start, lt: end } },
+        where: { courtId, startsAt: { gte: start, lt: end }, completedAt: null },
       }),
       this.prisma.priceRule.findMany({
         where: { courtId },
@@ -631,7 +631,7 @@ export class ReservationsService {
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.maintenanceBlock.findMany({
-        where: { courtId, startsAt: { gte: start, lt: end } },
+        where: { courtId, startsAt: { gte: start, lt: end }, completedAt: null },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.priceRule.findMany({
@@ -1001,7 +1001,7 @@ export class ReservationsService {
     }
 
     const overlappingBlock = await this.prisma.maintenanceBlock.findFirst({
-      where: { courtId, startsAt: { lt: endsAt }, endsAt: { gt: startsAt } },
+      where: { courtId, startsAt: { lt: endsAt }, endsAt: { gt: startsAt }, completedAt: null },
     });
 
     if (overlappingBlock) {
