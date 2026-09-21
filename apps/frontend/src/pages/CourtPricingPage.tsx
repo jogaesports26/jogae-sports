@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
 import { SessionExpiredError } from '../lib/api'
-import { replacePriceRules, replaceRecurringMaintenanceBlocks, WEEKDAY_LABELS } from '../lib/courts'
+import {
+  replacePriceRules,
+  replaceRecurringMaintenanceBlocks,
+  updateCourt,
+  WEEKDAY_LABELS,
+} from '../lib/courts'
 import type { PriceRule, RecurringMaintenanceBlock } from '../lib/courts'
+import { formatDuration, WEEKDAY_SHORT } from '../lib/weekGrid'
 import './CourtPricingPage.css'
 
 interface PriceRuleDraft {
@@ -18,6 +24,9 @@ interface BlockDraft {
   endTime: string
   reason: string
 }
+
+const STEP_OPTIONS = [15, 30, 45, 60, 90, 120]
+const MAX_GENERATED_SLOTS = 300
 
 function minutesToTime(minutes: number) {
   const hours = Math.floor(minutes / 60).toString().padStart(2, '0')
@@ -48,6 +57,31 @@ function toBlockDraft(block: RecurringMaintenanceBlock): BlockDraft {
   }
 }
 
+function generateSlots(
+  days: number[],
+  openTime: string,
+  closeTime: string,
+  stepMinutes: number,
+  price: string,
+): PriceRuleDraft[] {
+  const openMinute = timeToMinutes(openTime)
+  const closeMinute = timeToMinutes(closeTime)
+  const slots: PriceRuleDraft[] = []
+
+  for (const day of days) {
+    for (let start = openMinute; start + stepMinutes <= closeMinute; start += stepMinutes) {
+      slots.push({
+        dayOfWeek: day,
+        startTime: minutesToTime(start),
+        endTime: minutesToTime(start + stepMinutes),
+        price,
+      })
+    }
+  }
+
+  return slots
+}
+
 export default function CourtPricingPage() {
   const { court, reloadCourt, onSessionExpired } = useCourtDetailContext()
   const [priceRules, setPriceRules] = useState<PriceRuleDraft[]>(court.priceRules.map(toDraft))
@@ -57,6 +91,57 @@ export default function CourtPricingPage() {
   const [pricesSaved, setPricesSaved] = useState(false)
   const [blocksSaved, setBlocksSaved] = useState(false)
   const [error, setError] = useState('')
+
+  const [genDays, setGenDays] = useState<Set<number>>(new Set())
+  const [genOpen, setGenOpen] = useState('08:00')
+  const [genClose, setGenClose] = useState('22:00')
+  const [genStep, setGenStep] = useState(STEP_OPTIONS.includes(court.slotStepMinutes) ? court.slotStepMinutes : 60)
+  const [genPrice, setGenPrice] = useState('')
+  const [genError, setGenError] = useState('')
+
+  const [minBookingMinutes, setMinBookingMinutes] = useState(court.minBookingMinutes)
+  const [savingSettings, setSavingSettings] = useState(false)
+  const [settingsSaved, setSettingsSaved] = useState(false)
+
+  function toggleGenDay(day: number) {
+    setGenDays((prev) => {
+      const next = new Set(prev)
+      if (next.has(day)) next.delete(day)
+      else next.add(day)
+      return next
+    })
+  }
+
+  function handleGenerate() {
+    setGenError('')
+
+    if (genDays.size === 0) {
+      setGenError('Selecione pelo menos um dia da semana')
+      return
+    }
+
+    const openMinute = timeToMinutes(genOpen)
+    const closeMinute = timeToMinutes(genClose)
+    if (closeMinute <= openMinute) {
+      setGenError('O horário de fechamento deve ser depois do de abertura')
+      return
+    }
+
+    if (!genPrice || Number(genPrice) <= 0) {
+      setGenError('Informe um preço por hora válido')
+      return
+    }
+
+    const slotsPerDay = Math.floor((closeMinute - openMinute) / genStep)
+    if (slotsPerDay * genDays.size > MAX_GENERATED_SLOTS) {
+      setGenError('Isso geraria horários demais de uma vez — tente um passo maior ou um intervalo menor')
+      return
+    }
+
+    const generated = generateSlots([...genDays], genOpen, genClose, genStep, genPrice)
+    setPricesSaved(false)
+    setPriceRules((rules) => [...rules.filter((rule) => !genDays.has(rule.dayOfWeek)), ...generated])
+  }
 
   function addPriceRule() {
     setPricesSaved(false)
@@ -98,6 +183,26 @@ export default function CourtPricingPage() {
       setError(err instanceof Error ? err.message : 'Não foi possível salvar os preços')
     } finally {
       setSavingPrices(false)
+    }
+  }
+
+  async function handleSaveSettings() {
+    setSavingSettings(true)
+    setError('')
+    setSettingsSaved(false)
+
+    try {
+      await updateCourt(court.id, { minBookingMinutes, slotStepMinutes: genStep })
+      setSettingsSaved(true)
+      reloadCourt()
+    } catch (err) {
+      if (err instanceof SessionExpiredError) {
+        onSessionExpired()
+        return
+      }
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar a configuração')
+    } finally {
+      setSavingSettings(false)
     }
   }
 
@@ -144,63 +249,182 @@ export default function CourtPricingPage() {
     }
   }
 
+  const rulesByDay = new Map<number, { rule: PriceRuleDraft; index: number }[]>()
+  priceRules.forEach((rule, index) => {
+    const list = rulesByDay.get(rule.dayOfWeek) ?? []
+    list.push({ rule, index })
+    rulesByDay.set(rule.dayOfWeek, list)
+  })
+
   return (
     <div className="court-pricing-page">
       {error && <p className="court-pricing-page__error">{error}</p>}
 
       <div className="court-pricing-page__grid">
       <section className="court-pricing-page__section">
-        <h2>Preços por horário</h2>
+        <h2>Gerar horários automaticamente</h2>
         <p className="court-pricing-page__hint">
-          Defina o valor da hora por dia da semana. Só os horários com uma regra cadastrada ficam
-          disponíveis pra reserva.
+          Informe o horário de funcionamento e os dias — os horários são gerados na duração
+          escolhida, e você pode desabilitar individualmente os que não quiser depois.
         </p>
 
-        {priceRules.map((rule, index) => (
-          <div className="court-pricing-page__row" key={index}>
-            <select
-              value={rule.dayOfWeek}
-              onChange={(event) => updatePriceRule(index, { dayOfWeek: Number(event.target.value) })}
+        <div className="court-pricing-page__gen-days">
+          {WEEKDAY_SHORT.map((label, day) => (
+            <button
+              key={day}
+              type="button"
+              className={`court-pricing-page__gen-day${genDays.has(day) ? ' court-pricing-page__gen-day--active' : ''}`}
+              onClick={() => toggleGenDay(day)}
+              aria-pressed={genDays.has(day)}
             >
-              {WEEKDAY_LABELS.map((label, day) => (
-                <option key={day} value={day}>
-                  {label}
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="court-pricing-page__gen-row">
+          <label className="court-pricing-page__gen-field">
+            <span>Abertura</span>
+            <input type="time" value={genOpen} onChange={(event) => setGenOpen(event.target.value)} />
+          </label>
+          <label className="court-pricing-page__gen-field">
+            <span>Fechamento</span>
+            <input type="time" value={genClose} onChange={(event) => setGenClose(event.target.value)} />
+          </label>
+          <label className="court-pricing-page__gen-field">
+            <span>Duração do horário</span>
+            <select value={genStep} onChange={(event) => setGenStep(Number(event.target.value))}>
+              {STEP_OPTIONS.map((step) => (
+                <option key={step} value={step}>
+                  {formatDuration(step)}
                 </option>
               ))}
             </select>
-            <input
-              type="time"
-              value={rule.startTime}
-              onChange={(event) => updatePriceRule(index, { startTime: event.target.value })}
-            />
-            <span>até</span>
-            <input
-              type="time"
-              value={rule.endTime}
-              onChange={(event) => updatePriceRule(index, { endTime: event.target.value })}
-            />
+          </label>
+          <label className="court-pricing-page__gen-field">
+            <span>Preço por hora</span>
             <input
               type="number"
               min="0"
               step="0.01"
               placeholder="R$/hora"
-              value={rule.price}
-              onChange={(event) => updatePriceRule(index, { price: event.target.value })}
+              value={genPrice}
+              onChange={(event) => setGenPrice(event.target.value)}
             />
-            <button
-              type="button"
-              className="court-pricing-page__remove-row"
-              onClick={() => removePriceRule(index)}
-              aria-label="Remover regra"
+          </label>
+        </div>
+
+        {genError && <p className="court-pricing-page__error">{genError}</p>}
+
+        <button type="button" className="btn btn--outline btn--sm" onClick={handleGenerate}>
+          Gerar horários
+        </button>
+
+        <div className="court-pricing-page__settings">
+          <label className="court-pricing-page__gen-field">
+            <span>Duração mínima de uma reserva</span>
+            <select
+              value={minBookingMinutes}
+              onChange={(event) => setMinBookingMinutes(Number(event.target.value))}
             >
-              ×
-            </button>
+              {STEP_OPTIONS.map((step) => (
+                <option key={step} value={step}>
+                  {formatDuration(step)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className="btn btn--outline btn--sm"
+            onClick={handleSaveSettings}
+            disabled={savingSettings}
+          >
+            {savingSettings ? 'Salvando...' : 'Salvar duração mínima'}
+          </button>
+          {settingsSaved && <span className="court-pricing-page__saved">Salvo!</span>}
+        </div>
+      </section>
+
+      <section className="court-pricing-page__section">
+        <h2>Preços por horário</h2>
+        <p className="court-pricing-page__hint">
+          Defina o valor da hora por dia da semana. Só os horários com uma regra cadastrada ficam
+          disponíveis pra reserva. Clique no × de um horário pra desabilitá-lo.
+        </p>
+
+        {[...rulesByDay.keys()].sort((a, b) => a - b).map((day) => (
+          <div className="court-pricing-page__day-group" key={day}>
+            <strong>{WEEKDAY_LABELS[day]}</strong>
+            <div className="court-pricing-page__chips">
+              {rulesByDay.get(day)!.map(({ rule, index }) => (
+                <span className="court-pricing-page__chip" key={index}>
+                  {rule.startTime}–{rule.endTime} · R$ {rule.price || '0'}
+                  <button
+                    type="button"
+                    onClick={() => removePriceRule(index)}
+                    aria-label={`Remover horário ${rule.startTime}–${rule.endTime} de ${WEEKDAY_LABELS[day]}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
         ))}
 
-        <button type="button" className="court-pricing-page__add-row" onClick={addPriceRule}>
-          + Adicionar horário
-        </button>
+        {priceRules.length === 0 && (
+          <p className="court-pricing-page__hint">Nenhum horário cadastrado ainda.</p>
+        )}
+
+        <details className="court-pricing-page__manual">
+          <summary>Adicionar horário manualmente (preço especial, exceção etc.)</summary>
+          {priceRules.map((rule, index) => (
+            <div className="court-pricing-page__row" key={index}>
+              <select
+                value={rule.dayOfWeek}
+                onChange={(event) => updatePriceRule(index, { dayOfWeek: Number(event.target.value) })}
+              >
+                {WEEKDAY_LABELS.map((label, day) => (
+                  <option key={day} value={day}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="time"
+                value={rule.startTime}
+                onChange={(event) => updatePriceRule(index, { startTime: event.target.value })}
+              />
+              <span>até</span>
+              <input
+                type="time"
+                value={rule.endTime}
+                onChange={(event) => updatePriceRule(index, { endTime: event.target.value })}
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="R$/hora"
+                value={rule.price}
+                onChange={(event) => updatePriceRule(index, { price: event.target.value })}
+              />
+              <button
+                type="button"
+                className="court-pricing-page__remove-row"
+                onClick={() => removePriceRule(index)}
+                aria-label="Remover regra"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+
+          <button type="button" className="court-pricing-page__add-row" onClick={addPriceRule}>
+            + Adicionar horário
+          </button>
+        </details>
 
         <div className="court-pricing-page__save-row">
           <button

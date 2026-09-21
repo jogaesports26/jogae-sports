@@ -4,7 +4,16 @@ import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/p
 import type { AgendaResponse } from '../lib/reservations'
 import type { CourtReview, PublicCourt } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
-import { addDays, findOccupant, formatMinutes, toDateInputValue, WEEKDAY_SHORT } from '../lib/weekGrid'
+import {
+  addDays,
+  findOccupant,
+  formatDuration,
+  formatMinutes,
+  getAvailableStartTimes,
+  sumPriceForRange,
+  toDateInputValue,
+  WEEKDAY_SHORT,
+} from '../lib/weekGrid'
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
@@ -14,6 +23,8 @@ import './CourtBookingPage.css'
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
+
+const DURATION_CHOICES = [30, 45, 60, 90, 120, 150, 180, 240]
 
 const SPORT_ICONS: Record<string, typeof SoccerBall> = {
   FUTEBOL: SoccerBall,
@@ -53,6 +64,7 @@ export default function CourtBookingPage() {
   const [reviews, setReviews] = useState<CourtReview[]>([])
   const [error, setError] = useState('')
   const [selectedDayIndex, setSelectedDayIndex] = useState(0)
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(null)
   const [pendingSlot, setPendingSlot] = useState<PendingSlot | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<PendingSlot | null>(null)
   const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
@@ -94,11 +106,34 @@ export default function CourtBookingPage() {
     .filter((r) => r.dayOfWeek === selectedDayOfWeek)
     .sort((a, b) => a.startMinute - b.startMinute)
 
+  const durationOptions = [...new Set([court.minBookingMinutes, ...DURATION_CHOICES])]
+    .filter((d) => d >= court.minBookingMinutes)
+    .sort((a, b) => a - b)
+  const duration =
+    selectedDuration !== null && durationOptions.includes(selectedDuration) ? selectedDuration : court.minBookingMinutes
+
+  const availableStarts = new Set(
+    getAvailableStartTimes(
+      selectedDayOfWeek,
+      duration,
+      agenda.priceRules,
+      selectedDay,
+      agenda.reservations,
+      agenda.maintenanceBlocks,
+      agenda.recurringMaintenanceBlocks,
+    ),
+  )
+
   const heroPhoto = court.photoUrls[0]
   const establishmentName = court.owner.establishmentName
 
   function selectDay(index: number) {
     setSelectedDayIndex(index)
+    setPendingSlot(null)
+  }
+
+  function selectDuration(minutes: number) {
+    setSelectedDuration(minutes)
     setPendingSlot(null)
   }
 
@@ -166,6 +201,25 @@ export default function CourtBookingPage() {
         </div>
       </section>
 
+      {durationOptions.length > 1 && (
+        <section className="booking-section">
+          <h2 className="booking-section__title">Quanto tempo você quer jogar?</h2>
+          <div className="duration-pills">
+            {durationOptions.map((minutes) => (
+              <button
+                key={minutes}
+                type="button"
+                className={`duration-pill${duration === minutes ? ' duration-pill--active' : ''}`}
+                onClick={() => selectDuration(minutes)}
+                aria-pressed={duration === minutes}
+              >
+                {formatDuration(minutes)}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="booking-section">
         <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>
         {dayRules.length === 0 ? (
@@ -183,10 +237,6 @@ export default function CourtBookingPage() {
               )
 
               if (occupant && occupant.type !== 'reservation') return null
-
-              const price = Number(rule.pricePerHour) * ((rule.endMinute - rule.startMinute) / 60)
-              // pendingSlot é sempre limpo ao trocar de dia (selectDay), então só precisa comparar o horário.
-              const isPending = pendingSlot?.startMinute === rule.startMinute
 
               if (occupant?.type === 'reservation') {
                 return (
@@ -210,6 +260,15 @@ export default function CourtBookingPage() {
                 )
               }
 
+              // Só mostra esse início se a duração escolhida couber inteira, sem
+              // buraco nem choque com outra reserva, a partir daqui.
+              if (!availableStarts.has(rule.startMinute)) return null
+
+              const endMinute = rule.startMinute + duration
+              const price = sumPriceForRange(selectedDayOfWeek, rule.startMinute, endMinute, agenda.priceRules) ?? 0
+              // pendingSlot é sempre limpo ao trocar de dia/duração, então só precisa comparar o horário.
+              const isPending = pendingSlot?.startMinute === rule.startMinute
+
               return (
                 <button
                   key={rule.id}
@@ -220,12 +279,12 @@ export default function CourtBookingPage() {
                       dayDate: selectedDay,
                       dayLabel: selectedDayLabel,
                       startMinute: rule.startMinute,
-                      endMinute: rule.endMinute,
+                      endMinute,
                       price,
                     })
                   }
                 >
-                  {formatMinutes(rule.startMinute)}
+                  {formatMinutes(rule.startMinute)}–{formatMinutes(endMinute)}
                 </button>
               )
             })}

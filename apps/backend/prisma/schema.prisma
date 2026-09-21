@@ -40,17 +40,19 @@ enum Role {
 }
 
 model Court {
-  id          String   @id @default(uuid())
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id])
-  name        String
-  sport       String
-  surfaceType String
-  hasLighting Boolean  @default(false)
-  photoUrls   String[]
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(uuid())
+  ownerId           String
+  owner             User     @relation(fields: [ownerId], references: [id])
+  name              String
+  sport             String
+  surfaceType       String
+  hasLighting       Boolean  @default(false)
+  photoUrls         String[]
+  active            Boolean  @default(true)
+  minBookingMinutes Int      @default(60)
+  slotStepMinutes   Int      @default(60)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   priceRules                 PriceRule[]
   reservations               Reservation[]

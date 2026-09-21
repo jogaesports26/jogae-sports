@@ -112,6 +112,7 @@ export class ReservationsService {
         surfaceType: true,
         hasLighting: true,
         photoUrls: true,
+        minBookingMinutes: true,
         owner: {
           select: {
             establishmentName: true,
@@ -205,6 +206,8 @@ export class ReservationsService {
         'Não é possível reservar um horário no passado',
       );
     }
+
+    this.assertMinDuration(court.minBookingMinutes, startsAt, endsAt);
 
     const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
@@ -670,6 +673,8 @@ export class ReservationsService {
       );
     }
 
+    this.assertMinDuration(court.minBookingMinutes, startsAt, endsAt);
+
     const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
 
@@ -978,6 +983,19 @@ export class ReservationsService {
       oldStartsAt: reservation.startsAt,
       oldEndsAt: reservation.endsAt,
     };
+  }
+
+  private assertMinDuration(
+    minBookingMinutes: number,
+    startsAt: Date,
+    endsAt: Date,
+  ) {
+    const durationMinutes = (endsAt.getTime() - startsAt.getTime()) / 60000;
+    if (durationMinutes < minBookingMinutes) {
+      throw new BadRequestException(
+        `Essa quadra exige uma reserva de pelo menos ${minBookingMinutes} minutos`,
+      );
+    }
   }
 
   private async assertNoConflict(

@@ -41,9 +41,10 @@ function buildPrismaMock() {
 }
 
 function buildCourtsServiceMock(
-  court: { id: string; ownerId: string } | null = {
+  court: { id: string; ownerId: string; minBookingMinutes?: number } | null = {
     id: 'court-1',
     ownerId: 'owner-1',
+    minBookingMinutes: 60,
   },
 ) {
   return {
@@ -196,6 +197,27 @@ describe('ReservationsService', () => {
           endsAt: endsAt.toISOString(),
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('duração mínima', () => {
+    it('rejeita reserva do dono mais curta que a duração mínima da quadra', async () => {
+      courtsService.findOneOrThrow.mockResolvedValue({
+        id: 'court-1',
+        ownerId: 'owner-1',
+        minBookingMinutes: 90,
+      });
+
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente Teste',
+          guestPhone: '85999998888',
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(15).toISOString(),
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
     });
   });
 
@@ -553,8 +575,24 @@ describe('ReservationsService', () => {
         surfaceType: 'QUADRA_POLIESPORTIVA',
         hasLighting: true,
         photoUrls: [],
+        minBookingMinutes: 60,
         owner: {},
       });
+    });
+
+    it('rejeita reserva mais curta que a duração mínima da quadra', async () => {
+      prisma.player.findUnique.mockResolvedValue({ id: 'player-1' });
+
+      await expect(
+        service.createForPlayer(
+          'court-1',
+          'player-1',
+          nextSaturdayAt(14).toISOString(),
+          nextSaturdayAt(14, 30).toISOString(),
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
     });
 
     it('cria a reserva quando o jogador do token ainda existe', async () => {
