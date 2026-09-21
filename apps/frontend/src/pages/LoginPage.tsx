@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
+import PasswordInput from '../components/PasswordInput'
 import { API_URL, parseApiError, saveSession, staffLogin, type AuthResponse } from '../lib/api'
 
 type LoginAs = 'owner' | 'staff'
@@ -124,9 +125,8 @@ export default function LoginPage() {
 
         <div className="auth__field">
           <label htmlFor="password">Senha</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

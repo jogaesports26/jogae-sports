@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
+import PasswordInput from '../components/PasswordInput'
 import { SessionExpiredError } from '../lib/api'
 import { createStaff, fetchStaff, removeStaff, updateStaff } from '../lib/staff'
 import type { StaffMember, StaffPermission } from '../lib/staff'
@@ -120,8 +121,7 @@ export default function StaffPage() {
             </label>
             <label className="staff-page__field">
               <span>Senha</span>
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Mínimo 6 caracteres"

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
+import PasswordInput from '../components/PasswordInput'
 import { API_URL, parseApiError } from '../lib/api'
 
 interface FormErrors {
@@ -84,9 +85,8 @@ export default function ResetPasswordPage() {
         <form onSubmit={handleSubmit} noValidate>
           <div className="auth__field">
             <label htmlFor="password">Nova senha</label>
-            <input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -97,9 +97,8 @@ export default function ResetPasswordPage() {
 
           <div className="auth__field">
             <label htmlFor="confirmPassword">Repita a nova senha</label>
-            <input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

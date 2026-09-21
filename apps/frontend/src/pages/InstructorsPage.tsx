@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { createInstructor, fetchInstructors, removeInstructor } from '../lib/instructors'
+import { sanitizePhoneInput } from '../lib/phone'
 import type { Instructor } from '../lib/instructors'
 import './InstructorsPage.css'
 
@@ -92,8 +93,9 @@ export default function InstructorsPage() {
             <label className="instructors-page__field">
               <span>Telefone (opcional)</span>
               <input
+                type="tel"
                 value={phone}
-                onChange={(event) => setPhone(event.target.value)}
+                onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
                 placeholder="(85) 99999-9999"
               />
             </label>
