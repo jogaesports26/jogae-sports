@@ -1,13 +1,10 @@
 import {
   IsArray,
   IsBoolean,
-  IsIn,
   IsOptional,
   IsString,
-  IsUrl,
   MinLength,
 } from 'class-validator';
-import { SPORTS, SURFACE_TYPES } from '../constants/court-options';
 
 export class UpdateCourtDto {
   @IsOptional()
@@ -15,12 +12,15 @@ export class UpdateCourtDto {
   @MinLength(2)
   name?: string;
 
+  // Ver create-court.dto.ts: texto livre pra suportar a opção "Outro".
   @IsOptional()
-  @IsIn(SPORTS)
+  @IsString()
+  @MinLength(1)
   sport?: string;
 
   @IsOptional()
-  @IsIn(SURFACE_TYPES)
+  @IsString()
+  @MinLength(1)
   surfaceType?: string;
 
   @IsOptional()
@@ -29,7 +29,7 @@ export class UpdateCourtDto {
 
   @IsOptional()
   @IsArray()
-  @IsUrl({}, { each: true })
+  @IsString({ each: true })
   photoUrls?: string[];
 
   @IsOptional()

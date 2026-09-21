@@ -1,31 +1,35 @@
 import {
   IsArray,
   IsBoolean,
-  IsIn,
   IsOptional,
   IsString,
-  IsUrl,
   MinLength,
 } from 'class-validator';
-import { SPORTS, SURFACE_TYPES } from '../constants/court-options';
 
 export class CreateCourtDto {
   @IsString()
   @MinLength(2)
   name: string;
 
-  @IsIn(SPORTS)
+  // Aceita tanto um dos valores pré-definidos (ver constants/court-options.ts,
+  // usado só pelo dropdown do frontend) quanto um texto livre digitado quando
+  // o dono escolhe "Outro".
+  @IsString()
+  @MinLength(1)
   sport: string;
 
-  @IsIn(SURFACE_TYPES)
+  @IsString()
+  @MinLength(1)
   surfaceType: string;
 
   @IsOptional()
   @IsBoolean()
   hasLighting?: boolean;
 
+  // String livre em vez de @IsUrl: também aceita data URLs (fotos enviadas
+  // como arquivo, convertidas em base64 no frontend).
   @IsOptional()
   @IsArray()
-  @IsUrl({}, { each: true })
+  @IsString({ each: true })
   photoUrls?: string[];
 }
