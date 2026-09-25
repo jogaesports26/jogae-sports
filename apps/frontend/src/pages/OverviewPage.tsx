@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
+import {
+  IconCalendar,
+  IconCourtOccupancy,
+  IconGift,
+  IconSleep,
+  IconTrendUp,
+  IconWallet,
+} from '../components/panel/KpiIcons'
 import { SessionExpiredError } from '../lib/api'
 import { fetchTodayReservations } from '../lib/reservations'
 import type { TodayReservation } from '../lib/reservations'
@@ -139,8 +147,8 @@ export default function OverviewPage() {
 
       <div className="overview-page__stats">
         <div className="overview-page__stat">
-          <span className="overview-page__stat-icon" aria-hidden="true">
-            📅
+          <span className="overview-page__stat-icon">
+            <IconCalendar />
           </span>
           <span className="overview-page__stat-body">
             <span>Reservas hoje</span>
@@ -148,8 +156,8 @@ export default function OverviewPage() {
           </span>
         </div>
         <div className="overview-page__stat">
-          <span className="overview-page__stat-icon" aria-hidden="true">
-            💰
+          <span className="overview-page__stat-icon">
+            <IconWallet />
           </span>
           <span className="overview-page__stat-body">
             <span>Previsto pra hoje</span>
@@ -157,8 +165,8 @@ export default function OverviewPage() {
           </span>
         </div>
         <div className="overview-page__stat">
-          <span className="overview-page__stat-icon" aria-hidden="true">
-            📈
+          <span className="overview-page__stat-icon">
+            <IconTrendUp />
           </span>
           <span className="overview-page__stat-body">
             <span>Faturamento do mês</span>
@@ -166,8 +174,8 @@ export default function OverviewPage() {
           </span>
         </div>
         <div className="overview-page__stat">
-          <span className="overview-page__stat-icon" aria-hidden="true">
-            🏟️
+          <span className="overview-page__stat-icon">
+            <IconCourtOccupancy />
           </span>
           <span className="overview-page__stat-body">
             <span>Ocupação do mês</span>
@@ -194,8 +202,8 @@ export default function OverviewPage() {
         <div className="overview-page__alerts">
           {birthdaysCount > 0 && (
             <Link to="/painel/clientes?filtro=birthdays" className="overview-page__alert card">
-              <span className="overview-page__alert-icon" aria-hidden="true">
-                🎂
+              <span className="overview-page__alert-icon overview-page__alert-icon--warning">
+                <IconGift />
               </span>
               <span className="overview-page__alert-body">
                 <strong>{birthdaysCount}</strong>
@@ -205,8 +213,8 @@ export default function OverviewPage() {
           )}
           {inactiveCount > 0 && (
             <Link to="/painel/clientes?filtro=inactive" className="overview-page__alert card">
-              <span className="overview-page__alert-icon" aria-hidden="true">
-                💤
+              <span className="overview-page__alert-icon overview-page__alert-icon--neutral">
+                <IconSleep />
               </span>
               <span className="overview-page__alert-body">
                 <strong>{inactiveCount}</strong>

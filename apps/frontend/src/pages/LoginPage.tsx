@@ -76,14 +76,14 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      headline="Gestão completa para sua quadra"
+      headline="Gestão completa pra sua quadra"
       subtitle="Agenda online, controle de reservas, pagamentos e muito mais. Tudo em um só lugar."
     >
       <div className="auth__brand">Jogaê Sports - Gestão</div>
 
       <h1>Bem-vindo de volta</h1>
       <p className="auth__subtitle">
-        {loginAs === 'staff' ? 'Entre com os dados que o dono cadastrou pra você' : 'Entre para administrar sua quadra'}
+        {loginAs === 'staff' ? 'Entre com os dados que o dono cadastrou pra você' : 'Entre pra administrar sua quadra'}
       </p>
 
       <div className="auth__role-toggle" role="tablist">

@@ -59,6 +59,10 @@ export default function AvaliacoesPage() {
     }
   }
 
+  const averageRating =
+    reviews && reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : null
+  const unansweredCount = reviews?.filter((r) => !r.ownerReply).length ?? 0
+
   return (
     <div className="avaliacoes-page">
       <h1>Avaliações</h1>
@@ -66,6 +70,28 @@ export default function AvaliacoesPage() {
         O que os clientes disseram sobre suas quadras. Sua resposta aparece publicamente na lojinha, logo
         abaixo do comentário.
       </p>
+
+      {averageRating !== null && reviews && (
+        <div className="avaliacoes-page__summary card">
+          <div className="avaliacoes-page__summary-score">
+            <strong>{averageRating.toFixed(1).replace('.', ',')}</strong>
+            <span className="avaliacoes-page__stars" aria-hidden="true">
+              {'★'.repeat(Math.round(averageRating))}
+              {'☆'.repeat(5 - Math.round(averageRating))}
+            </span>
+          </div>
+          <div className="avaliacoes-page__summary-meta">
+            <span>
+              {reviews.length} {reviews.length === 1 ? 'avaliação' : 'avaliações'}
+            </span>
+            {unansweredCount > 0 && (
+              <span className="pill pill--warning">
+                {unansweredCount} sem resposta
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {error && <p className="avaliacoes-page__error">{error}</p>}
 
@@ -102,7 +128,7 @@ export default function AvaliacoesPage() {
                   <textarea
                     value={draft}
                     onChange={(event) => setDraft(event.target.value)}
-                    placeholder="Escreva uma resposta pública para essa avaliação..."
+                    placeholder="Escreva uma resposta pública pra essa avaliação..."
                     rows={3}
                     maxLength={500}
                   />

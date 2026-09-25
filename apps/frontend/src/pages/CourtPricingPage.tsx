@@ -379,7 +379,7 @@ export default function CourtPricingPage() {
           </label>
           <button
             type="button"
-            className="btn btn--outline btn--sm"
+            className="btn btn--primary btn--sm"
             onClick={handleSaveSettings}
             disabled={savingSettings}
           >

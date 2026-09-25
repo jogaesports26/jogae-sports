@@ -115,8 +115,8 @@
 }
 
 .court-pricing-page__gen-day--active {
-  background: var(--color-dark-navy);
-  border-color: var(--color-dark-navy);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: #fff;
 }
 

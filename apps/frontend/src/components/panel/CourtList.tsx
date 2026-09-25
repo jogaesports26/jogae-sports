@@ -97,7 +97,7 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
                     {sportIcon(court.sport)}
                   </span>
                   <h3>{court.name}</h3>
-                  {!court.active && <span className="court-card__badge">Inativa</span>}
+                  {!court.active && <span className="pill pill--neutral">Inativa</span>}
                 </div>
                 <p className="court-card__meta">
                   {sportLabel(court.sport)} · {surfaceLabel(court.surfaceType)}

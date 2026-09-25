@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
 import { SessionExpiredError } from '../lib/api'
 import { fetchAgenda } from '../lib/reservations'
@@ -84,81 +84,106 @@ export default function AgendaPage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="agenda-page__empty">
-          Essa quadra ainda não tem preços por horário configurados. Configure na aba "Preços &
-          disponibilidade" antes de lançar reservas.
-        </p>
+        <div className="agenda-page__empty card">
+          <p>
+            Nenhum horário disponível ainda — a agenda só mostra os horários que têm preço cadastrado.
+          </p>
+          <Link to={`/painel/quadras/${courtId}/precos`} className="btn btn--primary btn--sm">
+            Configurar preços
+          </Link>
+        </div>
       ) : (
-        <div className="agenda-grid__wrap">
-          <div className="agenda-grid" style={{ gridTemplateColumns: `88px repeat(7, 1fr)` }}>
-            <div className="agenda-grid__corner" />
-            {days.map((day) => (
-              <div className="agenda-grid__day-header" key={day.toISOString()}>
-                <span>{WEEKDAY_SHORT[day.getDay()]}</span>
-                <strong>{day.getDate()}</strong>
-              </div>
-            ))}
-
-            {rows.map((row) => (
-              <Fragment key={row.key}>
-                <div className="agenda-grid__time">
-                  {formatMinutes(row.startMinute)}
+        <>
+          <div className="agenda-page__legend">
+            <span className="agenda-page__legend-item">
+              <span className="agenda-page__legend-swatch agenda-grid__cell--available" />
+              Livre
+            </span>
+            <span className="agenda-page__legend-item">
+              <span className="agenda-page__legend-swatch agenda-grid__cell--reserved" />
+              Reservado
+            </span>
+            <span className="agenda-page__legend-item">
+              <span className="agenda-page__legend-swatch agenda-grid__cell--blocked" />
+              Manutenção
+            </span>
+            <span className="agenda-page__legend-item">
+              <span className="agenda-page__legend-swatch agenda-grid__cell--off" />
+              Sem preço cadastrado —{' '}
+              <Link to={`/painel/quadras/${courtId}/precos`}>configurar</Link>
+            </span>
+          </div>
+          <div className="agenda-grid__wrap">
+            <div className="agenda-grid" style={{ gridTemplateColumns: `88px repeat(7, 1fr)` }}>
+              <div className="agenda-grid__corner" />
+              {days.map((day) => (
+                <div className="agenda-grid__day-header" key={day.toISOString()}>
+                  <span>{WEEKDAY_SHORT[day.getDay()]}</span>
+                  <strong>{day.getDate()}</strong>
                 </div>
-                {days.map((day) => {
-                  const dayOfWeek = day.getDay()
-                  const hasRule = agenda.priceRules.some(
-                    (r) => r.dayOfWeek === dayOfWeek && r.startMinute === row.startMinute && r.endMinute === row.endMinute,
-                  )
+              ))}
 
-                  if (!hasRule) {
-                    return <div className="agenda-grid__cell agenda-grid__cell--off" key={`${row.key}-${dayOfWeek}`} />
-                  }
+              {rows.map((row) => (
+                <Fragment key={row.key}>
+                  <div className="agenda-grid__time">
+                    {formatMinutes(row.startMinute)}
+                  </div>
+                  {days.map((day) => {
+                    const dayOfWeek = day.getDay()
+                    const hasRule = agenda.priceRules.some(
+                      (r) => r.dayOfWeek === dayOfWeek && r.startMinute === row.startMinute && r.endMinute === row.endMinute,
+                    )
 
-                  const occupant = findOccupant(
-                    day,
-                    row.startMinute,
-                    row.endMinute,
-                    agenda.reservations,
-                    agenda.maintenanceBlocks,
-                    agenda.recurringMaintenanceBlocks,
-                  )
+                    if (!hasRule) {
+                      return <div className="agenda-grid__cell agenda-grid__cell--off" key={`${row.key}-${dayOfWeek}`} />
+                    }
 
-                  if (occupant?.type === 'reservation' && occupant.reservation) {
-                    const isStart = new Date(occupant.reservation.startsAt).getHours() * 60 +
-                      new Date(occupant.reservation.startsAt).getMinutes() === row.startMinute
+                    const occupant = findOccupant(
+                      day,
+                      row.startMinute,
+                      row.endMinute,
+                      agenda.reservations,
+                      agenda.maintenanceBlocks,
+                      agenda.recurringMaintenanceBlocks,
+                    )
+
+                    if (occupant?.type === 'reservation' && occupant.reservation) {
+                      const isStart = new Date(occupant.reservation.startsAt).getHours() * 60 +
+                        new Date(occupant.reservation.startsAt).getMinutes() === row.startMinute
+                      return (
+                        <button
+                          className="agenda-grid__cell agenda-grid__cell--reserved"
+                          key={`${row.key}-${dayOfWeek}`}
+                          onClick={() => setActiveReservation(occupant.reservation!)}
+                        >
+                          {isStart ? occupant.reservation.guestName : ''}
+                        </button>
+                      )
+                    }
+
+                    if (occupant?.type === 'block' || occupant?.type === 'recurringBlock') {
+                      return (
+                        <div className="agenda-grid__cell agenda-grid__cell--blocked" key={`${row.key}-${dayOfWeek}`}>
+                          Manutenção
+                        </div>
+                      )
+                    }
+
                     return (
                       <button
-                        className="agenda-grid__cell agenda-grid__cell--reserved"
+                        className="agenda-grid__cell agenda-grid__cell--available"
                         key={`${row.key}-${dayOfWeek}`}
-                        onClick={() => setActiveReservation(occupant.reservation!)}
+                        onClick={() => setSelection({ dayDate: day, dayOfWeek, startMinute: row.startMinute })}
                       >
-                        {isStart ? occupant.reservation.guestName : ''}
+                        +
                       </button>
                     )
-                  }
-
-                  if (occupant?.type === 'block' || occupant?.type === 'recurringBlock') {
-                    return (
-                      <div className="agenda-grid__cell agenda-grid__cell--blocked" key={`${row.key}-${dayOfWeek}`}>
-                        Manutenção
-                      </div>
-                    )
-                  }
-
-                  return (
-                    <button
-                      className="agenda-grid__cell agenda-grid__cell--available"
-                      key={`${row.key}-${dayOfWeek}`}
-                      onClick={() => setSelection({ dayDate: day, dayOfWeek, startMinute: row.startMinute })}
-                    >
-                      +
-                    </button>
-                  )
-                })}
-              </Fragment>
-            ))}
+                  })}
+                </Fragment>
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {selection && courtId && (
