@@ -140,3 +140,10 @@
     bottom: 16px;
   }
 }
+
+/* Com a barra fixa de reserva no rodapé, o chat sobe pra nunca cobrir o botão "Reservar agora". */
+@media (max-width: 820px) {
+  .portal:has(.booking-summary-bar) .chat-widget {
+    bottom: 112px;
+  }
+}

@@ -9,6 +9,7 @@ import {
 import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
 import ReceiptModal from '../components/portal/ReceiptModal'
+import CancelReservationModal from '../components/portal/CancelReservationModal'
 import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
 import { buildGoogleCalendarUrl } from '../lib/calendar'
@@ -26,6 +27,11 @@ function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+function formatReservationRange(reservation: PlayerReservation) {
+  const endTime = new Date(reservation.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${formatDateTime(reservation.startsAt)} – ${endTime}`
+}
+
 function toDatetimeLocalValue(date: Date): string {
   const offset = date.getTimezoneOffset()
   const local = new Date(date.getTime() - offset * 60000)
@@ -38,6 +44,7 @@ export default function PlayerReservationsPage() {
   const [error, setError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
   const [receiptReservation, setReceiptReservation] = useState<PlayerReservation | null>(null)
+  const [cancellingReservation, setCancellingReservation] = useState<PlayerReservation | null>(null)
   const [shareResultId, setShareResultId] = useState<{ id: string; result: ShareResult } | null>(null)
   const [reschedulingId, setReschedulingId] = useState<string | null>(null)
   const [newStartsAt, setNewStartsAt] = useState('')
@@ -62,6 +69,7 @@ export default function PlayerReservationsPage() {
   async function handleCancel(id: string) {
     try {
       await cancelPlayerReservation(id)
+      setCancellingReservation(null)
       showToast('Reserva cancelada.', 'success')
       load()
     } catch (err) {
@@ -139,9 +147,7 @@ export default function PlayerReservationsPage() {
                     · {reservation.court.owner.establishmentName}
                   </span>
                 )}
-                <p className="player-reservation-card__time">
-                  {formatDateTime(reservation.startsAt)} – {new Date(reservation.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <p className="player-reservation-card__time">{formatReservationRange(reservation)}</p>
                 <p className="player-reservation-card__price">
                   R$ {Number(reservation.priceSnapshot).toFixed(2).replace('.', ',')}
                 </p>
@@ -224,7 +230,7 @@ export default function PlayerReservationsPage() {
                     >
                       Reagendar
                     </button>
-                    <button onClick={() => handleCancel(reservation.id)}>Cancelar</button>
+                    <button onClick={() => setCancellingReservation(reservation)}>Cancelar</button>
                   </>
                 )}
                 {reservation.status === 'COMPLETED' && (
@@ -271,7 +277,7 @@ export default function PlayerReservationsPage() {
         <ReceiptModal
           courtName={receiptReservation.court.name}
           establishmentName={receiptReservation.court.owner.establishmentName}
-          dateLabel={`${formatDateTime(receiptReservation.startsAt)} – ${new Date(receiptReservation.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`}
+          dateLabel={formatReservationRange(receiptReservation)}
           price={Number(receiptReservation.priceSnapshot)}
           shareUrl={
             receiptReservation.court.owner.establishmentSlug
@@ -279,6 +285,17 @@ export default function PlayerReservationsPage() {
               : window.location.origin
           }
           onClose={() => setReceiptReservation(null)}
+        />
+      )}
+
+      {cancellingReservation && (
+        <CancelReservationModal
+          courtName={cancellingReservation.court.name}
+          establishmentName={cancellingReservation.court.owner.establishmentName}
+          dateLabel={formatReservationRange(cancellingReservation)}
+          price={Number(cancellingReservation.priceSnapshot)}
+          onConfirm={() => handleCancel(cancellingReservation.id)}
+          onClose={() => setCancellingReservation(null)}
         />
       )}
     </div>

@@ -1,0 +1,63 @@
+.cancel-reservation__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  margin: 12px 0 16px;
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+}
+
+.cancel-reservation__summary strong {
+  font-family: var(--font-heading);
+  font-size: 15px;
+}
+
+.cancel-reservation__price {
+  font-weight: 700;
+}
+
+.cancel-reservation__policy {
+  margin: 0 0 20px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-dark);
+  opacity: 0.8;
+}
+
+.cancel-reservation__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cancel-reservation__confirm {
+  padding: 12px;
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-reservation__actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 380px) {
+  .cancel-reservation__actions {
+    grid-template-columns: 1fr;
+  }
+}
