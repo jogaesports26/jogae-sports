@@ -89,7 +89,8 @@
     display: none;
   }
 
+  /* Reserva espaço no fim da página pro botão flutuante do chat não cobrir o último card. */
   .portal__content {
-    padding: 8vw 5vw 12vw;
+    padding: 8vw 5vw 96px;
   }
 }
