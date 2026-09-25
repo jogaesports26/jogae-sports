@@ -7,6 +7,8 @@
   --color-surface-dark: var(--color-dark-navy);
   --radius-card: 10px;
   --radius-sm: 8px;
+  /* Fundo alternado entre seções claras consecutivas, pra os respiros não virarem um buraco branco. */
+  --color-section-tint: #f4f5fa;
 
   overflow-x: hidden;
   background: var(--color-background);
@@ -60,8 +62,9 @@
 }
 
 .landing__nav-cta {
-  background: var(--color-primary);
-  color: #ffffff !important;
+  background: var(--color-accent-green);
+  color: var(--color-dark-navy) !important;
+  font-weight: 700 !important;
   padding: 10px 20px;
   border: none;
   border-radius: var(--radius-pill);
@@ -109,11 +112,6 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.landing__button--white {
-  background: #ffffff;
-  color: var(--color-primary);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .landing__button,
   .landing__nav-cta {
@@ -131,7 +129,28 @@
 .landing__features {
   padding: 7vw 6vw;
   text-align: center;
-  background: var(--color-background);
+  background: var(--color-section-tint);
+}
+
+.landing__features-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 32px auto 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.landing__features-soon-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
 .landing__features h2 {
@@ -149,14 +168,17 @@
   font-size: 16px;
 }
 
+/* Flex em vez de grid pra centralizar a última linha quando o número de cards não fecha a fileira. */
 .landing__features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 28px;
   text-align: left;
 }
 
 .landing__feature-card {
+  flex: 0 1 calc((100% - 56px) / 3);
   background: var(--color-surface);
   border: none;
   border-radius: var(--radius-card);
@@ -229,25 +251,68 @@
 /* Footer */
 
 .landing__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 6vw;
+  padding: 48px 6vw 24px;
   background: var(--color-surface-dark, var(--color-dark-navy));
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   border-top: 2px solid var(--color-accent-green, var(--color-accent));
 }
 
-.landing__footer span:first-child {
-  color: var(--color-white, #ffffff);
-  font-weight: 600;
+.landing__footer-columns {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.landing__footer-brand strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-white);
+  margin-bottom: 8px;
+}
+
+.landing__footer-brand p {
+  max-width: 320px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.landing__footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing__footer-col span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent-green);
+}
+
+.landing__footer-col a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+}
+
+.landing__footer-col a:hover {
+  color: var(--color-white);
+}
+
+.landing__footer-bottom {
+  margin: 20px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 900px) {
-  .landing__features-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .landing__feature-card {
+    flex-basis: calc((100% - 28px) / 2);
   }
 }
 
@@ -273,13 +338,15 @@
     font-size: 13px;
   }
 
-  .landing__features-grid {
-    grid-template-columns: 1fr;
+  .landing__feature-card {
+    flex-basis: 100%;
   }
 
-  .landing__footer {
-    flex-direction: column;
-    gap: 6px;
-    text-align: center;
+  .landing__footer-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .landing__footer-brand {
+    grid-column: 1 / -1;
   }
 }

@@ -34,7 +34,7 @@ export default function FAQ() {
   }
 
   return (
-    <section className="faq">
+    <section className="faq" id="perguntas-frequentes">
       <h2>Perguntas frequentes</h2>
 
       <div className="faq__list reveal-stagger" ref={listRef}>

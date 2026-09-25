@@ -1,6 +1,6 @@
 .faq {
   padding: 7vw 6vw 9vw;
-  background: var(--color-background);
+  background: var(--color-section-tint, var(--color-background));
   text-align: center;
 }
 
