@@ -16,6 +16,8 @@ export interface PublicCourt {
   hasLighting: boolean
   photoUrls: string[]
   minBookingMinutes: number
+  maxBookingMinutes: number | null
+  bookingStepMinutes: number
   owner: { establishmentName: string | null; establishmentAddress: string | null; establishmentPhone?: string | null }
   fromPricePerHour: string | null
   averageRating: number | null

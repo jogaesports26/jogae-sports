@@ -7,6 +7,7 @@ import {
   Max,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateCourtDto {
@@ -46,11 +47,27 @@ export class UpdateCourtDto {
   @Max(24 * 60)
   minBookingMinutes?: number;
 
+  // Duração máxima de uma reserva nessa quadra, em minutos. null = sem limite.
+  @IsOptional()
+  @ValidateIf((_object, value) => value !== null)
+  @IsInt()
+  @Min(5)
+  @Max(24 * 60)
+  maxBookingMinutes?: number | null;
+
   // Passo (granularidade) usado ao gerar horários automaticamente na tela
-  // de preços — não afeta reservas já criadas.
+  // de preços — só afeta o gerador, não a disponibilidade oferecida ao jogador.
   @IsOptional()
   @IsInt()
   @Min(5)
   @Max(24 * 60)
   slotStepMinutes?: number;
+
+  // Passo (granularidade) dos horários de início oferecidos ao jogador,
+  // independente de como as regras de preço foram cadastradas.
+  @IsOptional()
+  @IsInt()
+  @Min(5)
+  @Max(24 * 60)
+  bookingStepMinutes?: number;
 }

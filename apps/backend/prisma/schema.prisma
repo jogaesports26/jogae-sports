@@ -50,7 +50,9 @@ model Court {
   photoUrls         String[]
   active            Boolean  @default(true)
   minBookingMinutes Int      @default(60)
+  maxBookingMinutes Int?
   slotStepMinutes   Int      @default(60)
+  bookingStepMinutes Int     @default(30)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

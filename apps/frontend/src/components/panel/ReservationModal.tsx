@@ -10,7 +10,7 @@ import { validateCouponForCourt } from '../../lib/coupons'
 import type { CouponPreview } from '../../lib/coupons'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
-import { formatMinutes } from '../../lib/weekGrid'
+import { formatMinutes, sumPriceForRange } from '../../lib/weekGrid'
 import { showToast } from '../../lib/toast'
 import './ReservationModal.css'
 
@@ -24,20 +24,6 @@ interface ReservationModalProps {
   onClose: () => void
   onCreated: () => void
   onSessionExpired: () => void
-}
-
-function calcPrice(dayOfWeek: number, startMinute: number, endMinute: number, priceRules: PriceRule[]) {
-  const dayRules = priceRules.filter((r) => r.dayOfWeek === dayOfWeek).sort((a, b) => a.startMinute - b.startMinute)
-  let cursor = startMinute
-  let total = 0
-  while (cursor < endMinute) {
-    const rule = dayRules.find((r) => r.startMinute === cursor)
-    if (!rule) break
-    const segmentEnd = Math.min(rule.endMinute, endMinute)
-    total += Number(rule.pricePerHour) * ((segmentEnd - cursor) / 60)
-    cursor = rule.endMinute
-  }
-  return total
 }
 
 function toISOAt(dayDate: Date, minutes: number) {
@@ -84,7 +70,7 @@ export default function ReservationModal({
       })
   }, [courtId])
 
-  const price = calcPrice(dayOfWeek, startMinute, endMinute, priceRules)
+  const price = sumPriceForRange(dayOfWeek, startMinute, endMinute, priceRules) ?? 0
   const discount = couponPreview
     ? Math.min(
         couponPreview.discountType === 'PERCENT' ? (price * couponPreview.discountValue) / 100 : couponPreview.discountValue,

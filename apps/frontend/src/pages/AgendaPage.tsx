@@ -170,6 +170,7 @@ export default function AgendaPage() {
           endOptions={getBookableEndOptions(
             selection.dayOfWeek,
             selection.startMinute,
+            court.bookingStepMinutes,
             agenda.priceRules,
             selection.dayDate,
             agenda.reservations,

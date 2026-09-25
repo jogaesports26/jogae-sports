@@ -10,6 +10,7 @@ import {
   formatDuration,
   formatMinutes,
   getAvailableStartTimes,
+  getDayStepGrid,
   sumPriceForRange,
   toDateInputValue,
   WEEKDAY_SHORT,
@@ -102,12 +103,10 @@ export default function CourtBookingPage() {
   const selectedDayOfWeek = selectedDay.getDay()
   const selectedDayLabel = `${WEEKDAY_SHORT[selectedDayOfWeek]} ${selectedDay.getDate()}`
 
-  const dayRules = agenda.priceRules
-    .filter((r) => r.dayOfWeek === selectedDayOfWeek)
-    .sort((a, b) => a.startMinute - b.startMinute)
+  const dayGrid = getDayStepGrid(selectedDayOfWeek, court.bookingStepMinutes, agenda.priceRules)
 
   const durationOptions = [...new Set([court.minBookingMinutes, ...DURATION_CHOICES])]
-    .filter((d) => d >= court.minBookingMinutes)
+    .filter((d) => d >= court.minBookingMinutes && (court.maxBookingMinutes == null || d <= court.maxBookingMinutes))
     .sort((a, b) => a - b)
   const duration =
     selectedDuration !== null && durationOptions.includes(selectedDuration) ? selectedDuration : court.minBookingMinutes
@@ -116,6 +115,7 @@ export default function CourtBookingPage() {
     getAvailableStartTimes(
       selectedDayOfWeek,
       duration,
+      court.bookingStepMinutes,
       agenda.priceRules,
       selectedDay,
       agenda.reservations,
@@ -222,15 +222,16 @@ export default function CourtBookingPage() {
 
       <section className="booking-section">
         <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>
-        {dayRules.length === 0 ? (
+        {dayGrid.length === 0 ? (
           <p className="booking-section__empty">Sem horários disponíveis nesse dia.</p>
         ) : (
           <div className="time-pills">
-            {dayRules.map((rule) => {
+            {dayGrid.map((cellStart) => {
+              const cellEnd = cellStart + court.bookingStepMinutes
               const occupant = findOccupant(
                 selectedDay,
-                rule.startMinute,
-                rule.endMinute,
+                cellStart,
+                cellEnd,
                 agenda.reservations,
                 agenda.maintenanceBlocks,
                 agenda.recurringMaintenanceBlocks,
@@ -240,8 +241,8 @@ export default function CourtBookingPage() {
 
               if (occupant?.type === 'reservation') {
                 return (
-                  <div key={rule.id} className="time-pill time-pill--taken">
-                    <span>{formatMinutes(rule.startMinute)}</span>
+                  <div key={cellStart} className="time-pill time-pill--taken">
+                    <span>{formatMinutes(cellStart)}</span>
                     <button
                       type="button"
                       className="time-pill__notify"
@@ -249,8 +250,8 @@ export default function CourtBookingPage() {
                         setWaitlistSlot({
                           dayDate: selectedDay,
                           dayLabel: selectedDayLabel,
-                          startMinute: rule.startMinute,
-                          endMinute: rule.endMinute,
+                          startMinute: cellStart,
+                          endMinute: cellEnd,
                         })
                       }
                     >
@@ -262,29 +263,29 @@ export default function CourtBookingPage() {
 
               // Só mostra esse início se a duração escolhida couber inteira, sem
               // buraco nem choque com outra reserva, a partir daqui.
-              if (!availableStarts.has(rule.startMinute)) return null
+              if (!availableStarts.has(cellStart)) return null
 
-              const endMinute = rule.startMinute + duration
-              const price = sumPriceForRange(selectedDayOfWeek, rule.startMinute, endMinute, agenda.priceRules) ?? 0
+              const endMinute = cellStart + duration
+              const price = sumPriceForRange(selectedDayOfWeek, cellStart, endMinute, agenda.priceRules) ?? 0
               // pendingSlot é sempre limpo ao trocar de dia/duração, então só precisa comparar o horário.
-              const isPending = pendingSlot?.startMinute === rule.startMinute
+              const isPending = pendingSlot?.startMinute === cellStart
 
               return (
                 <button
-                  key={rule.id}
+                  key={cellStart}
                   type="button"
                   className={`time-pill${isPending ? ' time-pill--active' : ''}`}
                   onClick={() =>
                     setPendingSlot({
                       dayDate: selectedDay,
                       dayLabel: selectedDayLabel,
-                      startMinute: rule.startMinute,
+                      startMinute: cellStart,
                       endMinute,
                       price,
                     })
                   }
                 >
-                  {formatMinutes(rule.startMinute)}–{formatMinutes(endMinute)}
+                  {formatMinutes(cellStart)}–{formatMinutes(endMinute)}
                 </button>
               )
             })}

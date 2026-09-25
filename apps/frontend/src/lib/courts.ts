@@ -28,7 +28,9 @@ export interface Court {
   photoUrls: string[]
   active: boolean
   minBookingMinutes: number
+  maxBookingMinutes: number | null
   slotStepMinutes: number
+  bookingStepMinutes: number
   createdAt: string
   updatedAt: string
   priceRules: PriceRule[]
@@ -45,7 +47,9 @@ export interface CourtInput {
 
 export interface CourtBookingSettingsInput {
   minBookingMinutes: number
+  maxBookingMinutes: number | null
   slotStepMinutes: number
+  bookingStepMinutes: number
 }
 
 export interface PriceRuleInput {
