@@ -151,7 +151,7 @@
   margin-top: 2px;
 }
 
-.player-reservation-card__actions .player-reservation-card__reschedule-cancel {
+.player-reservation-card__reschedule-cancel {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
@@ -163,12 +163,12 @@
   cursor: pointer;
 }
 
-.player-reservation-card__actions .player-reservation-card__reschedule-confirm {
+.player-reservation-card__reschedule-confirm {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
-  color: var(--color-white);
-  background: var(--color-primary);
+  color: var(--color-dark-navy);
+  background: var(--color-accent-green);
   border: none;
   border-radius: var(--radius-pill);
   padding: 4px 10px;

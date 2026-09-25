@@ -13,6 +13,7 @@ import type { CouponPreview } from '../../lib/player'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
+import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits } from '../../lib/phone'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
@@ -263,11 +264,14 @@ export default function BookingFlowModal({
             <label className="booking-modal__field">
               <span>Telefone</span>
               <input
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={formatPhone(phone)}
+                onChange={(event) => setPhone(phoneDigits(event.target.value))}
                 placeholder="(85) 99999-9999"
                 required
-                minLength={8}
+                minLength={FORMATTED_PHONE_MIN_LENGTH}
               />
             </label>
             <button type="submit" className="booking-modal__submit" disabled={isLoading}>

@@ -1,5 +1,6 @@
 import { Link, Outlet, useParams } from 'react-router-dom'
 import { clearPlayerSession, getPlayerUser } from '../../lib/player'
+import { formatPhone } from '../../lib/phone'
 import ChatWidget from './ChatWidget'
 import './PortalLayout.css'
 
@@ -26,7 +27,7 @@ export default function PortalLayout() {
           {player && <Link to="/minhas-reservas">Minhas reservas</Link>}
           {player && (
             <>
-              <span className="portal__player-name">{player.name ?? player.phone}</span>
+              <span className="portal__player-name">{player.name ?? formatPhone(player.phone)}</span>
               <button className="portal__logout" onClick={handleLogout}>
                 Sair
               </button>

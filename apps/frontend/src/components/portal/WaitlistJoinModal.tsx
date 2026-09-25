@@ -3,6 +3,8 @@ import type { FormEvent } from 'react'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { joinWaitlist } from '../../lib/waitlist'
 import { formatMinutes } from '../../lib/weekGrid'
+import { getPlayerUser } from '../../lib/player'
+import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits } from '../../lib/phone'
 import './BookingFlowModal.css'
 
 interface WaitlistJoinModalProps {
@@ -31,8 +33,8 @@ export default function WaitlistJoinModal({
   onClose,
 }: WaitlistJoinModalProps) {
   useEscapeToClose(onClose)
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [name, setName] = useState(() => getPlayerUser()?.name ?? '')
+  const [phone, setPhone] = useState(() => phoneDigits(getPlayerUser()?.phone ?? ''))
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
@@ -91,11 +93,14 @@ export default function WaitlistJoinModal({
             <label className="booking-modal__field">
               <span>Telefone</span>
               <input
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={formatPhone(phone)}
+                onChange={(event) => setPhone(phoneDigits(event.target.value))}
                 placeholder="(85) 99999-9999"
                 required
-                minLength={8}
+                minLength={FORMATTED_PHONE_MIN_LENGTH}
               />
             </label>
             <button type="submit" className="booking-modal__submit" disabled={isLoading}>

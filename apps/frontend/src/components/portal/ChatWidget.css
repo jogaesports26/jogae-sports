@@ -17,8 +17,17 @@
   border: none;
   box-shadow: var(--shadow-soft);
   font-size: 22px;
+  color: var(--color-dark-navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-widget__toggle svg {
+  width: 24px;
+  height: 24px;
 }
 
 .chat-widget__toggle:hover {
