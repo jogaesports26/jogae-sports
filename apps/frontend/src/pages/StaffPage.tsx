@@ -155,7 +155,7 @@ export default function StaffPage() {
                   </span>
                   <span className="staff-page__info">
                     <strong>{member.name}</strong>
-                    <small>{member.email}</small>
+                    <small title={member.email}>{member.email}</small>
                     <span className="pill pill--info">{permissionLabel(member.permission)}</span>
                   </span>
                   <div className="staff-page__item-actions">

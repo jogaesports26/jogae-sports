@@ -153,8 +153,24 @@
   height: 44px;
   border-radius: var(--radius-md);
   background: var(--color-info-bg);
+  color: var(--color-primary);
   flex-shrink: 0;
-  font-size: 20px;
+}
+
+.overview-page__alert-icon--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.overview-page__alert-icon--neutral {
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.overview-page__alert-icon svg,
+.overview-page__stat-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .overview-page__alert-body {
@@ -212,7 +228,6 @@
   background: var(--color-info-bg);
   color: var(--color-primary);
   flex-shrink: 0;
-  font-size: 20px;
 }
 
 .overview-page__stat-body {

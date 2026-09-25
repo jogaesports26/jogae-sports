@@ -27,9 +27,10 @@
   cursor: not-allowed;
 }
 
+/* Ação principal da tela é sempre lima; azul fica pra estado selecionado, links e foco. */
 .btn--primary {
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: var(--color-accent-green);
+  color: var(--color-dark-navy);
   box-shadow: var(--shadow-soft-sm);
 }
 
@@ -98,6 +99,29 @@
   }
 }
 
+/* Campos de data nativos: cor da marca no popup e ícone de calendário no traço do painel,
+   no lugar do ícone cinza padrão do navegador. */
+input[type='date'],
+input[type='datetime-local'] {
+  accent-color: var(--color-primary);
+  color-scheme: light;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.75;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23013ff6' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator:hover,
+input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-card);
@@ -110,6 +134,10 @@
   border: var(--border-subtle);
 }
 
+/* Semântica fixa das pílulas de status:
+   positive = ativo/concluído/confirmado · neutral = inativo/pausado (estado escolhido, não erro)
+   negative = alerta real (faltas, erro)  · warning = atenção/especial (expirado, aniversário)
+   info = informativo (categoria, permissão, resposta) */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -129,6 +157,11 @@
 .pill--negative {
   background: var(--color-negative-bg);
   color: var(--color-negative-text);
+}
+
+.pill--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .pill--info {

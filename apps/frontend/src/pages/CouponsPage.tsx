@@ -137,7 +137,7 @@ export default function CouponsPage() {
     <div className="coupons-page">
       <h1>Cupons</h1>
       <p className="coupons-page__subtitle">
-        Crie códigos de desconto para usar no lançamento manual de reservas ou para os jogadores aplicarem na hora de reservar.
+        Crie códigos de desconto pra usar no lançamento manual de reservas ou pros jogadores aplicarem na hora de reservar.
       </p>
 
       {error && <p className="coupons-page__error">{error}</p>}
@@ -213,7 +213,9 @@ export default function CouponsPage() {
                   <div key={coupon.id} className="coupons-page__item">
                     <div className="coupons-page__item-header">
                       <span className="coupons-page__code">{coupon.code}</span>
-                      <span className={`pill ${coupon.active && !expired ? 'pill--positive' : 'pill--neutral'}`}>
+                      <span
+                        className={`pill ${expired ? 'pill--warning' : coupon.active ? 'pill--positive' : 'pill--neutral'}`}
+                      >
                         {expired ? 'Expirado' : coupon.active ? 'Ativo' : 'Inativo'}
                       </span>
                     </div>

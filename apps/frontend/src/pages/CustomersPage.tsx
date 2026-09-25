@@ -163,7 +163,7 @@ export default function CustomersPage() {
                 </span>
 
                 <span className="customers-page__row-badges">
-                  {birthday && <span className="pill pill--info">🎂 Aniversário</span>}
+                  {birthday && <span className="pill pill--warning">Aniversário</span>}
                   {flagged && <span className="pill pill--negative">{customer.noShowCount} faltas</span>}
                   {inactive && <span className="pill pill--neutral">Inativo</span>}
                 </span>

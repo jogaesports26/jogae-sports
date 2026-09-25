@@ -104,8 +104,8 @@
 }
 
 .reports-page__range-btn--active {
-  background: var(--color-dark-navy);
-  border-color: var(--color-dark-navy);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-white);
 }
 
@@ -126,10 +126,19 @@
 .reports-page__custom-dates input {
   font-family: var(--font-body);
   font-size: 13px;
-  padding: 7px 10px;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
   border: var(--border-subtle);
+  background: var(--color-white);
   color: var(--color-dark);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.reports-page__custom-dates input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .reports-page__court-select {
@@ -196,7 +205,11 @@
   background: var(--color-info-bg);
   color: var(--color-primary);
   flex-shrink: 0;
-  font-size: 20px;
+}
+
+.reports-page__stat-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .reports-page__grid {

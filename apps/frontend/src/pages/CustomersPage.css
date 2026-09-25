@@ -48,8 +48,8 @@
 }
 
 .customers-page__tab--active {
-  background: var(--color-dark-navy);
-  border-color: var(--color-dark-navy);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-white);
 }
 

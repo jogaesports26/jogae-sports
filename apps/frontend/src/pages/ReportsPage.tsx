@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
+import { IconCalendar, IconCourtOccupancy, IconWallet } from '../components/panel/KpiIcons'
 import { SessionExpiredError } from '../lib/api'
 import { fetchCourts } from '../lib/courts'
 import type { Court } from '../lib/courts'
@@ -260,21 +261,27 @@ export default function ReportsPage() {
         <>
           <div className="reports-page__stats">
             <div className="reports-page__stat">
-              <span className="reports-page__stat-icon" aria-hidden="true">💰</span>
+              <span className="reports-page__stat-icon">
+                <IconWallet />
+              </span>
               <span className="reports-page__stat-body">
                 <span>Faturamento no período</span>
                 <strong>{formatCurrency(report.totalRevenue)}</strong>
               </span>
             </div>
             <div className="reports-page__stat">
-              <span className="reports-page__stat-icon" aria-hidden="true">📅</span>
+              <span className="reports-page__stat-icon">
+                <IconCalendar />
+              </span>
               <span className="reports-page__stat-body">
                 <span>Reservas no período</span>
                 <strong>{report.reservationsCount}</strong>
               </span>
             </div>
             <div className="reports-page__stat">
-              <span className="reports-page__stat-icon" aria-hidden="true">📈</span>
+              <span className="reports-page__stat-icon">
+                <IconCourtOccupancy />
+              </span>
               <span className="reports-page__stat-body">
                 <span>Taxa de ocupação</span>
                 <strong>{Math.round(report.occupancyRate * 100)}%</strong>

@@ -49,7 +49,7 @@
 }
 
 .court-detail__tab--active {
-  background: var(--color-dark-navy);
+  background: var(--color-primary);
   color: var(--color-white);
 }
 
