@@ -50,6 +50,14 @@ interface PendingSlot {
   price: number
 }
 
+type SlotView =
+  | { kind: 'taken'; startMinute: number; endMinute: number }
+  | { kind: 'available'; startMinute: number; endMinute: number; price: number }
+
+function formatSlotPrice(price: number) {
+  return Number.isInteger(price) ? `R$ ${price}` : `R$ ${price.toFixed(2).replace('.', ',')}`
+}
+
 interface WaitlistSlot {
   dayDate: Date
   dayLabel: string
@@ -123,6 +131,27 @@ export default function CourtBookingPage() {
       agenda.recurringMaintenanceBlocks,
     ),
   )
+
+  const slots: SlotView[] = dayGrid.flatMap((cellStart): SlotView[] => {
+    const cellEnd = cellStart + court.bookingStepMinutes
+    const occupant = findOccupant(
+      selectedDay,
+      cellStart,
+      cellEnd,
+      agenda.reservations,
+      agenda.maintenanceBlocks,
+      agenda.recurringMaintenanceBlocks,
+    )
+    if (occupant?.type === 'reservation') return [{ kind: 'taken', startMinute: cellStart, endMinute: cellEnd }]
+    // Só mostra esse início se a duração escolhida couber inteira, sem buraco nem choque, a partir daqui.
+    if (occupant || !availableStarts.has(cellStart)) return []
+    const endMinute = cellStart + duration
+    const price = sumPriceForRange(selectedDayOfWeek, cellStart, endMinute, agenda.priceRules) ?? 0
+    return [{ kind: 'available', startMinute: cellStart, endMinute, price }]
+  })
+  const availablePrices = slots.flatMap((slot) => (slot.kind === 'available' ? [slot.price] : []))
+  const lowestPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : null
+  const hasPriceVariation = lowestPrice !== null && Math.max(...availablePrices) > lowestPrice
 
   const heroPhoto = court.photoUrls[0]
   const establishmentName = court.owner.establishmentName
@@ -224,72 +253,71 @@ export default function CourtBookingPage() {
         <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>
         {dayGrid.length === 0 ? (
           <p className="booking-section__empty">Sem horários disponíveis nesse dia.</p>
+        ) : slots.length === 0 ? (
+          <p className="booking-section__empty">
+            Nenhum horário livre de {formatDuration(duration)} nesse dia. Tente uma duração menor ou outro dia.
+          </p>
         ) : (
-          <div className="time-pills">
-            {dayGrid.map((cellStart) => {
-              const cellEnd = cellStart + court.bookingStepMinutes
-              const occupant = findOccupant(
-                selectedDay,
-                cellStart,
-                cellEnd,
-                agenda.reservations,
-                agenda.maintenanceBlocks,
-                agenda.recurringMaintenanceBlocks,
-              )
+          <>
+            {hasPriceVariation && (
+              <p className="booking-section__hint">
+                Preço total pra {formatDuration(duration)}. Em verde, os horários mais baratos do dia.
+              </p>
+            )}
+            <div className="time-pills">
+              {slots.map((slot) => {
+                if (slot.kind === 'taken') {
+                  return (
+                    <div key={slot.startMinute} className="time-pill time-pill--taken">
+                      <span>{formatMinutes(slot.startMinute)}</span>
+                      <button
+                        type="button"
+                        className="time-pill__notify"
+                        onClick={() =>
+                          setWaitlistSlot({
+                            dayDate: selectedDay,
+                            dayLabel: selectedDayLabel,
+                            startMinute: slot.startMinute,
+                            endMinute: slot.endMinute,
+                          })
+                        }
+                      >
+                        Avise-me
+                      </button>
+                    </div>
+                  )
+                }
 
-              if (occupant && occupant.type !== 'reservation') return null
+                // pendingSlot é sempre limpo ao trocar de dia/duração, então só precisa comparar o horário.
+                const isPending = pendingSlot?.startMinute === slot.startMinute
+                const isLowestPrice = hasPriceVariation && slot.price === lowestPrice
 
-              if (occupant?.type === 'reservation') {
                 return (
-                  <div key={cellStart} className="time-pill time-pill--taken">
-                    <span>{formatMinutes(cellStart)}</span>
-                    <button
-                      type="button"
-                      className="time-pill__notify"
-                      onClick={() =>
-                        setWaitlistSlot({
-                          dayDate: selectedDay,
-                          dayLabel: selectedDayLabel,
-                          startMinute: cellStart,
-                          endMinute: cellEnd,
-                        })
-                      }
-                    >
-                      Avise-me
-                    </button>
-                  </div>
+                  <button
+                    key={slot.startMinute}
+                    type="button"
+                    className={`time-pill${isPending ? ' time-pill--active' : ''}`}
+                    onClick={() =>
+                      setPendingSlot({
+                        dayDate: selectedDay,
+                        dayLabel: selectedDayLabel,
+                        startMinute: slot.startMinute,
+                        endMinute: slot.endMinute,
+                        price: slot.price,
+                      })
+                    }
+                  >
+                    <span className="time-pill__time">
+                      {formatMinutes(slot.startMinute)}–{formatMinutes(slot.endMinute)}
+                    </span>
+                    <span className={`time-pill__price${isLowestPrice ? ' time-pill__price--lowest' : ''}`}>
+                      {formatSlotPrice(slot.price)}
+                    </span>
+                  </button>
                 )
-              }
-
-              // Só mostra esse início se a duração escolhida couber inteira, sem
-              // buraco nem choque com outra reserva, a partir daqui.
-              if (!availableStarts.has(cellStart)) return null
-
-              const endMinute = cellStart + duration
-              const price = sumPriceForRange(selectedDayOfWeek, cellStart, endMinute, agenda.priceRules) ?? 0
-              // pendingSlot é sempre limpo ao trocar de dia/duração, então só precisa comparar o horário.
-              const isPending = pendingSlot?.startMinute === cellStart
-
-              return (
-                <button
-                  key={cellStart}
-                  type="button"
-                  className={`time-pill${isPending ? ' time-pill--active' : ''}`}
-                  onClick={() =>
-                    setPendingSlot({
-                      dayDate: selectedDay,
-                      dayLabel: selectedDayLabel,
-                      startMinute: cellStart,
-                      endMinute,
-                      price,
-                    })
-                  }
-                >
-                  {formatMinutes(cellStart)}–{formatMinutes(endMinute)}
-                </button>
-              )
-            })}
-          </div>
+              })}
+            </div>
+          </>
         )}
       </section>
 
