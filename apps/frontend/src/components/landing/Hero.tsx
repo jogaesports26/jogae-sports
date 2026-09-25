@@ -53,7 +53,10 @@ export default function Hero() {
 
         <div className="hero__badge hero__badge--occupancy">
           <span className="hero__badge-icon" aria-hidden="true">
-            📅
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
           </span>
           <span>
             <strong>Grade 100% ocupada</strong>
@@ -61,13 +64,15 @@ export default function Hero() {
           </span>
         </div>
 
-        <div className="hero__badge hero__badge--rating">
-          <span className="hero__badge-stars" aria-hidden="true">
-            ★★★★★
+        <div className="hero__badge hero__badge--booking">
+          <span className="hero__badge-icon hero__badge-icon--positive" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </span>
           <span>
-            <strong>4.9 de avaliação</strong>
-            <small>dos jogadores</small>
+            <strong>Nova reserva pelo link</strong>
+            <small>Sáb · 19h · sem mensagem no WhatsApp</small>
           </span>
         </div>
       </div>

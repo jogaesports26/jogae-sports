@@ -66,23 +66,6 @@ function IconPainel() {
   )
 }
 
-function IconChatbot() {
-  const ACCENT = '#ACEC00'
-  return (
-    <svg viewBox="0 0 36 34" fill="none" aria-hidden="true">
-      <path
-        d="M3 6a4 4 0 0 1 4-4h22a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H14l-7 7v-7H7a4 4 0 0 1-4-4V6Z"
-        stroke={ACCENT}
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="13" r="1.8" fill={ACCENT} />
-      <circle cx="18" cy="13" r="1.8" fill={ACCENT} />
-      <circle cx="24" cy="13" r="1.8" fill={ACCENT} />
-    </svg>
-  )
-}
-
 const FEATURES = [
   {
     Icon: IconAgenda,
@@ -109,11 +92,6 @@ const FEATURES = [
     title: 'Painel de gestão simples',
     description: 'Veja reservas, ocupação e relatórios sem complicação, direto do painel do dono.',
   },
-  {
-    Icon: IconChatbot,
-    title: 'Chatbot inteligente',
-    description: 'Assistente pra ajudar o jogador a encontrar e reservar quadras. (em breve)',
-  },
 ]
 
 function Features() {
@@ -138,6 +116,11 @@ function Features() {
           </div>
         ))}
       </div>
+
+      <p className="landing__features-soon">
+        <span className="landing__features-soon-tag">Em breve</span>
+        Assistente inteligente pra ajudar o jogador a encontrar horário e reservar sozinho.
+      </p>
     </section>
   )
 }
@@ -149,9 +132,6 @@ export default function LandingPage() {
         <span className="landing__logo">Jogaê Sports</span>
         <nav className="landing__nav-links">
           <a href="#funcionalidades">Funcionalidades</a>
-          <Link to="/minhas-reservas" className="landing__nav-login">
-            Sou jogador
-          </Link>
           <Link to="/login" className="landing__nav-login">
             Entrar
           </Link>
@@ -170,14 +150,31 @@ export default function LandingPage() {
       <section className="landing__cta">
         <h2>Comece a gerenciar sua quadra hoje</h2>
         <p>Cadastro rápido, sem cartão de crédito.</p>
-        <Link to="/cadastro" className="landing__button landing__button--white">
+        <Link to="/cadastro" className="landing__button landing__button--primary">
           Criar conta grátis
         </Link>
       </section>
 
       <footer className="landing__footer">
-        <span>Jogaê Sports - Gestão</span>
-        <span>© 2026 Jogaê Sports. Todos os direitos reservados.</span>
+        <div className="landing__footer-columns">
+          <div className="landing__footer-brand">
+            <strong>Jogaê Sports</strong>
+            <p>Agenda, reservas online e financeiro da sua quadra num só painel.</p>
+          </div>
+          <nav className="landing__footer-col" aria-label="Produto">
+            <span>Produto</span>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#perguntas-frequentes">Perguntas frequentes</a>
+          </nav>
+          <nav className="landing__footer-col" aria-label="Acesso">
+            <span>Acesso</span>
+            <Link to="/login">Entrar</Link>
+            <Link to="/cadastro">Criar conta grátis</Link>
+            <Link to="/minhas-reservas">Sou jogador: minhas reservas</Link>
+          </nav>
+        </div>
+        <p className="landing__footer-bottom">© 2026 Jogaê Sports. Todos os direitos reservados.</p>
       </footer>
     </div>
   )

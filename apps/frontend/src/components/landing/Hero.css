@@ -157,7 +157,25 @@
 }
 
 .hero__badge-icon {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--color-info-bg);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.hero__badge-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hero__badge-icon--positive {
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
 }
 
 .hero__badge--payment {
@@ -170,15 +188,9 @@
   left: -12%;
 }
 
-.hero__badge--rating {
+.hero__badge--booking {
   bottom: 4%;
   right: 4%;
-}
-
-.hero__badge-stars {
-  color: var(--color-accent-green);
-  font-size: 13px;
-  letter-spacing: 1px;
 }
 
 @media (max-width: 960px) {
@@ -248,7 +260,7 @@
     left: -2%;
   }
 
-  .hero__badge--rating {
+  .hero__badge--booking {
     display: none;
   }
 }
