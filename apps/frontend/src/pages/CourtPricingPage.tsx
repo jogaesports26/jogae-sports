@@ -26,6 +26,7 @@ interface BlockDraft {
 }
 
 const STEP_OPTIONS = [15, 30, 45, 60, 90, 120]
+const MAX_DURATION_OPTIONS = [60, 90, 120, 150, 180, 240, 300, 360, 480]
 const MAX_GENERATED_SLOTS = 300
 
 function minutesToTime(minutes: number) {
@@ -100,6 +101,10 @@ export default function CourtPricingPage() {
   const [genError, setGenError] = useState('')
 
   const [minBookingMinutes, setMinBookingMinutes] = useState(court.minBookingMinutes)
+  const [maxBookingMinutes, setMaxBookingMinutes] = useState(court.maxBookingMinutes)
+  const [bookingStepMinutes, setBookingStepMinutes] = useState(
+    STEP_OPTIONS.includes(court.bookingStepMinutes) ? court.bookingStepMinutes : 30,
+  )
   const [savingSettings, setSavingSettings] = useState(false)
   const [settingsSaved, setSettingsSaved] = useState(false)
 
@@ -192,7 +197,12 @@ export default function CourtPricingPage() {
     setSettingsSaved(false)
 
     try {
-      await updateCourt(court.id, { minBookingMinutes, slotStepMinutes: genStep })
+      await updateCourt(court.id, {
+        minBookingMinutes,
+        maxBookingMinutes,
+        bookingStepMinutes,
+        slotStepMinutes: genStep,
+      })
       setSettingsSaved(true)
       reloadCourt()
     } catch (err) {
@@ -264,8 +274,10 @@ export default function CourtPricingPage() {
       <section className="court-pricing-page__section">
         <h2>Gerar horários automaticamente</h2>
         <p className="court-pricing-page__hint">
-          Informe o horário de funcionamento e os dias — os horários são gerados na duração
-          escolhida, e você pode desabilitar individualmente os que não quiser depois.
+          Informe o horário de funcionamento e os dias — os blocos de preço são gerados na
+          duração escolhida, e você pode desabilitar individualmente os que não quiser depois.
+          Essa duração é só pra organizar os preços: não limita a duração das reservas que os
+          jogadores podem fazer (configure isso logo abaixo).
         </p>
 
         <div className="court-pricing-page__gen-days">
@@ -321,6 +333,23 @@ export default function CourtPricingPage() {
         </button>
 
         <div className="court-pricing-page__settings">
+          <p className="court-pricing-page__hint">
+            Essas opções controlam o que o jogador vê na tela de reserva — independente de como
+            os preços foram cadastrados acima.
+          </p>
+          <label className="court-pricing-page__gen-field">
+            <span>Intervalo entre horários oferecidos</span>
+            <select
+              value={bookingStepMinutes}
+              onChange={(event) => setBookingStepMinutes(Number(event.target.value))}
+            >
+              {STEP_OPTIONS.map((step) => (
+                <option key={step} value={step}>
+                  {formatDuration(step)}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="court-pricing-page__gen-field">
             <span>Duração mínima de uma reserva</span>
             <select
@@ -334,13 +363,27 @@ export default function CourtPricingPage() {
               ))}
             </select>
           </label>
+          <label className="court-pricing-page__gen-field">
+            <span>Duração máxima de uma reserva</span>
+            <select
+              value={maxBookingMinutes ?? ''}
+              onChange={(event) => setMaxBookingMinutes(event.target.value ? Number(event.target.value) : null)}
+            >
+              <option value="">Sem limite</option>
+              {MAX_DURATION_OPTIONS.map((step) => (
+                <option key={step} value={step}>
+                  {formatDuration(step)}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             className="btn btn--outline btn--sm"
             onClick={handleSaveSettings}
             disabled={savingSettings}
           >
-            {savingSettings ? 'Salvando...' : 'Salvar duração mínima'}
+            {savingSettings ? 'Salvando...' : 'Salvar configurações de reserva'}
           </button>
           {settingsSaved && <span className="court-pricing-page__saved">Salvo!</span>}
         </div>

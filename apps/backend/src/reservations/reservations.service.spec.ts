@@ -41,7 +41,12 @@ function buildPrismaMock() {
 }
 
 function buildCourtsServiceMock(
-  court: { id: string; ownerId: string; minBookingMinutes?: number } | null = {
+  court: {
+    id: string;
+    ownerId: string;
+    minBookingMinutes?: number;
+    maxBookingMinutes?: number | null;
+  } | null = {
     id: 'court-1',
     ownerId: 'owner-1',
     minBookingMinutes: 60,
@@ -163,22 +168,28 @@ describe('ReservationsService', () => {
       expect(result.priceSnapshot).toBe(180);
     });
 
-    it('rejeita quando o horário final não coincide com o fim de uma faixa de preço', async () => {
+    it('aceita e cobra pro-rata uma reserva que termina no meio de uma faixa de preço', async () => {
       prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
       prisma.reservation.findFirst.mockResolvedValue(null);
       prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
 
+      // 14:00-15:30: consome a faixa de 14-15h (R$80) inteira e meia hora da
+      // faixa de 15-16h (R$100) — nenhum dos dois fins bate com fronteira de
+      // regra somada; antes desse fix isso era rejeitado mesmo com 2h livres.
       const startsAt = nextSaturdayAt(14);
-      const endsAt = nextSaturdayAt(14, 30);
+      const endsAt = nextSaturdayAt(15, 30);
 
-      await expect(
-        service.create('court-1', 'owner-1', {
-          guestName: 'Cliente Teste',
-          guestPhone: '85999998888',
-          startsAt: startsAt.toISOString(),
-          endsAt: endsAt.toISOString(),
-        }),
-      ).rejects.toThrow(BadRequestException);
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: startsAt.toISOString(),
+        endsAt: endsAt.toISOString(),
+      });
+
+      expect(result.priceSnapshot).toBe(130);
     });
 
     it('rejeita quando existe um buraco entre as faixas de preço', async () => {
@@ -218,6 +229,52 @@ describe('ReservationsService', () => {
       ).rejects.toThrow(BadRequestException);
 
       expect(prisma.reservation.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('duração máxima', () => {
+    it('rejeita reserva do dono mais longa que a duração máxima da quadra', async () => {
+      courtsService.findOneOrThrow.mockResolvedValue({
+        id: 'court-1',
+        ownerId: 'owner-1',
+        minBookingMinutes: 60,
+        maxBookingMinutes: 60,
+      });
+
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente Teste',
+          guestPhone: '85999998888',
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(16).toISOString(),
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
+    });
+
+    it('permite reserva dentro da duração máxima quando configurada', async () => {
+      courtsService.findOneOrThrow.mockResolvedValue({
+        id: 'court-1',
+        ownerId: 'owner-1',
+        minBookingMinutes: 60,
+        maxBookingMinutes: 120,
+      });
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-1', ...data }),
+      );
+
+      const result = await service.create('court-1', 'owner-1', {
+        guestName: 'Cliente Teste',
+        guestPhone: '85999998888',
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+      });
+
+      expect(result.priceSnapshot).toBe(180);
     });
   });
 

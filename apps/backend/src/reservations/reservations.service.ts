@@ -113,6 +113,8 @@ export class ReservationsService {
         hasLighting: true,
         photoUrls: true,
         minBookingMinutes: true,
+        maxBookingMinutes: true,
+        bookingStepMinutes: true,
         owner: {
           select: {
             establishmentName: true,
@@ -208,6 +210,7 @@ export class ReservationsService {
     }
 
     this.assertMinDuration(court.minBookingMinutes, startsAt, endsAt);
+    this.assertMaxDuration(court.maxBookingMinutes, startsAt, endsAt);
 
     const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
@@ -674,6 +677,7 @@ export class ReservationsService {
     }
 
     this.assertMinDuration(court.minBookingMinutes, startsAt, endsAt);
+    this.assertMaxDuration(court.maxBookingMinutes, startsAt, endsAt);
 
     const basePrice = await this.calculatePrice(courtId, startsAt, endsAt);
     await this.assertNoConflict(courtId, startsAt, endsAt);
@@ -998,6 +1002,20 @@ export class ReservationsService {
     }
   }
 
+  private assertMaxDuration(
+    maxBookingMinutes: number | null | undefined,
+    startsAt: Date,
+    endsAt: Date,
+  ) {
+    if (maxBookingMinutes == null) return;
+    const durationMinutes = (endsAt.getTime() - startsAt.getTime()) / 60000;
+    if (durationMinutes > maxBookingMinutes) {
+      throw new BadRequestException(
+        `Essa quadra aceita reservas de no máximo ${maxBookingMinutes} minutos`,
+      );
+    }
+  }
+
   private async assertNoConflict(
     courtId: string,
     startsAt: Date,
@@ -1148,7 +1166,9 @@ export class ReservationsService {
     let total = 0;
 
     while (cursor < endMinute) {
-      const rule = rules.find((r) => r.startMinute === cursor);
+      const rule = rules.find(
+        (r) => r.startMinute <= cursor && r.endMinute > cursor,
+      );
       if (!rule) {
         throw new BadRequestException(
           'Esse horário não está disponível para reserva nessa quadra',
@@ -1158,13 +1178,7 @@ export class ReservationsService {
       const segmentEnd = Math.min(rule.endMinute, endMinute);
       const hours = (segmentEnd - cursor) / 60;
       total += Number(rule.pricePerHour) * hours;
-      cursor = rule.endMinute;
-    }
-
-    if (cursor !== endMinute) {
-      throw new BadRequestException(
-        'O horário final da reserva precisa coincidir com o fim de uma faixa de preço',
-      );
+      cursor = segmentEnd;
     }
 
     return Math.round(total * 100) / 100;
