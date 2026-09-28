@@ -198,6 +198,15 @@
   color: var(--color-text-secondary);
 }
 
+.player-reservations-page__login {
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: 32px;
+  max-width: 380px;
+}
+
 .player-reservations-page__cta {
   display: inline-block;
   margin-top: 12px;

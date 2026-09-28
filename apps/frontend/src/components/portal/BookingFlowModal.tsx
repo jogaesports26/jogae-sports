@@ -1,27 +1,19 @@
 import { useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
-import {
-  createPlayerReservation,
-  getPlayerUser,
-  requestOtp,
-  savePlayerSession,
-  validatePublicCoupon,
-  verifyOtp,
-} from '../../lib/player'
+import { createPlayerReservation, getPlayerUser, validatePublicCoupon } from '../../lib/player'
 import type { CouponPreview } from '../../lib/player'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
 import { formatMinutes } from '../../lib/weekGrid'
-import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits } from '../../lib/phone'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
 import { showToast } from '../../lib/toast'
+import PlayerLoginForm from './PlayerLoginForm'
 import ReceiptModal from './ReceiptModal'
 import './BookingFlowModal.css'
 
-type Step = 'confirm' | 'phone' | 'code' | 'success'
+type Step = 'confirm' | 'login' | 'success'
 
 interface BookingFlowModalProps {
   courtId: string
@@ -58,10 +50,7 @@ export default function BookingFlowModal({
 }: BookingFlowModalProps) {
   useEscapeToClose(onClose)
   const existingPlayer = getPlayerUser()
-  const [step, setStep] = useState<Step>(existingPlayer ? 'confirm' : 'phone')
-  const [phone, setPhone] = useState('')
-  const [code, setCode] = useState('')
-  const [devCode, setDevCode] = useState('')
+  const [step, setStep] = useState<Step>(existingPlayer ? 'confirm' : 'login')
   const [couponCode, setCouponCode] = useState('')
   const [couponPreview, setCouponPreview] = useState<CouponPreview | null>(null)
   const [couponError, setCouponError] = useState('')
@@ -117,33 +106,6 @@ export default function BookingFlowModal({
       setCouponError(err instanceof Error ? err.message : 'Cupom inválido')
     } finally {
       setIsValidatingCoupon(false)
-    }
-  }
-
-  async function handleRequestOtp(event: FormEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    try {
-      const result = await requestOtp(phone)
-      setDevCode(result.devCode)
-      setStep('code')
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Não foi possível enviar o código', 'error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  async function handleVerifyOtp(event: FormEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    try {
-      const result = await verifyOtp(phone, code)
-      savePlayerSession(result.accessToken, result.player)
-      await handleConfirm()
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Código inválido', 'error')
-      setIsLoading(false)
     }
   }
 
@@ -256,55 +218,12 @@ export default function BookingFlowModal({
           </div>
         )}
 
-        {step === 'phone' && (
-          <form className="booking-modal__form" onSubmit={handleRequestOtp}>
-            <p className="booking-modal__hint">
-              Digite seu WhatsApp/telefone pra receber um código e confirmar a reserva.
-            </p>
-            <label className="booking-modal__field">
-              <span>Telefone</span>
-              <input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                value={formatPhone(phone)}
-                onChange={(event) => setPhone(phoneDigits(event.target.value))}
-                placeholder="(85) 99999-9999"
-                required
-                minLength={FORMATTED_PHONE_MIN_LENGTH}
-              />
-            </label>
-            <button type="submit" className="booking-modal__submit" disabled={isLoading}>
-              {isLoading ? 'Enviando...' : 'Enviar código'}
-            </button>
-          </form>
-        )}
-
-        {step === 'code' && (
-          <form className="booking-modal__form" onSubmit={handleVerifyOtp}>
-            <p className="booking-modal__hint">
-              Digite o código enviado pro seu telefone.
-              {devCode && (
-                <>
-                  {' '}
-                  <strong>(ambiente de teste, código: {devCode})</strong>
-                </>
-              )}
-            </p>
-            <label className="booking-modal__field">
-              <span>Código de 6 dígitos</span>
-              <input
-                value={code}
-                onChange={(event) => setCode(event.target.value)}
-                required
-                minLength={6}
-                maxLength={6}
-              />
-            </label>
-            <button type="submit" className="booking-modal__submit" disabled={isLoading}>
-              {isLoading ? 'Confirmando...' : 'Confirmar e reservar'}
-            </button>
-          </form>
+        {step === 'login' && (
+          <PlayerLoginForm
+            hint="Digite seu nome e telefone pra confirmar a reserva."
+            submitLabel="Confirmar e reservar"
+            onSuccess={handleConfirm}
+          />
         )}
 
         {step === 'success' && (

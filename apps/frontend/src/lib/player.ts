@@ -150,6 +150,15 @@ export async function verifyOtp(phone: string, code: string): Promise<{ accessTo
   return response.json()
 }
 
+export async function updatePlayerName(name: string): Promise<PlayerUser> {
+  const response = await playerFetch('/player-auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+  })
+  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível salvar seu nome'))
+  return response.json()
+}
+
 export async function createPlayerReservation(
   courtId: string,
   input: {

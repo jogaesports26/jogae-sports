@@ -10,6 +10,7 @@ import type { PlayerReservation } from '../lib/player'
 import ReviewModal from '../components/portal/ReviewModal'
 import ReceiptModal from '../components/portal/ReceiptModal'
 import CancelReservationModal from '../components/portal/CancelReservationModal'
+import PlayerLoginForm from '../components/portal/PlayerLoginForm'
 import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
 import { buildGoogleCalendarUrl } from '../lib/calendar'
@@ -112,11 +113,12 @@ export default function PlayerReservationsPage() {
     return (
       <div className="player-reservations-page">
         <h1>Minhas reservas</h1>
-        <p className="player-reservations-page__empty">
-          Você ainda não tem uma sessão ativa aqui. Suas reservas aparecem automaticamente depois que
-          você reserva pela primeira vez, direto pelo link do estabelecimento — peça esse link pro dono
-          da arena.
-        </p>
+        <div className="player-reservations-page__login">
+          <PlayerLoginForm
+            hint="Entre com seu nome e telefone pra ver suas reservas."
+            onSuccess={() => window.location.reload()}
+          />
+        </div>
       </div>
     )
   }

@@ -24,14 +24,18 @@ export default function PortalLayout() {
           <span className="portal__logo">Jogaê Sports</span>
         )}
         <nav className="portal__nav-links">
-          {player && <Link to="/minhas-reservas">Minhas reservas</Link>}
-          {player && (
+          {player ? (
             <>
+              <Link to="/minhas-reservas">Minhas reservas</Link>
               <span className="portal__player-name">{player.name ?? formatPhone(player.phone)}</span>
               <button className="portal__logout" onClick={handleLogout}>
                 Sair
               </button>
             </>
+          ) : (
+            <Link to="/minhas-reservas" className="portal__login-link">
+              Entrar
+            </Link>
           )}
         </nav>
       </header>
