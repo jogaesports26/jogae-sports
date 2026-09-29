@@ -62,35 +62,6 @@
   gap: 16px;
 }
 
-.reservation-modal__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-dark);
-}
-
-.reservation-modal__field input,
-.reservation-modal__field select {
-  font-family: var(--font-body);
-  font-size: 15px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--color-dark);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.reservation-modal__field input:focus,
-.reservation-modal__field select:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-info-bg);
-}
-
 .reservation-modal__coupon-row {
   display: flex;
   gap: 8px;

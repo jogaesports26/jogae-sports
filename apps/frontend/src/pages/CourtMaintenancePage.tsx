@@ -105,6 +105,7 @@ export default function CourtMaintenancePage() {
               ) : (
                 <div className="court-maintenance-page__actions">
                   <input
+                    className="input input--sm court-maintenance-page__cost-input"
                     type="number"
                     min="0"
                     step="0.01"

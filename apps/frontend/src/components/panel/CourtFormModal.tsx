@@ -127,15 +127,21 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
         )}
 
         <form onSubmit={handleSubmit} className="court-modal__form">
-          <label className="court-modal__field">
+          <label className="court-modal__field field">
             <span>Nome da quadra</span>
-            <input value={name} onChange={(event) => setName(event.target.value)} required minLength={2} />
+            <input
+              className="input"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              minLength={2}
+            />
           </label>
 
           <div className="court-modal__row">
-            <label className="court-modal__field">
+            <label className="court-modal__field field">
               <span>Esporte</span>
-              <select value={sport} onChange={(event) => setSport(event.target.value)}>
+              <select className="input" value={sport} onChange={(event) => setSport(event.target.value)}>
                 {SPORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -144,6 +150,7 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
               </select>
               {sport === OTHER_VALUE && (
                 <input
+                  className="input"
                   value={customSport}
                   onChange={(event) => setCustomSport(event.target.value)}
                   placeholder="Qual esporte?"
@@ -152,9 +159,9 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
               )}
             </label>
 
-            <label className="court-modal__field">
+            <label className="court-modal__field field">
               <span>Piso</span>
-              <select value={surfaceType} onChange={(event) => setSurfaceType(event.target.value)}>
+              <select className="input" value={surfaceType} onChange={(event) => setSurfaceType(event.target.value)}>
                 {SURFACE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -163,6 +170,7 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
               </select>
               {surfaceType === OTHER_VALUE && (
                 <input
+                  className="input"
                   value={customSurfaceType}
                   onChange={(event) => setCustomSurfaceType(event.target.value)}
                   placeholder="Qual tipo de piso?"
@@ -181,9 +189,10 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
             <span>Tem iluminação</span>
           </label>
 
-          <label className="court-modal__field">
+          <label className="court-modal__field field">
             <span>Fotos (uma URL por linha, opcional)</span>
             <textarea
+              className="input"
               value={photoUrlsText}
               onChange={(event) => setPhotoUrlsText(event.target.value)}
               rows={2}
@@ -191,9 +200,16 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
             />
           </label>
 
-          <label className="court-modal__field">
+          <label className="court-modal__field field">
             <span>Ou envie fotos do seu dispositivo</span>
-            <input type="file" accept="image/*" multiple onChange={handlePhotoFiles} disabled={isUploadingPhotos} />
+            <input
+              className="input"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handlePhotoFiles}
+              disabled={isUploadingPhotos}
+            />
           </label>
 
           {isUploadingPhotos && <p className="court-modal__hint">Processando imagens...</p>}

@@ -148,9 +148,10 @@ export default function CouponsPage() {
         <div className="coupons-page__layout">
           <form className="coupons-page__form card" onSubmit={handleAdd}>
             <h2>Novo cupom</h2>
-            <label className="coupons-page__field">
+            <label className="coupons-page__field field">
               <span>Código</span>
               <input
+                className="input"
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase())}
                 placeholder="PROMO10"
@@ -160,16 +161,21 @@ export default function CouponsPage() {
                 pattern="[A-Za-z0-9]+"
               />
             </label>
-            <label className="coupons-page__field">
+            <label className="coupons-page__field field">
               <span>Tipo de desconto</span>
-              <select value={discountType} onChange={(event) => setDiscountType(event.target.value as CouponDiscountType)}>
+              <select
+                className="input"
+                value={discountType}
+                onChange={(event) => setDiscountType(event.target.value as CouponDiscountType)}
+              >
                 <option value="PERCENT">Percentual (%)</option>
                 <option value="FIXED">Valor fixo (R$)</option>
               </select>
             </label>
-            <label className="coupons-page__field">
+            <label className="coupons-page__field field">
               <span>{discountType === 'PERCENT' ? 'Desconto (%)' : 'Desconto (R$)'}</span>
               <input
+                className="input"
                 type="number"
                 min={0.01}
                 max={discountType === 'PERCENT' ? 100 : undefined}
@@ -180,13 +186,19 @@ export default function CouponsPage() {
                 required
               />
             </label>
-            <label className="coupons-page__field">
+            <label className="coupons-page__field field">
               <span>Válido até (opcional)</span>
-              <input type="date" value={validUntil} onChange={(event) => setValidUntil(event.target.value)} />
+              <input
+                className="input"
+                type="date"
+                value={validUntil}
+                onChange={(event) => setValidUntil(event.target.value)}
+              />
             </label>
-            <label className="coupons-page__field">
+            <label className="coupons-page__field field">
               <span>Limite de usos (opcional)</span>
               <input
+                className="input"
                 type="number"
                 min={1}
                 step="1"
@@ -229,17 +241,19 @@ export default function CouponsPage() {
 
                     {editingId === coupon.id ? (
                       <div className="coupons-page__edit">
-                        <label className="coupons-page__field">
+                        <label className="coupons-page__field field">
                           <span>Válido até</span>
                           <input
+                            className="input"
                             type="date"
                             value={editValidUntil}
                             onChange={(event) => setEditValidUntil(event.target.value)}
                           />
                         </label>
-                        <label className="coupons-page__field">
+                        <label className="coupons-page__field field">
                           <span>Limite de usos</span>
                           <input
+                            className="input"
                             type="number"
                             min={1}
                             step="1"

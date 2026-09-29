@@ -80,9 +80,10 @@ export default function InstructorsPage() {
         <div className="instructors-page__layout">
           <form className="instructors-page__form card" onSubmit={handleAdd}>
             <h2>Adicionar instrutor</h2>
-            <label className="instructors-page__field">
+            <label className="instructors-page__field field">
               <span>Nome</span>
               <input
+                className="input"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Nome do instrutor"
@@ -90,9 +91,10 @@ export default function InstructorsPage() {
                 minLength={2}
               />
             </label>
-            <label className="instructors-page__field">
+            <label className="instructors-page__field field">
               <span>Telefone (opcional)</span>
               <input
+                className="input"
                 type="tel"
                 value={phone}
                 onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}

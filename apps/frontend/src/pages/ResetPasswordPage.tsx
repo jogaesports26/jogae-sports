@@ -83,10 +83,11 @@ export default function ResetPasswordPage() {
         <p>Senha redefinida! Te levando pro login...</p>
       ) : (
         <form onSubmit={handleSubmit} noValidate>
-          <div className="auth__field">
+          <div className="auth__field field">
             <label htmlFor="password">Nova senha</label>
             <PasswordInput
               id="password"
+              className="input"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -95,10 +96,11 @@ export default function ResetPasswordPage() {
             {fieldErrors.password && <span className="auth__field-error">{fieldErrors.password}</span>}
           </div>
 
-          <div className="auth__field">
+          <div className="auth__field field">
             <label htmlFor="confirmPassword">Repita a nova senha</label>
             <PasswordInput
               id="confirmPassword"
+              className="input"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

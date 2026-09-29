@@ -92,9 +92,10 @@ export default function CustomerHistoryModal({
 
         {customer.playerId ? (
           <div className="customer-modal__birthdate">
-            <label>
+            <label className="field field--sm">
               <span>Data de nascimento</span>
               <input
+                className="input"
                 type="date"
                 value={birthDate}
                 onChange={(event) => setBirthDate(event.target.value)}

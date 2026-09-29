@@ -126,6 +126,7 @@ export default function AvaliacoesPage() {
               {editingId === review.id ? (
                 <div className="avaliacoes-page__reply-form">
                   <textarea
+                    className="input"
                     value={draft}
                     onChange={(event) => setDraft(event.target.value)}
                     placeholder="Escreva uma resposta pública pra essa avaliação..."

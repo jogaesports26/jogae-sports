@@ -26,16 +26,6 @@
   padding: 28px;
 }
 
-.settings-page__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-dark);
-}
-
 .settings-page__slug-row {
   display: flex;
   align-items: center;
@@ -237,26 +227,6 @@
 .settings-page__cep-error {
   font-size: 12px;
   color: var(--color-negative-text);
-}
-
-.settings-page__field input,
-.settings-page__field textarea {
-  font-family: var(--font-body);
-  font-size: 15px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--color-dark);
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.settings-page__field input:focus,
-.settings-page__field textarea:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .settings-page__cover-preview {

@@ -295,17 +295,31 @@ export default function CourtPricingPage() {
         </div>
 
         <div className="court-pricing-page__gen-row">
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Abertura</span>
-            <input type="time" value={genOpen} onChange={(event) => setGenOpen(event.target.value)} />
+            <input
+              className="input input--sm"
+              type="time"
+              value={genOpen}
+              onChange={(event) => setGenOpen(event.target.value)}
+            />
           </label>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Fechamento</span>
-            <input type="time" value={genClose} onChange={(event) => setGenClose(event.target.value)} />
+            <input
+              className="input input--sm"
+              type="time"
+              value={genClose}
+              onChange={(event) => setGenClose(event.target.value)}
+            />
           </label>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Duração do horário</span>
-            <select value={genStep} onChange={(event) => setGenStep(Number(event.target.value))}>
+            <select
+              className="input input--sm"
+              value={genStep}
+              onChange={(event) => setGenStep(Number(event.target.value))}
+            >
               {STEP_OPTIONS.map((step) => (
                 <option key={step} value={step}>
                   {formatDuration(step)}
@@ -313,9 +327,10 @@ export default function CourtPricingPage() {
               ))}
             </select>
           </label>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Preço por hora</span>
             <input
+              className="input input--sm"
               type="number"
               min="0"
               step="0.01"
@@ -337,9 +352,10 @@ export default function CourtPricingPage() {
             Essas opções controlam o que o jogador vê na tela de reserva — independente de como
             os preços foram cadastrados acima.
           </p>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Intervalo entre horários oferecidos</span>
             <select
+              className="input input--sm"
               value={bookingStepMinutes}
               onChange={(event) => setBookingStepMinutes(Number(event.target.value))}
             >
@@ -350,9 +366,10 @@ export default function CourtPricingPage() {
               ))}
             </select>
           </label>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Duração mínima de uma reserva</span>
             <select
+              className="input input--sm"
               value={minBookingMinutes}
               onChange={(event) => setMinBookingMinutes(Number(event.target.value))}
             >
@@ -363,9 +380,10 @@ export default function CourtPricingPage() {
               ))}
             </select>
           </label>
-          <label className="court-pricing-page__gen-field">
+          <label className="court-pricing-page__gen-field field field--sm">
             <span>Duração máxima de uma reserva</span>
             <select
+              className="input input--sm"
               value={maxBookingMinutes ?? ''}
               onChange={(event) => setMaxBookingMinutes(event.target.value ? Number(event.target.value) : null)}
             >
@@ -425,6 +443,7 @@ export default function CourtPricingPage() {
           {priceRules.map((rule, index) => (
             <div className="court-pricing-page__row" key={index}>
               <select
+                className="input input--sm"
                 value={rule.dayOfWeek}
                 onChange={(event) => updatePriceRule(index, { dayOfWeek: Number(event.target.value) })}
               >
@@ -435,17 +454,20 @@ export default function CourtPricingPage() {
                 ))}
               </select>
               <input
+                className="input input--sm"
                 type="time"
                 value={rule.startTime}
                 onChange={(event) => updatePriceRule(index, { startTime: event.target.value })}
               />
               <span>até</span>
               <input
+                className="input input--sm"
                 type="time"
                 value={rule.endTime}
                 onChange={(event) => updatePriceRule(index, { endTime: event.target.value })}
               />
               <input
+                className="input input--sm"
                 type="number"
                 min="0"
                 step="0.01"
@@ -493,6 +515,7 @@ export default function CourtPricingPage() {
         {blocks.map((block, index) => (
           <div className="court-pricing-page__row" key={index}>
             <select
+              className="input input--sm"
               value={block.dayOfWeek}
               onChange={(event) => updateBlock(index, { dayOfWeek: Number(event.target.value) })}
             >
@@ -503,17 +526,20 @@ export default function CourtPricingPage() {
               ))}
             </select>
             <input
+              className="input input--sm"
               type="time"
               value={block.startTime}
               onChange={(event) => updateBlock(index, { startTime: event.target.value })}
             />
             <span>até</span>
             <input
+              className="input input--sm"
               type="time"
               value={block.endTime}
               onChange={(event) => updateBlock(index, { endTime: event.target.value })}
             />
             <input
+              className="input input--sm"
               type="text"
               placeholder="Motivo (opcional)"
               value={block.reason}

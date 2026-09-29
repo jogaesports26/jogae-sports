@@ -189,20 +189,22 @@ export default function SettingsPage() {
         <p className="settings-page__loading">Carregando...</p>
       ) : (
         <form className="settings-page__form" onSubmit={handleSubmit}>
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Nome do estabelecimento</span>
             <input
+              className="input"
               value={name}
               onChange={(event) => handleNameChange(event.target.value)}
               placeholder="Ex: Arena Gol de Placa"
             />
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Link da sua lojinha</span>
             <div className="settings-page__slug-row">
               <span className="settings-page__slug-prefix">jogae.com/</span>
               <input
+                className="input"
                 value={slug}
                 onChange={(event) => handleSlugChange(event.target.value)}
                 placeholder="arena-gol-de-placa"
@@ -253,19 +255,21 @@ export default function SettingsPage() {
             )}
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Telefone de contato</span>
             <input
+              className="input"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder="(85) 99999-9999"
             />
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>CEP</span>
             <div className="settings-page__cep-row">
               <input
+                className="input"
                 value={cep}
                 onChange={(event) => setCep(event.target.value)}
                 placeholder="60000-000"
@@ -278,18 +282,20 @@ export default function SettingsPage() {
             {cepError && <span className="settings-page__cep-error">{cepError}</span>}
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Endereço</span>
             <input
+              className="input"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
               placeholder="Rua, número, bairro, cidade"
             />
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Foto de capa da lojinha (URL)</span>
             <input
+              className="input"
               value={coverPhotoUrl}
               onChange={(event) => setCoverPhotoUrl(event.target.value)}
               placeholder="https://..."
@@ -303,9 +309,10 @@ export default function SettingsPage() {
             )}
           </label>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Sobre o estabelecimento</span>
             <textarea
+              className="input"
               value={aboutDescription}
               onChange={(event) => setAboutDescription(event.target.value)}
               placeholder="Conte um pouco sobre o espaço: história, diferenciais, horário de funcionamento..."
@@ -315,7 +322,7 @@ export default function SettingsPage() {
             <span className="settings-page__hint">Aparece na sua lojinha pública, abaixo das quadras.</span>
           </label>
 
-          <div className="settings-page__field">
+          <div className="settings-page__field field">
             <span>Comodidades</span>
             <div className="settings-page__amenities">
               {AMENITY_OPTIONS.map((option) => (
@@ -332,11 +339,12 @@ export default function SettingsPage() {
             <span className="settings-page__hint">Aparecem como tags na sua lojinha pública.</span>
           </div>
 
-          <label className="settings-page__field">
+          <label className="settings-page__field field">
             <span>Meta de faturamento mensal</span>
             <div className="settings-page__slug-row">
               <span className="settings-page__slug-prefix">R$</span>
               <input
+                className="input"
                 value={monthlyRevenueGoal}
                 onChange={(event) => setMonthlyRevenueGoal(event.target.value)}
                 placeholder="5000"

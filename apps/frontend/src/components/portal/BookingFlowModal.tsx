@@ -144,6 +144,7 @@ export default function BookingFlowModal({
           <div className="booking-modal__coupon">
             <div className="booking-modal__coupon-row">
               <input
+                className="input"
                 value={couponCode}
                 onChange={(event) => {
                   setCouponCode(event.target.value.toUpperCase())

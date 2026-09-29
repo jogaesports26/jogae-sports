@@ -69,9 +69,10 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
       {step === 'form' && (
         <form className="booking-modal__form" onSubmit={handleRequestOtp}>
           {hint && <p className="booking-modal__hint">{hint}</p>}
-          <label className="booking-modal__field">
+          <label className="booking-modal__field field">
             <span>Nome</span>
             <input
+              className="input"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Seu nome"
@@ -79,9 +80,10 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
               minLength={2}
             />
           </label>
-          <label className="booking-modal__field">
+          <label className="booking-modal__field field">
             <span>Telefone</span>
             <input
+              className="input"
               type="tel"
               inputMode="tel"
               autoComplete="tel"
@@ -109,9 +111,10 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
               </>
             )}
           </p>
-          <label className="booking-modal__field">
+          <label className="booking-modal__field field">
             <span>Código de 6 dígitos</span>
             <input
+              className="input"
               value={code}
               onChange={(event) => setCode(event.target.value)}
               required

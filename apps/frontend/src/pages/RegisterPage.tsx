@@ -97,10 +97,11 @@ export default function RegisterPage() {
       {formError && <div className="auth__error">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="name">Nome completo</label>
           <input
             id="name"
+            className="input"
             type="text"
             autoComplete="name"
             value={name}
@@ -110,10 +111,11 @@ export default function RegisterPage() {
           {fieldErrors.name && <span className="auth__field-error">{fieldErrors.name}</span>}
         </div>
 
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="email">E-mail</label>
           <input
             id="email"
+            className="input"
             type="email"
             autoComplete="email"
             value={email}
@@ -123,10 +125,11 @@ export default function RegisterPage() {
           {fieldErrors.email && <span className="auth__field-error">{fieldErrors.email}</span>}
         </div>
 
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="password">Senha</label>
           <PasswordInput
             id="password"
+            className="input"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -137,10 +140,11 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="confirmPassword">Confirmar senha</label>
           <PasswordInput
             id="confirmPassword"
+            className="input"
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

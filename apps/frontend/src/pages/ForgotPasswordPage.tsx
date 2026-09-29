@@ -63,10 +63,11 @@ export default function ForgotPasswordPage() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate>
-          <div className="auth__field">
+          <div className="auth__field field">
             <label htmlFor="email">E-mail</label>
             <input
               id="email"
+              className="input"
               type="email"
               autoComplete="email"
               value={email}

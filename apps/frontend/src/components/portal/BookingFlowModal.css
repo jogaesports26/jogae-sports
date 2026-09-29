@@ -123,19 +123,6 @@
 
 .booking-modal__coupon-row input {
   flex: 1;
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 9px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--color-dark);
-  outline: none;
-}
-
-.booking-modal__coupon-row input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .booking-modal__coupon-apply {
@@ -199,33 +186,6 @@
   font-size: 13px;
   color: var(--color-dark);
   opacity: 0.75;
-}
-
-.booking-modal__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-dark);
-}
-
-.booking-modal__field input {
-  font-family: var(--font-body);
-  font-size: 15px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--color-dark);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.booking-modal__field input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .booking-modal__error {

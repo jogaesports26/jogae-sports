@@ -86,13 +86,20 @@ export default function WaitlistJoinModal({
             <p className="booking-modal__hint">
               Esse horário está ocupado. Deixe seu nome e telefone pra a gente avisar se ele abrir.
             </p>
-            <label className="booking-modal__field">
+            <label className="booking-modal__field field">
               <span>Nome</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} required minLength={2} />
+              <input
+                className="input"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+                minLength={2}
+              />
             </label>
-            <label className="booking-modal__field">
+            <label className="booking-modal__field field">
               <span>Telefone</span>
               <input
+                className="input"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
