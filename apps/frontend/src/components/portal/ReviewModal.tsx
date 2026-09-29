@@ -56,9 +56,10 @@ export default function ReviewModal({ reservationId, courtName, onClose, onSubmi
             ))}
           </div>
 
-          <label className="review-modal__field">
+          <label className="review-modal__field field">
             <span>Comentário (opcional)</span>
             <textarea
+              className="input"
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={3}

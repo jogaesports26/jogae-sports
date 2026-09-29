@@ -48,26 +48,6 @@
   color: var(--color-dark);
 }
 
-.staff-page__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-dark);
-}
-
-.staff-page__field input,
-.staff-page__field select {
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  border: var(--border-subtle);
-  color: var(--color-dark);
-  background: var(--color-white);
-}
 
 .staff-page__empty {
   text-align: center;

@@ -99,9 +99,10 @@ export default function StaffPage() {
         <div className="staff-page__layout">
           <form className="staff-page__form card" onSubmit={handleAdd}>
             <h2>Novo funcionário</h2>
-            <label className="staff-page__field">
+            <label className="staff-page__field field">
               <span>Nome</span>
               <input
+                className="input"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Nome do funcionário"
@@ -109,9 +110,10 @@ export default function StaffPage() {
                 minLength={2}
               />
             </label>
-            <label className="staff-page__field">
+            <label className="staff-page__field field">
               <span>E-mail</span>
               <input
+                className="input"
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -119,9 +121,10 @@ export default function StaffPage() {
                 required
               />
             </label>
-            <label className="staff-page__field">
+            <label className="staff-page__field field">
               <span>Senha</span>
               <PasswordInput
+                className="input"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Mínimo 6 caracteres"
@@ -129,9 +132,13 @@ export default function StaffPage() {
                 minLength={6}
               />
             </label>
-            <label className="staff-page__field">
+            <label className="staff-page__field field">
               <span>Permissão</span>
-              <select value={permission} onChange={(event) => setPermission(event.target.value as StaffPermission)}>
+              <select
+                className="input"
+                value={permission}
+                onChange={(event) => setPermission(event.target.value as StaffPermission)}
+              >
                 <option value="MANAGE_RESERVATIONS">Gerencia reservas (agenda, lançar, cancelar)</option>
                 <option value="VIEW_ONLY">Somente visualiza (não pode alterar nada)</option>
               </select>

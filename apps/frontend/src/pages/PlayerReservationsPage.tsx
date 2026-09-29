@@ -158,17 +158,19 @@ export default function PlayerReservationsPage() {
                 )}
                 {reschedulingId === reservation.id && (
                   <div className="player-reservation-card__reschedule-form">
-                    <label>
+                    <label className="field field--sm">
                       <span>Novo início</span>
                       <input
+                        className="input input--sm"
                         type="datetime-local"
                         value={newStartsAt}
                         onChange={(e) => setNewStartsAt(e.target.value)}
                       />
                     </label>
-                    <label>
+                    <label className="field field--sm">
                       <span>Novo fim</span>
                       <input
+                        className="input input--sm"
                         type="datetime-local"
                         value={newEndsAt}
                         onChange={(e) => setNewEndsAt(e.target.value)}

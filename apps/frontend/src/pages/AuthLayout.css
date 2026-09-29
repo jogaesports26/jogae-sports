@@ -111,34 +111,15 @@
 }
 
 .auth__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   margin-bottom: 20px;
   text-align: left;
 }
 
-.auth__field label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-dark);
-}
-
+/* Telas de autenticação usam a mesma linguagem da landing (escala maior e
+   confiante) — input um pouco maior que o padrão do .field. */
 .auth__field input {
-  font-family: var(--font-body);
   font-size: 16px;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm, 10px);
-  background: var(--color-surface);
-  color: var(--color-dark);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.auth__field input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
 .auth__field-error {

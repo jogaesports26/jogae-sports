@@ -91,22 +91,8 @@
 }
 
 .customer-modal__birthdate label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-text-secondary);
   flex: 1;
-}
-
-.customer-modal__birthdate input {
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  border: var(--border-subtle);
-  color: var(--color-dark);
+  color: var(--color-text-secondary);
 }
 
 .customer-modal__hint {

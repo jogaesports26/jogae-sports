@@ -156,17 +156,19 @@ export default function ReservationActionsModal({
 
               {isRescheduling ? (
                 <>
-                  <label className="reservation-modal__field">
+                  <label className="reservation-modal__field field">
                     <span>Novo início</span>
                     <input
+                      className="input"
                       type="datetime-local"
                       value={newStartsAt}
                       onChange={(e) => setNewStartsAt(e.target.value)}
                     />
                   </label>
-                  <label className="reservation-modal__field">
+                  <label className="reservation-modal__field field">
                     <span>Novo fim</span>
                     <input
+                      className="input"
                       type="datetime-local"
                       value={newEndsAt}
                       onChange={(e) => setNewEndsAt(e.target.value)}

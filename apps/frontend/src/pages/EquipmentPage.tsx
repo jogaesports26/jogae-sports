@@ -122,9 +122,10 @@ export default function EquipmentPage() {
         <div className="equipment-page__layout">
           <form className="equipment-page__form card" onSubmit={handleAdd}>
             <h2>Novo equipamento</h2>
-            <label className="equipment-page__field">
+            <label className="equipment-page__field field">
               <span>Nome</span>
               <input
+                className="input"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Colete"
@@ -133,9 +134,10 @@ export default function EquipmentPage() {
                 maxLength={60}
               />
             </label>
-            <label className="equipment-page__field">
+            <label className="equipment-page__field field">
               <span>Preço por unidade (R$)</span>
               <input
+                className="input"
                 type="number"
                 min={0.01}
                 step="0.01"
@@ -161,18 +163,20 @@ export default function EquipmentPage() {
                 <div key={item.id} className="equipment-page__item">
                   {editingId === item.id ? (
                     <div className="equipment-page__edit">
-                      <label className="equipment-page__field">
+                      <label className="equipment-page__field field">
                         <span>Nome</span>
                         <input
+                          className="input"
                           value={editName}
                           onChange={(event) => setEditName(event.target.value)}
                           minLength={2}
                           maxLength={60}
                         />
                       </label>
-                      <label className="equipment-page__field">
+                      <label className="equipment-page__field field">
                         <span>Preço por unidade (R$)</span>
                         <input
+                          className="input"
                           type="number"
                           min={0.01}
                           step="0.01"

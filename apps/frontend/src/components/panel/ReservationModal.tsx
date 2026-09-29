@@ -144,14 +144,21 @@ export default function ReservationModal({
         </p>
 
         <form onSubmit={handleSubmit} className="reservation-modal__form">
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Nome do cliente</span>
-            <input value={guestName} onChange={(e) => setGuestName(e.target.value)} required minLength={2} />
+            <input
+              className="input"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              required
+              minLength={2}
+            />
           </label>
 
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Telefone</span>
             <input
+              className="input"
               value={guestPhone}
               onChange={(e) => setGuestPhone(e.target.value)}
               required
@@ -160,9 +167,9 @@ export default function ReservationModal({
             />
           </label>
 
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Duração</span>
-            <select value={endMinute} onChange={(e) => setEndMinute(Number(e.target.value))}>
+            <select className="input" value={endMinute} onChange={(e) => setEndMinute(Number(e.target.value))}>
               {endOptions.map((option) => (
                 <option key={option} value={option}>
                   até {formatMinutes(option)}
@@ -172,9 +179,9 @@ export default function ReservationModal({
           </label>
 
           {instructors.length > 0 && (
-            <label className="reservation-modal__field">
+            <label className="reservation-modal__field field">
               <span>Instrutor (opcional)</span>
-              <select value={instructorId} onChange={(e) => setInstructorId(e.target.value)}>
+              <select className="input" value={instructorId} onChange={(e) => setInstructorId(e.target.value)}>
                 <option value="">Sem instrutor</option>
                 {instructors.map((instructor) => (
                   <option key={instructor.id} value={instructor.id}>
@@ -185,10 +192,11 @@ export default function ReservationModal({
             </label>
           )}
 
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Cupom (opcional)</span>
             <div className="reservation-modal__coupon-row">
               <input
+                className="input"
                 value={couponCode}
                 onChange={(e) => {
                   setCouponCode(e.target.value.toUpperCase())
@@ -216,7 +224,7 @@ export default function ReservationModal({
           )}
 
           {equipmentList.length > 0 && (
-            <div className="reservation-modal__field">
+            <div className="reservation-modal__field field">
               <span>Equipamento (opcional)</span>
               <div className="reservation-modal__equipment-list">
                 {equipmentList.map((item) => (

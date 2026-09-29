@@ -110,10 +110,11 @@ export default function LoginPage() {
       {formError && <div className="auth__error">{formError}</div>}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="email">E-mail</label>
           <input
             id="email"
+            className="input"
             type="email"
             autoComplete="email"
             value={email}
@@ -123,10 +124,11 @@ export default function LoginPage() {
           {fieldErrors.email && <span className="auth__field-error">{fieldErrors.email}</span>}
         </div>
 
-        <div className="auth__field">
+        <div className="auth__field field">
           <label htmlFor="password">Senha</label>
           <PasswordInput
             id="password"
+            className="input"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

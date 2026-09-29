@@ -59,9 +59,10 @@ export default function MaintenanceBlockModal({
         <p className="reservation-modal__slot">Pra manutenção, limpeza ou qualquer indisponibilidade.</p>
 
         <form onSubmit={handleSubmit} className="reservation-modal__form">
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Início</span>
             <input
+              className="input"
               type="datetime-local"
               value={startsAt}
               onChange={(e) => setStartsAt(e.target.value)}
@@ -69,14 +70,25 @@ export default function MaintenanceBlockModal({
             />
           </label>
 
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Fim</span>
-            <input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} required />
+            <input
+              className="input"
+              type="datetime-local"
+              value={endsAt}
+              onChange={(e) => setEndsAt(e.target.value)}
+              required
+            />
           </label>
 
-          <label className="reservation-modal__field">
+          <label className="reservation-modal__field field">
             <span>Motivo (opcional)</span>
-            <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Ex: manutenção do piso" />
+            <input
+              className="input"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Ex: manutenção do piso"
+            />
           </label>
 
           {error && <p className="reservation-modal__error">{error}</p>}

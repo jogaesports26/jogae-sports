@@ -122,6 +122,89 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
+/* Campo de formulário: rótulo (via .field, layout/tipografia do label) +
+   controle (via .input, classe explícita em cada input/select/textarea) —
+   usar em toda tela nova ou redesenhada em vez de estilizar do zero.
+   .input é sempre uma classe própria no elemento (não estilo herdado por
+   descendência de .field) de propósito: mantém a especificidade em uma
+   classe só, então um seletor de página com duas classes (ex.
+   `.auth__field .input`) sempre consegue sobrescrever tamanho/espaçamento
+   sem precisar de !important ou depender da ordem de import do CSS. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dark);
+}
+
+.field--sm {
+  font-size: 13px;
+}
+
+.input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 12px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-dark);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Variante compacta pra linhas densas (tabela de preços, ações inline) —
+   mesmo visual, texto e espaçamento menores. */
+.input--sm {
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+/* Botão nativo de "Escolher arquivo" com a mesma linguagem dos outros
+   botões — upload real (drag-and-drop) fica pra um item futuro, isso aqui
+   só tira a cara de controle cru do navegador. */
+.input[type='file'] {
+  padding: 8px;
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.input[type='file']::file-selector-button {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  margin-right: 12px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.input[type='file']::file-selector-button:hover {
+  background: var(--color-border);
+}
+
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-card);
