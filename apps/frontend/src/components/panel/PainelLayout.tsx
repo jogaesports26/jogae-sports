@@ -24,6 +24,15 @@ function IconOverview() {
   )
 }
 
+function IconAgenda() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function IconCourts() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -124,6 +133,7 @@ function IconSettings() {
 
 const NAV_ITEMS = [
   { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true, ownerOnly: false },
+  { to: '/painel/agenda', label: 'Agenda', Icon: IconAgenda, end: false, ownerOnly: false },
   { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false, ownerOnly: false },
   { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false, ownerOnly: true },
   { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, end: false, ownerOnly: true },
