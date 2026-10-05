@@ -100,7 +100,7 @@
 
 .player-reservation-card__reviewed {
   font-size: 15px;
-  color: #b8860b;
+  color: var(--color-rating);
   letter-spacing: 1px;
 }
 

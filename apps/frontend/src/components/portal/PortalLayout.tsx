@@ -51,6 +51,25 @@ export default function PortalLayout() {
           <span className="portal__logo">Jogaê Sports</span>
         )}
         <nav className="portal__nav-links">
+          {!showTabs && (
+            <button
+              type="button"
+              className="portal__chat-button"
+              aria-label="Abrir assistente"
+              aria-pressed={chatOpen}
+              onClick={() => setChatOpen((open) => !open)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5v-9Z"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
+                <path d="M8.5 9.5h7M8.5 12.5h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
+          )}
           {player ? (
             <>
               <Link to="/minhas-reservas">Minhas reservas</Link>
@@ -71,7 +90,7 @@ export default function PortalLayout() {
         <Outlet context={{ basePath: slug ? `/${slug}` : '' }} />
       </main>
 
-      <ChatWidget open={chatOpen} onOpenChange={setChatOpen} tabbed={showTabs} />
+      <ChatWidget open={chatOpen} onOpenChange={setChatOpen} tabbed={showTabs} hideToggleOnMobile={!showTabs} />
 
       {showTabs && (
         <PortalTabBar

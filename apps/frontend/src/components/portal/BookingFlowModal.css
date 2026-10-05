@@ -73,8 +73,8 @@
 }
 
 .booking-modal__equipment-stepper button {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid var(--color-border);
   background: var(--color-white);
@@ -517,6 +517,12 @@
   .booking-modal--sheet .booking-modal__cta .btn,
   .booking-modal--sheet .booking-modal__actions .btn {
     min-height: 48px;
+  }
+
+  .booking-modal--sheet .booking-modal__equipment-stepper button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
   }
 
   .booking-modal--sheet .booking-modal__link {

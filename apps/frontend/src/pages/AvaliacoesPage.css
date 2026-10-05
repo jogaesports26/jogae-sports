@@ -89,7 +89,7 @@
 }
 
 .avaliacoes-page__stars {
-  color: #b8860b;
+  color: var(--color-rating);
   font-size: 14px;
   letter-spacing: 1px;
   margin-right: 8px;

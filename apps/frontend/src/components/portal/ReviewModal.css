@@ -65,12 +65,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #d9d9d9;
+  color: #8b94a3;
   line-height: 1;
 }
 
 .review-modal__star--filled {
-  color: #b8860b;
+  color: var(--color-rating);
 }
 
 .review-modal__error {

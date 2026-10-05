@@ -9,6 +9,7 @@ import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
 import { buildGoogleCalendarUrl } from '../../lib/calendar'
 import { showToast } from '../../lib/toast'
+import { CANCELLATION_POLICY } from '../../lib/policy'
 import PlayerLoginForm from './PlayerLoginForm'
 import ReceiptModal from './ReceiptModal'
 import './BookingFlowModal.css'
@@ -303,9 +304,7 @@ export default function BookingFlowModal({
 
             <section className="booking-modal__section">
               <h3>Cancelamento</h3>
-              <p className="booking-modal__policy">
-                Você pode cancelar ou reagendar até 2 horas antes do horário, direto em Minhas reservas.
-              </p>
+              <p className="booking-modal__policy">{CANCELLATION_POLICY}</p>
             </section>
 
             {step === 'confirm' && (
