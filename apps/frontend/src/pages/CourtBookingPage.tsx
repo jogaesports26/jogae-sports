@@ -516,6 +516,8 @@ export default function CourtBookingPage() {
           courtId={courtId}
           courtName={court.name}
           establishmentName={establishmentName}
+          photoUrl={court.photoUrls[0] ?? null}
+          sportLabel={sportLabel(court.sport)}
           slug={slug}
           dayLabel={selectedSlot.dayLabel}
           dayDate={selectedSlot.dayDate}
