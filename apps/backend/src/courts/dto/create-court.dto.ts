@@ -1,4 +1,5 @@
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsOptional,
@@ -30,6 +31,7 @@ export class CreateCourtDto {
   // como arquivo, convertidas em base64 no frontend).
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(10)
   @IsString({ each: true })
   photoUrls?: string[];
 }

@@ -239,14 +239,6 @@
   color: var(--color-negative-text);
 }
 
-.settings-page__cover-preview {
-  width: 100%;
-  aspect-ratio: 16 / 6;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  margin-top: 4px;
-}
-
 .settings-page__amenities {
   display: flex;
   flex-wrap: wrap;
