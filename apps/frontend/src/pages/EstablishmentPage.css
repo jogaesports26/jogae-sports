@@ -334,7 +334,7 @@
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 700;
-  color: #b8860b;
+  color: var(--color-rating);
 }
 
 .establishment-card__rating small {
@@ -466,4 +466,16 @@
   .establishment-skeleton {
     animation: none;
   }
+}
+
+/* Links dentro de texto corrido: área de toque de 44px sem aumentar a linha */
+.establishment-trust a {
+  display: inline-block;
+  padding: 14px 0;
+  margin: -14px 0;
+}
+
+/* Os ícones de esporte vêm em lima (pensados pro fundo escuro/azul); sobre o círculo branco o lima tem 1,4:1 — aqui usam a cor de seleção. */
+.establishment-sport__icon svg [stroke] {
+  stroke: var(--color-primary);
 }

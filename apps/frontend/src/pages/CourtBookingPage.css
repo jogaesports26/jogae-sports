@@ -541,7 +541,7 @@
 }
 
 .booking-review__stars {
-  color: #b8860b;
+  color: var(--color-rating);
   font-size: 14px;
   letter-spacing: 1px;
 }
@@ -609,10 +609,8 @@
 .booking-summary-bar__info strong {
   font-family: var(--font-heading);
   font-size: 14px;
+  line-height: 1.3;
   color: var(--color-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .booking-summary-bar__info span {
@@ -645,4 +643,40 @@
 .booking-skeleton--pills {
   height: 72px;
   margin-top: 28px;
+}
+
+.booking-section__empty-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.booking-section__empty-block .booking-section__empty {
+  margin: 0;
+}
+
+.booking-page__error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.booking-page__error-card p {
+  margin: 0;
+}
+
+/* Links dentro do cabeçalho da quadra: área de toque de 44px */
+.booking-sheet__rating a {
+  display: inline-block;
+  padding: 14px 0;
+  margin: -14px 0;
 }

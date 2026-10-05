@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { UIEvent } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
@@ -22,6 +22,7 @@ import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import HeartToggle from '../components/HeartToggle'
 import { shareOrCopy } from '../lib/share'
 import { showToast } from '../lib/toast'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './CourtBookingPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -129,6 +130,11 @@ export default function CourtBookingPage() {
   const [period, setPeriod] = useState<Period | null>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [amenitiesOpen, setAmenitiesOpen] = useState(false)
+  const pickedDayRef = useRef(false)
+
+  useDocumentTitle(
+    court ? `${court.name}${court.owner.establishmentName ? ` · ${court.owner.establishmentName}` : ''}` : null,
+  )
 
   async function load() {
     if (!courtId) return
@@ -143,6 +149,27 @@ export default function CourtBookingPage() {
       setCourt(courtData)
       setAgenda(agendaData)
       setReviews(reviewsData)
+
+      if (!pickedDayRef.current) {
+        pickedDayRef.current = true
+        for (let i = 0; i < 7; i++) {
+          const day = addDays(today, i)
+          const starts = getAvailableStartTimes(
+            day.getDay(),
+            courtData.minBookingMinutes,
+            courtData.bookingStepMinutes,
+            agendaData.priceRules,
+            day,
+            agendaData.reservations,
+            agendaData.maintenanceBlocks,
+            agendaData.recurringMaintenanceBlocks,
+          )
+          if (starts.length > 0) {
+            if (i !== 0) setSelectedDayIndex(i)
+            break
+          }
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar a quadra')
     }
@@ -153,7 +180,16 @@ export default function CourtBookingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courtId])
 
-  if (error) return <p className="booking-page__error">{error}</p>
+  if (error) {
+    return (
+      <div className="booking-page__error-card">
+        <p>{error}</p>
+        <Link to={basePath || '/'} className="btn btn--outline btn--sm">
+          {basePath ? 'Voltar pra lojinha' : 'Voltar pro início'}
+        </Link>
+      </div>
+    )
+  }
   if (!court || !agenda) {
     return (
       <div className="booking-page" aria-busy="true" aria-label="Carregando a quadra">
@@ -213,6 +249,33 @@ export default function CourtBookingPage() {
   const lowestPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : null
   const hasPriceVariation = lowestPrice !== null && Math.max(...availablePrices) > lowestPrice
 
+  const dayStartsCount = (index: number) => {
+    const day = days[index]
+    return getAvailableStartTimes(
+      day.getDay(),
+      duration,
+      court.bookingStepMinutes,
+      agenda.priceRules,
+      day,
+      agenda.reservations,
+      agenda.maintenanceBlocks,
+      agenda.recurringMaintenanceBlocks,
+    ).length
+  }
+  const suggestedDayIndex = [
+    ...days.map((_, index) => index).filter((index) => index > selectedDayIndex),
+    ...days.map((_, index) => index).filter((index) => index < selectedDayIndex),
+  ].find((index) => dayStartsCount(index) > 0)
+  const suggestionButton =
+    suggestedDayIndex !== undefined ? (
+      <button type="button" className="btn btn--outline btn--sm booking-section__suggestion" onClick={() => selectDay(suggestedDayIndex)}>
+        Ver {formatDayLabel(days[suggestedDayIndex])} · {dayStartsCount(suggestedDayIndex)}{' '}
+        {dayStartsCount(suggestedDayIndex) === 1 ? 'horário livre' : 'horários livres'}
+      </button>
+    ) : (
+      <p className="booking-section__empty">Sem horários livres nos próximos 7 dias. Fale com o local pra combinar.</p>
+    )
+
   const periodsWithSlots = PERIODS.filter((item) => slots.some((slot) => periodOf(slot.startMinute) === item.key))
   const activePeriod =
     period && periodsWithSlots.some((item) => item.key === period) ? period : (periodsWithSlots[0]?.key ?? null)
@@ -270,7 +333,13 @@ export default function CourtBookingPage() {
           {photos.length > 0 ? (
             <div className="booking-hero__carousel" onScroll={handleCarouselScroll}>
               {photos.map((photo, index) => (
-                <img key={`${index}-${photo.slice(-16)}`} src={photo} alt={index === 0 ? court.name : ''} className="booking-hero__photo" />
+                <img
+                  key={`${index}-${photo.slice(-16)}`}
+                  src={photo}
+                  alt={`${court.name} — foto ${index + 1}`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  className="booking-hero__photo"
+                />
               ))}
             </div>
           ) : (
@@ -388,11 +457,17 @@ export default function CourtBookingPage() {
       <section className="booking-section">
         <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>
         {dayGrid.length === 0 ? (
-          <p className="booking-section__empty">Sem horários disponíveis nesse dia.</p>
+          <div className="booking-section__empty-block">
+            <p className="booking-section__empty">Sem horários disponíveis nesse dia.</p>
+            {suggestionButton}
+          </div>
         ) : slots.length === 0 ? (
-          <p className="booking-section__empty">
-            Nenhum horário livre de {formatDuration(duration)} nesse dia. Tente uma duração menor ou outro dia.
-          </p>
+          <div className="booking-section__empty-block">
+            <p className="booking-section__empty">
+              Nenhum horário livre de {formatDuration(duration)} nesse dia. Tente uma duração menor ou outro dia.
+            </p>
+            {suggestionButton}
+          </div>
         ) : (
           <>
             {hasPriceVariation && (

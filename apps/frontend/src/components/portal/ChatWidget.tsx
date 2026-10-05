@@ -15,9 +15,11 @@ interface ChatWidgetProps {
   onOpenChange?: (open: boolean) => void
   /** Com a barra de abas visível (mobile), o botão flutuante some e o chat abre pela aba "Assistente". */
   tabbed?: boolean
+  /** No mobile, esconde o botão flutuante (o assistente abre por outro controle). */
+  hideToggleOnMobile?: boolean
 }
 
-export default function ChatWidget({ open, onOpenChange, tabbed = false }: ChatWidgetProps) {
+export default function ChatWidget({ open, onOpenChange, tabbed = false, hideToggleOnMobile = false }: ChatWidgetProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const isOpen = open ?? internalOpen
   const setIsOpen = onOpenChange ?? setInternalOpen
@@ -52,7 +54,7 @@ export default function ChatWidget({ open, onOpenChange, tabbed = false }: ChatW
   }
 
   return (
-    <div className={`chat-widget${tabbed ? ' chat-widget--tabbed' : ''}`}>
+    <div className={`chat-widget${tabbed ? ' chat-widget--tabbed' : ''}${hideToggleOnMobile ? ' chat-widget--no-toggle' : ''}`}>
       {isOpen && (
         <div className="chat-widget__panel">
           <div className="chat-widget__header">

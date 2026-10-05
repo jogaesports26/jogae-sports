@@ -27,6 +27,7 @@ import EmbedLayout from './components/portal/EmbedLayout'
 import EstablishmentPage from './pages/EstablishmentPage'
 import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
+import NotFoundPage from './pages/NotFoundPage'
 import ToastHost from './components/ToastHost'
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
           <Route index element={<EstablishmentPage />} />
           <Route path=":courtId" element={<CourtBookingPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   )

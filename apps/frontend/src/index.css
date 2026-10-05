@@ -22,13 +22,16 @@
 
   /* Pílulas de status/variação (fundo suave, nunca cor chapada) — regra de uso em primitives.css (.pill) */
   --color-positive-bg: #e6f9d9;
-  --color-positive-text: #4f7d0a;
+  --color-positive-text: #456f08;
   --color-negative-bg: #fde8ea;
   --color-negative-text: #b3283f;
   --color-warning-bg: #fff1dc;
   --color-warning-text: #9a5b00;
   --color-info-bg: #e8edff;
   --color-info-text: #013ff6;
+
+  /* Estrelas de avaliação: token fixo do sistema (não vira cor da marca), contraste AA sobre branco */
+  --color-rating: #8a6400;
 
   /* Gradiente-assinatura, reservado pro CTA de maior hierarquia */
   --gradient-brand: linear-gradient(135deg, #013ff6 0%, #acec00 100%);
@@ -93,4 +96,20 @@ a {
 
 button {
   font-family: var(--font-body);
+}
+
+::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 1;
+}
+
+/* Anel de foco único e visível (teclado). :where mantém especificidade zero pros componentes sobrescreverem. */
+:where(a, button, input, select, textarea, summary, [role='button'], [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--color-dark-navy);
+  outline-offset: 2px;
+}
+
+.establishment-hero :focus-visible,
+.chat-widget__header :focus-visible {
+  outline-color: var(--color-white);
 }

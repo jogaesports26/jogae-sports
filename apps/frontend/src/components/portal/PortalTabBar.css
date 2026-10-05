@@ -30,6 +30,7 @@
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 600;
+    white-space: nowrap;
     color: var(--color-text-secondary);
     text-decoration: none;
     cursor: pointer;
@@ -51,5 +52,11 @@
 
   .portal-tabs__item--active svg {
     fill: var(--color-info-bg);
+  }
+}
+
+@media (max-width: 340px) {
+  .portal-tabs__item {
+    font-size: 10px;
   }
 }

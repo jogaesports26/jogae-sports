@@ -13,6 +13,13 @@
   transition: color 0.15s ease, transform 0.1s ease;
 }
 
+/* Área de toque ampliada sem mudar o tamanho visual (o botão é sempre posicionado pelo contêiner). */
+.heart-toggle::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
 .heart-toggle svg {
   width: 17px;
   height: 17px;

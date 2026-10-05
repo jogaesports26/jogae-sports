@@ -16,6 +16,7 @@ import { shareOrCopy } from '../lib/share'
 import type { ShareResult } from '../lib/share'
 import { buildGoogleCalendarUrl } from '../lib/calendar'
 import { showToast } from '../lib/toast'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './PlayerReservationsPage.css'
 
 const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
@@ -48,6 +49,7 @@ function toDatetimeLocalValue(date: Date): string {
 }
 
 export default function PlayerReservationsPage() {
+  useDocumentTitle('Minhas reservas · Jogaê Sports')
   const player = getPlayerUser()
   const lastSlug = (() => {
     try {

@@ -7,6 +7,8 @@ import { amenityLabel } from '../lib/amenities'
 import { formatPhone, phoneDigits } from '../lib/phone'
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
 import HeartToggle from '../components/HeartToggle'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { CANCELLATION_POLICY } from '../lib/policy'
 import './EstablishmentPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -126,6 +128,10 @@ export default function EstablishmentPage() {
   const [onlyLighting, setOnlyLighting] = useState(false)
   const [sortByPrice, setSortByPrice] = useState(false)
 
+  useDocumentTitle(
+    establishment ? `${establishment.establishmentName ?? 'Reserve sua quadra'} · Reservar quadra` : null,
+  )
+
   useEffect(() => {
     if (!slug) return
     fetchEstablishment(slug)
@@ -133,7 +139,16 @@ export default function EstablishmentPage() {
       .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar o estabelecimento'))
   }, [slug])
 
-  if (error) return <p className="establishment-page__error">{error}</p>
+  if (error) {
+    return (
+      <div className="establishment-page__empty-card">
+        <p>{error}</p>
+        <Link to="/" className="btn btn--outline btn--sm">
+          Voltar pro início
+        </Link>
+      </div>
+    )
+  }
   if (!establishment) return <EstablishmentSkeleton />
 
   const availableSports = [...new Set(establishment.courts.map((court) => court.sport))]
@@ -193,7 +208,7 @@ export default function EstablishmentPage() {
           <input
             type="search"
             className="establishment-search__input"
-            placeholder="Buscar quadra ou esporte"
+            placeholder="Buscar quadras"
             aria-label="Buscar quadra ou esporte"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -234,7 +249,7 @@ export default function EstablishmentPage() {
       </header>
 
       {establishment.coverPhotoUrl && (
-        <img src={establishment.coverPhotoUrl} alt="" className="establishment-page__cover" />
+        <img src={establishment.coverPhotoUrl} alt={establishment.establishmentName ?? 'Foto do local'} className="establishment-page__cover" />
       )}
 
       {establishment.amenities.length > 0 && (
@@ -290,7 +305,7 @@ export default function EstablishmentPage() {
             <Link key={court.id} to={`${basePath}/${court.id}`} className="establishment-card">
               <div className="establishment-card__media">
                 {court.photoUrls[0] ? (
-                  <img src={court.photoUrls[0]} alt="" />
+                  <img src={court.photoUrls[0]} alt={court.name} loading="lazy" />
                 ) : (
                   <span className="establishment-card__icon" aria-hidden="true">
                     {sportIcon(court.sport)}
@@ -361,7 +376,7 @@ export default function EstablishmentPage() {
           )}
           <li>
             <ShieldIcon />
-            <span>Cancelamento ou reagendamento até 2h antes do horário.</span>
+            <span>{CANCELLATION_POLICY}</span>
           </li>
         </ul>
         {establishment.aboutDescription && <p className="establishment-trust__about">{establishment.aboutDescription}</p>}
