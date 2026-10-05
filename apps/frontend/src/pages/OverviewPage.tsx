@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
-import {
-  IconCalendar,
-  IconCourtOccupancy,
-  IconGift,
-  IconSleep,
-  IconTrendUp,
-  IconWallet,
-} from '../components/panel/KpiIcons'
+import { IconCalendar, IconCourtOccupancy, IconGift, IconSleep, IconWallet } from '../components/panel/KpiIcons'
 import { SessionExpiredError } from '../lib/api'
 import { fetchTodayReservations } from '../lib/reservations'
 import type { TodayReservation } from '../lib/reservations'
@@ -44,12 +37,21 @@ export default function OverviewPage() {
   const [hasSlug, setHasSlug] = useState<boolean | null>(null)
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthReport, setMonthReport] = useState<FinancialReport | null>(null)
+  const [previousReport, setPreviousReport] = useState<FinancialReport | null>(null)
   const [customers, setCustomers] = useState<Customer[] | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const today = new Date()
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+    // Mesmo período (dia 1 até o dia de hoje) do mês passado, pra comparar de forma justa no meio do mês.
+    const previousStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+    const daysInPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate()
+    const previousEnd = new Date(
+      today.getFullYear(),
+      today.getMonth() - 1,
+      Math.min(today.getDate(), daysInPreviousMonth),
+    )
 
     // allSettled em vez de all: dono e funcionário compartilham essa tela, mas
     // perfil/relatórios são só do dono — uma rejeição ali não pode derrubar as
@@ -60,9 +62,10 @@ export default function OverviewPage() {
       fetchProfile(),
       fetchReports({ from: toDateInputValue(monthStart), to: toDateInputValue(today) }),
       fetchCustomers(),
-    ]).then(([reservationsResult, courtsResult, profileResult, reportResult, customersResult]) => {
+      fetchReports({ from: toDateInputValue(previousStart), to: toDateInputValue(previousEnd) }),
+    ]).then(([reservationsResult, courtsResult, profileResult, reportResult, customersResult, previousResult]) => {
       if (
-        [reservationsResult, courtsResult, profileResult, reportResult, customersResult].some(
+        [reservationsResult, courtsResult, profileResult, reportResult, customersResult, previousResult].some(
           (result) => result.status === 'rejected' && result.reason instanceof SessionExpiredError,
         )
       ) {
@@ -92,6 +95,10 @@ export default function OverviewPage() {
       if (customersResult.status === 'fulfilled') {
         setCustomers(customersResult.value)
       }
+
+      if (previousResult.status === 'fulfilled') {
+        setPreviousReport(previousResult.value)
+      }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -113,6 +120,14 @@ export default function OverviewPage() {
     : null
   const showChecklist = steps !== null && steps.some((step) => !step.done)
 
+  const revenueTrend =
+    monthReport && previousReport && previousReport.totalRevenue > 0
+      ? (monthReport.totalRevenue - previousReport.totalRevenue) / previousReport.totalRevenue
+      : null
+
+  const singleCourt = courts?.length === 1 ? courts[0] : null
+  const agendaLink = singleCourt ? `/painel/quadras/${singleCourt.id}/agenda` : '/painel/quadras'
+
   const goalProgress =
     monthlyGoal && monthlyGoal > 0 && monthReport ? Math.min(monthReport.totalRevenue / monthlyGoal, 1) : null
 
@@ -122,8 +137,22 @@ export default function OverviewPage() {
 
   return (
     <div className="overview-page">
-      <h1>Olá, {user.name.split(' ')[0]}!</h1>
-      <p className="overview-page__subtitle">Aqui está o resumo do dia da sua arena.</p>
+      <div className="overview-page__header">
+        <div>
+          <h1>Olá, {user.name.split(' ')[0]}!</h1>
+          <p className="overview-page__subtitle">Aqui está o resumo da sua arena.</p>
+        </div>
+        <div className="overview-page__shortcuts">
+          <Link to={agendaLink} className="btn btn--primary btn--sm">
+            {singleCourt ? 'Abrir agenda' : 'Ver quadras e agendas'}
+          </Link>
+          {user.role !== 'STAFF' && (
+            <Link to="/painel/relatorios" className="btn btn--outline btn--sm">
+              Relatórios
+            </Link>
+          )}
+        </div>
+      </div>
 
       {showChecklist && steps && (
         <div className="overview-page__checklist card">
@@ -145,123 +174,138 @@ export default function OverviewPage() {
         </div>
       )}
 
-      <div className="overview-page__stats">
-        <div className="overview-page__stat">
-          <span className="overview-page__stat-icon">
-            <IconCalendar />
-          </span>
-          <span className="overview-page__stat-body">
-            <span>Reservas hoje</span>
-            <strong>{totalHoje}</strong>
-          </span>
-        </div>
-        <div className="overview-page__stat">
-          <span className="overview-page__stat-icon">
-            <IconWallet />
-          </span>
-          <span className="overview-page__stat-body">
-            <span>Previsto pra hoje</span>
-            <strong>{formatCurrency(faturamentoHoje)}</strong>
-          </span>
-        </div>
-        <div className="overview-page__stat">
-          <span className="overview-page__stat-icon">
-            <IconTrendUp />
-          </span>
-          <span className="overview-page__stat-body">
-            <span>Faturamento do mês</span>
-            <strong>{monthReport ? formatCurrency(monthReport.totalRevenue) : '—'}</strong>
-          </span>
-        </div>
-        <div className="overview-page__stat">
-          <span className="overview-page__stat-icon">
-            <IconCourtOccupancy />
-          </span>
-          <span className="overview-page__stat-body">
-            <span>Ocupação do mês</span>
-            <strong>{monthReport ? `${Math.round(monthReport.occupancyRate * 100)}%` : '—'}</strong>
-          </span>
-        </div>
-      </div>
+      {monthReport && (
+        <section className="overview-page__hero card">
+          <div className="overview-page__hero-main">
+            <span className="kpi-label">Faturamento do mês</span>
+            <div className="overview-page__hero-value">
+              <strong>{formatCurrency(monthReport.totalRevenue)}</strong>
+              {revenueTrend !== null && (
+                <span className={`pill ${revenueTrend >= 0 ? 'pill--positive' : 'pill--negative'}`}>
+                  {revenueTrend >= 0 ? '▲' : '▼'} {Math.abs(Math.round(revenueTrend * 100))}%
+                </span>
+              )}
+            </div>
+            <small className="overview-page__hero-note">
+              {revenueTrend !== null
+                ? 'em relação ao mesmo período do mês passado'
+                : 'sem faturamento no mesmo período do mês passado pra comparar'}
+            </small>
 
-      {goalProgress !== null && monthlyGoal && monthReport && (
-        <Link to="/painel/relatorios" className="overview-page__goal card">
-          <div className="overview-page__goal-header">
-            <span className="kpi-label">Meta de faturamento do mês</span>
-            <strong>
-              {formatCurrency(monthReport.totalRevenue)} <span>de {formatCurrency(monthlyGoal)}</span>
-            </strong>
+            {goalProgress !== null && monthlyGoal && (
+              <Link to="/painel/configuracoes?aba=metas" className="overview-page__goal">
+                <div className="overview-page__goal-header">
+                  <span>Meta do mês</span>
+                  <span>
+                    {Math.round(goalProgress * 100)}% de {formatCurrency(monthlyGoal)}
+                  </span>
+                </div>
+                <div className="overview-page__goal-bar">
+                  <div className="overview-page__goal-bar-fill" style={{ width: `${Math.round(goalProgress * 100)}%` }} />
+                </div>
+              </Link>
+            )}
           </div>
-          <div className="overview-page__goal-bar">
-            <div className="overview-page__goal-bar-fill" style={{ width: `${Math.round(goalProgress * 100)}%` }} />
+
+          <div className="overview-page__hero-side">
+            <span className="overview-page__stat-icon">
+              <IconCourtOccupancy />
+            </span>
+            <span className="kpi-label">Ocupação do mês</span>
+            <strong>{Math.round(monthReport.occupancyRate * 100)}%</strong>
           </div>
-        </Link>
+        </section>
       )}
 
-      {(birthdaysCount > 0 || inactiveCount > 0) && (
-        <div className="overview-page__alerts">
-          {birthdaysCount > 0 && (
-            <Link to="/painel/clientes?filtro=birthdays" className="overview-page__alert card">
-              <span className="overview-page__alert-icon overview-page__alert-icon--warning">
-                <IconGift />
+      <div className="overview-page__columns">
+        <div className="overview-page__today">
+          <div className="overview-page__stats">
+            <div className="overview-page__stat">
+              <span className="overview-page__stat-icon">
+                <IconCalendar />
               </span>
-              <span className="overview-page__alert-body">
-                <strong>{birthdaysCount}</strong>
-                <span>{birthdaysCount === 1 ? 'aniversariante esse mês' : 'aniversariantes esse mês'}</span>
+              <span className="overview-page__stat-body">
+                <span>Reservas hoje</span>
+                <strong>{totalHoje}</strong>
               </span>
-            </Link>
+            </div>
+            <div className="overview-page__stat">
+              <span className="overview-page__stat-icon">
+                <IconWallet />
+              </span>
+              <span className="overview-page__stat-body">
+                <span>Previsto pra hoje</span>
+                <strong>{formatCurrency(faturamentoHoje)}</strong>
+              </span>
+            </div>
+          </div>
+
+        <div className="overview-page__section">
+          <h2>Reservas de hoje</h2>
+
+          {error && <p className="overview-page__error">{error}</p>}
+
+          {!error && reservations === null && <p className="overview-page__loading">Carregando...</p>}
+
+          {reservations !== null && reservations.length === 0 && (
+            <div className="overview-page__empty">
+              <p>Nenhuma reserva pra hoje ainda.</p>
+              <Link to="/painel/quadras" className="overview-page__cta">
+                Ver suas quadras
+              </Link>
+            </div>
           )}
-          {inactiveCount > 0 && (
-            <Link to="/painel/clientes?filtro=inactive" className="overview-page__alert card">
-              <span className="overview-page__alert-icon overview-page__alert-icon--neutral">
-                <IconSleep />
-              </span>
-              <span className="overview-page__alert-body">
-                <strong>{inactiveCount}</strong>
-                <span>{inactiveCount === 1 ? 'cliente inativo' : 'clientes inativos'}</span>
-              </span>
-            </Link>
+
+          {reservations !== null && reservations.length > 0 && (
+            <div className="overview-page__list">
+              {reservations.map((reservation) => (
+                <Link
+                  key={reservation.id}
+                  to={`/painel/quadras/${reservation.court.id}/agenda`}
+                  className="overview-page__item"
+                >
+                  <span className="overview-page__item-time">
+                    {formatTime(reservation.startsAt)}–{formatTime(reservation.endsAt)}
+                  </span>
+                  <span className="overview-page__item-info">
+                    <strong>{reservation.guestName}</strong>
+                    <small>{reservation.court.name}</small>
+                  </span>
+                  <span className={`overview-page__item-status overview-page__item-status--${reservation.status.toLowerCase()}`}>
+                    {STATUS_LABELS[reservation.status]}
+                  </span>
+                </Link>
+              ))}
+            </div>
           )}
         </div>
-      )}
+        </div>
 
-      <div className="overview-page__section">
-        <h2>Reservas de hoje</h2>
-
-        {error && <p className="overview-page__error">{error}</p>}
-
-        {!error && reservations === null && <p className="overview-page__loading">Carregando...</p>}
-
-        {reservations !== null && reservations.length === 0 && (
-          <div className="overview-page__empty">
-            <p>Nenhuma reserva pra hoje ainda.</p>
-            <Link to="/painel/quadras" className="overview-page__cta">
-              Ver suas quadras
-            </Link>
-          </div>
-        )}
-
-        {reservations !== null && reservations.length > 0 && (
-          <div className="overview-page__list">
-            {reservations.map((reservation) => (
-              <Link
-                key={reservation.id}
-                to={`/painel/quadras/${reservation.court.id}/agenda`}
-                className="overview-page__item"
-              >
-                <span className="overview-page__item-time">
-                  {formatTime(reservation.startsAt)}–{formatTime(reservation.endsAt)}
+        {(birthdaysCount > 0 || inactiveCount > 0) && (
+          <aside className="overview-page__attention card">
+            <h2>Pra ficar de olho</h2>
+            {birthdaysCount > 0 && (
+              <Link to="/painel/clientes?filtro=birthdays" className="overview-page__attention-item">
+                <span className="overview-page__alert-icon overview-page__alert-icon--warning">
+                  <IconGift />
                 </span>
-                <span className="overview-page__item-info">
-                  <strong>{reservation.guestName}</strong>
-                  <small>{reservation.court.name}</small>
-                </span>
-                <span className={`overview-page__item-status overview-page__item-status--${reservation.status.toLowerCase()}`}>
-                  {STATUS_LABELS[reservation.status]}
+                <span>
+                  <strong>{birthdaysCount}</strong>{' '}
+                  {birthdaysCount === 1 ? 'aniversariante esse mês' : 'aniversariantes esse mês'}
                 </span>
               </Link>
-            ))}
-          </div>
+            )}
+            {inactiveCount > 0 && (
+              <Link to="/painel/clientes?filtro=inactive" className="overview-page__attention-item">
+                <span className="overview-page__alert-icon overview-page__alert-icon--neutral">
+                  <IconSleep />
+                </span>
+                <span>
+                  <strong>{inactiveCount}</strong> {inactiveCount === 1 ? 'cliente inativo' : 'clientes inativos'}
+                </span>
+              </Link>
+            )}
+          </aside>
         )}
       </div>
     </div>
