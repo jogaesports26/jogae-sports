@@ -177,7 +177,7 @@ export default function ReportsPage() {
               {formatCurrency(monthRevenue ?? 0)} <span>de {formatCurrency(monthlyGoal)}</span>
             </strong>
           ) : (
-            <Link to="/painel/configuracoes" className="reports-page__goal-cta">
+            <Link to="/painel/configuracoes?aba=metas" className="reports-page__goal-cta">
               Definir meta nas configurações
             </Link>
           )}
