@@ -6,6 +6,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import PainelLayout from './components/panel/PainelLayout'
 import OverviewPage from './pages/OverviewPage'
+import AgendaGeralPage from './pages/AgendaGeralPage'
 import QuadrasPage from './pages/QuadrasPage'
 import CourtDetailLayout from './components/panel/CourtDetailLayout'
 import AgendaPage from './pages/AgendaPage'
@@ -39,6 +40,7 @@ function App() {
         <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
         <Route path="/painel" element={<PainelLayout />}>
           <Route index element={<OverviewPage />} />
+          <Route path="agenda" element={<AgendaGeralPage />} />
           <Route path="quadras" element={<QuadrasPage />} />
           <Route path="quadras/:courtId" element={<CourtDetailLayout />}>
             <Route index element={<Navigate to="agenda" replace />} />

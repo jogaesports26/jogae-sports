@@ -1,0 +1,44 @@
+.agenda-geral__title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.agenda-geral__nav {
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.agenda-geral__date {
+  width: auto;
+  border-radius: var(--radius-pill);
+}
+
+.agenda-geral__day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-transform: capitalize;
+}
+
+.agenda-geral__court-header {
+  text-decoration: none;
+  text-align: center;
+}
+
+.agenda-geral__court-header strong {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+}
+
+.agenda-geral__court-header:hover {
+  background: var(--color-info-bg);
+}

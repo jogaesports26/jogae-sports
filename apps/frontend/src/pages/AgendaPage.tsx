@@ -14,6 +14,7 @@ import {
   toDateInputValue,
   WEEKDAY_SHORT,
 } from '../lib/weekGrid'
+import AgendaLegend from '../components/panel/AgendaLegend'
 import ReservationModal from '../components/panel/ReservationModal'
 import ReservationActionsModal from '../components/panel/ReservationActionsModal'
 import './AgendaPage.css'
@@ -93,25 +94,7 @@ export default function AgendaPage() {
         </div>
       )}
 
-      <div className="agenda-page__legend">
-        <span className="agenda-page__legend-item">
-          <span className="agenda-page__legend-swatch agenda-grid__cell--available" />
-          Disponível
-        </span>
-        <span className="agenda-page__legend-item">
-          <span className="agenda-page__legend-swatch agenda-grid__cell--reserved" />
-          Reservado
-        </span>
-        <span className="agenda-page__legend-item">
-          <span className="agenda-page__legend-swatch agenda-grid__cell--blocked" />
-          Bloqueado/manutenção
-        </span>
-        <span className="agenda-page__legend-item">
-          <span className="agenda-page__legend-swatch agenda-grid__cell--off" />
-          Sem preço definido —{' '}
-          <Link to={`/painel/quadras/${courtId}/precos`}>configurar</Link>
-        </span>
-      </div>
+      <AgendaLegend pricingHref={`/painel/quadras/${courtId}/precos`} />
       <div className="agenda-grid__wrap">
         <div className="agenda-grid" style={{ gridTemplateColumns: `88px repeat(7, 1fr)` }}>
           <div className="agenda-grid__corner" />
@@ -151,7 +134,7 @@ export default function AgendaPage() {
                       key={cellKey}
                       onClick={() => setActiveReservation(state.reservation)}
                     >
-                      {state.isLabelRow ? state.reservation.guestName : ''}
+                      {state.isLabelRow ? state.reservation.guestName || 'Reservado' : ''}
                     </button>
                   )
                 }
