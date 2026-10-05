@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
-import { resizeImageFile } from '../../lib/imageUpload'
+import ImageDropzone from '../ImageDropzone'
 import { SessionExpiredError } from '../../lib/api'
 import { createCourt, updateCourt, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
 import type { Court } from '../../lib/courts'
@@ -38,32 +38,10 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
     initialCustomValue(court?.surfaceType ?? '', SURFACE_OPTIONS),
   )
   const [hasLighting, setHasLighting] = useState(court?.hasLighting ?? false)
-  const [photoUrlsText, setPhotoUrlsText] = useState((court?.photoUrls ?? []).join('\n'))
-  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([])
+  const [photos, setPhotos] = useState<string[]>(court?.photoUrls ?? [])
   const [isUploadingPhotos, setIsUploadingPhotos] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
-
-  async function handlePhotoFiles(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? [])
-    event.target.value = ''
-    if (files.length === 0) return
-
-    setIsUploadingPhotos(true)
-    setError('')
-    try {
-      const dataUrls = await Promise.all(files.map((file) => resizeImageFile(file)))
-      setUploadedPhotos((prev) => [...prev, ...dataUrls])
-    } catch {
-      setError('Não foi possível processar uma das imagens enviadas')
-    } finally {
-      setIsUploadingPhotos(false)
-    }
-  }
-
-  function removeUploadedPhoto(index: number) {
-    setUploadedPhotos((prev) => prev.filter((_, i) => i !== index))
-  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -83,13 +61,7 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
 
     setIsSaving(true)
 
-    const photoUrls = [
-      ...photoUrlsText
-        .split('\n')
-        .map((url) => url.trim())
-        .filter(Boolean),
-      ...uploadedPhotos,
-    ]
+    const photoUrls = photos
 
     try {
       const input = { name, sport: finalSport, surfaceType: finalSurfaceType, hasLighting, photoUrls }
@@ -189,48 +161,17 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
             <span>Tem iluminação</span>
           </label>
 
-          <label className="court-modal__field field">
-            <span>Fotos (uma URL por linha, opcional)</span>
-            <textarea
-              className="input"
-              value={photoUrlsText}
-              onChange={(event) => setPhotoUrlsText(event.target.value)}
-              rows={2}
-              placeholder="https://..."
-            />
-          </label>
-
-          <label className="court-modal__field field">
-            <span>Ou envie fotos do seu dispositivo</span>
-            <input
-              className="input"
-              type="file"
-              accept="image/*"
+          <div className="court-modal__field field">
+            <span>Fotos da quadra</span>
+            <ImageDropzone
+              value={photos}
+              onChange={setPhotos}
+              onProcessingChange={setIsUploadingPhotos}
               multiple
-              onChange={handlePhotoFiles}
-              disabled={isUploadingPhotos}
+              max={6}
+              hint="Até 6 fotos. A primeira aparece como capa da quadra."
             />
-          </label>
-
-          {isUploadingPhotos && <p className="court-modal__hint">Processando imagens...</p>}
-
-          {uploadedPhotos.length > 0 && (
-            <div className="court-modal__photo-grid">
-              {uploadedPhotos.map((photo, index) => (
-                <div key={index} className="court-modal__photo-thumb">
-                  <img src={photo} alt={`Foto ${index + 1}`} />
-                  <button
-                    type="button"
-                    className="court-modal__photo-remove"
-                    onClick={() => removeUploadedPhoto(index)}
-                    aria-label="Remover foto"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
 
           {error && <p className="court-modal__error">{error}</p>}
 

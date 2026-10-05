@@ -7,6 +7,7 @@ import { fetchProfile, updateProfile } from '../lib/profile'
 import { fetchCep } from '../lib/cep'
 import { AMENITY_OPTIONS } from '../lib/amenities'
 import { showToast } from '../lib/toast'
+import ImageDropzone from '../components/ImageDropzone'
 import './SettingsPage.css'
 
 const TABS = [
@@ -321,22 +322,14 @@ export default function SettingsPage() {
               )}
             </label>
 
-            <label className="settings-page__field field">
-              <span>Foto de capa da lojinha (URL)</span>
-              <input
-                className="input"
-                value={coverPhotoUrl}
-                onChange={(event) => setCoverPhotoUrl(event.target.value)}
-                placeholder="https://..."
+            <div className="settings-page__field field">
+              <span>Foto de capa da lojinha</span>
+              <ImageDropzone
+                value={coverPhotoUrl ? [coverPhotoUrl] : []}
+                onChange={(photos) => setCoverPhotoUrl(photos[0] ?? '')}
+                hint="Aparece no topo da sua lojinha pública."
               />
-              <span className="settings-page__hint">
-                Aparece no topo da sua lojinha pública. Cole o link de uma imagem já hospedada em algum
-                lugar (Instagram, Google Drive público, etc.).
-              </span>
-              {coverPhotoUrl && (
-                <img src={coverPhotoUrl} alt="Prévia da foto de capa" className="settings-page__cover-preview" />
-              )}
-            </label>
+            </div>
 
             <label className="settings-page__field field">
               <span>Sobre o estabelecimento</span>

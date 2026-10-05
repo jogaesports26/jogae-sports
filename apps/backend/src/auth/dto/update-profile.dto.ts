@@ -47,7 +47,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(500)
+  @MaxLength(3_000_000)
   coverPhotoUrl?: string;
 
   @IsOptional()

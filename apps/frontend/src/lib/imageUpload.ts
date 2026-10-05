@@ -2,7 +2,7 @@
  * Lê um arquivo de imagem local e devolve uma data URL (base64) já redimensionada,
  * pra não estourar o tamanho da requisição/coluna do banco com fotos em resolução alta.
  */
-export function resizeImageFile(file: File, maxDim = 1600, quality = 0.82): Promise<string> {
+export function resizeImageFile(file: File, maxDim = 1280, quality = 0.78): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onerror = () => reject(reader.error ?? new Error('Não foi possível ler o arquivo'))
