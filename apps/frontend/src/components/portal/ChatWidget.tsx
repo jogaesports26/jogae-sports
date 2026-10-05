@@ -10,8 +10,17 @@ const GREETING: ChatMessage = {
   content: 'Oi! Posso te ajudar a achar uma quadra ou tirar dúvidas sobre como reservar. O que você precisa?',
 }
 
-export default function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false)
+interface ChatWidgetProps {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /** Com a barra de abas visível (mobile), o botão flutuante some e o chat abre pela aba "Assistente". */
+  tabbed?: boolean
+}
+
+export default function ChatWidget({ open, onOpenChange, tabbed = false }: ChatWidgetProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isOpen = open ?? internalOpen
+  const setIsOpen = onOpenChange ?? setInternalOpen
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -43,7 +52,7 @@ export default function ChatWidget() {
   }
 
   return (
-    <div className="chat-widget">
+    <div className={`chat-widget${tabbed ? ' chat-widget--tabbed' : ''}`}>
       {isOpen && (
         <div className="chat-widget__panel">
           <div className="chat-widget__header">
@@ -78,7 +87,7 @@ export default function ChatWidget() {
 
       <button
         className="chat-widget__toggle"
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Fechar assistente' : 'Abrir assistente'}
       >
         {isOpen ? (

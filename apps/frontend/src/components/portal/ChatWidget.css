@@ -156,3 +156,18 @@
     bottom: 112px;
   }
 }
+
+/* Com a barra de abas (mobile), o chat abre pela aba "Assistente": some o botão flutuante e o painel sobe acima da barra. */
+@media (max-width: 820px) {
+  .chat-widget--tabbed {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .chat-widget--tabbed .chat-widget__toggle {
+    display: none;
+  }
+
+  .chat-widget--tabbed .chat-widget__panel {
+    height: min(420px, calc(100svh - 190px));
+  }
+}

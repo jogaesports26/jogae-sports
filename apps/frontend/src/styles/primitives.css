@@ -315,6 +315,26 @@ textarea.input {
   color: var(--color-negative-text);
 }
 
+/* Placeholder de carregamento (skeleton): dá o tamanho com altura/largura/aspect-ratio no uso. */
+.skeleton {
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, #e9ebf3 25%, #f4f5fa 50%, #e9ebf3 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s linear infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-card);

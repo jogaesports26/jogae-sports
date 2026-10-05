@@ -1,12 +1,39 @@
-import { Link, Outlet, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, Outlet, useMatch, useParams } from 'react-router-dom'
 import { clearPlayerSession, getPlayerUser } from '../../lib/player'
 import { formatPhone } from '../../lib/phone'
 import ChatWidget from './ChatWidget'
+import PortalTabBar from './PortalTabBar'
 import './PortalLayout.css'
+
+const LAST_SLUG_KEY = 'jogae_last_slug'
+
+function readLastSlug() {
+  try {
+    return localStorage.getItem(LAST_SLUG_KEY)
+  } catch {
+    return null
+  }
+}
 
 export default function PortalLayout() {
   const player = getPlayerUser()
   const { slug } = useParams<{ slug?: string }>()
+  const isCourtPage = Boolean(useMatch('/:slug/:courtId'))
+  const [chatOpen, setChatOpen] = useState(false)
+
+  useEffect(() => {
+    if (!slug) return
+    try {
+      localStorage.setItem(LAST_SLUG_KEY, slug)
+    } catch {
+      // sem localStorage, o "Início" da barra some em Minhas reservas — não quebra nada
+    }
+  }, [slug])
+
+  // A tela da quadra já tem a barra fixa de reserva embaixo, então não mostra a barra de abas nela.
+  const showTabs = !isCourtPage
+  const homeSlug = slug ?? readLastSlug()
 
   function handleLogout() {
     clearPlayerSession()
@@ -14,7 +41,7 @@ export default function PortalLayout() {
   }
 
   return (
-    <div className="portal">
+    <div className={`portal${showTabs ? ' portal--tabbed' : ''}`}>
       <header className="portal__nav">
         {slug ? (
           <Link to={`/${slug}`} className="portal__logo">
@@ -44,7 +71,15 @@ export default function PortalLayout() {
         <Outlet context={{ basePath: slug ? `/${slug}` : '' }} />
       </main>
 
-      <ChatWidget />
+      <ChatWidget open={chatOpen} onOpenChange={setChatOpen} tabbed={showTabs} />
+
+      {showTabs && (
+        <PortalTabBar
+          homeHref={homeSlug ? `/${homeSlug}` : null}
+          chatOpen={chatOpen}
+          onToggleChat={() => setChatOpen((open) => !open)}
+        />
+      )}
     </div>
   )
 }

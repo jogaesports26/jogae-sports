@@ -165,3 +165,19 @@
   color: var(--color-dark);
   opacity: 0.65;
 }
+
+.player-reservations-page__skeleton {
+  height: 150px;
+  border-radius: var(--radius-md);
+}
+
+.player-reservations-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.player-reservations-page__empty p {
+  margin: 0;
+}
