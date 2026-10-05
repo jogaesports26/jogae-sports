@@ -105,18 +105,18 @@ export default function AvaliacoesPage() {
       )}
 
       {reviews !== null && reviews.length > 0 && (
-        <div className="avaliacoes-page__list">
+        <div className="list-stack avaliacoes-page__list">
           {reviews.map((review) => (
-            <div key={review.id} className="avaliacoes-page__item card">
-              <div className="avaliacoes-page__item-header">
+            <div key={review.id} className="list-card avaliacoes-page__item">
+              <div className="list-card__header">
                 <div>
                   <span className="avaliacoes-page__stars">
                     {'★'.repeat(review.rating)}
                     {'☆'.repeat(5 - review.rating)}
                   </span>
-                  <span className="avaliacoes-page__court">{review.court.name}</span>
+                  <strong className="list-card__title">{review.court.name}</strong>
                 </div>
-                <span className="avaliacoes-page__meta">
+                <span className="list-card__meta">
                   {review.player.name ?? 'Jogador'} · {formatDate(review.createdAt)}
                 </span>
               </div>

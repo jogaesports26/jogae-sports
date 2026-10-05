@@ -251,6 +251,70 @@ textarea.input {
   }
 }
 
+/* Padrão único de card de listagem (Cupons, Equipamentos, Fila de espera, Manutenção,
+   Avaliações): cabeçalho com título + status/ação, linha de meta em cinza, ações no rodapé. */
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.list-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft-sm);
+  font-family: var(--font-body);
+}
+
+.list-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.list-card__title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.list-card__meta {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.list-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.list-card__remove {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-border);
+  color: var(--color-dark);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.list-card__remove:hover {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-card);
