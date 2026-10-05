@@ -6,167 +6,123 @@
 }
 
 .player-reservations-page__list {
+  max-width: 640px;
+}
+
+.player-reservation-card__title {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2px;
+  min-width: 0;
 }
 
-.player-reservation-card {
+.player-reservation-card__when {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  background: var(--color-white);
-  border: none;
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft-sm);
-  padding: 18px;
-  font-family: var(--font-body);
-}
-
-.player-reservation-card strong {
-  font-size: 15px;
-}
-
-.player-reservation-card__establishment {
-  font-size: 13px;
-  color: var(--color-text-secondary);
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .player-reservation-card__time {
-  font-size: 13px;
-  color: var(--color-primary);
+  font-size: 14px;
   font-weight: 600;
-  margin-top: 4px;
+  color: var(--color-primary);
 }
 
 .player-reservation-card__price {
-  font-size: 13px;
-  opacity: 0.7;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
 }
 
 .player-reservation-card__actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.player-reservation-card__status {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  background: var(--color-border);
-  color: var(--color-text-secondary);
+.player-reservation-card__actions > .btn {
+  flex: 1 1 140px;
 }
 
-.player-reservation-card__status--confirmed {
-  background: var(--color-positive-bg);
-  color: var(--color-positive-text);
+.player-reservation-card__menu-wrap {
+  position: relative;
 }
 
-.player-reservation-card__status--completed {
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
+.player-reservation-card__menu-button {
+  width: 44px;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 18px;
 }
 
-.player-reservation-card__status--no_show {
-  background: var(--color-negative-bg);
-  color: var(--color-negative-text);
+.player-reservation-card__menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 10;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-soft-lg);
 }
 
-.player-reservation-card__review-button {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-info-bg);
+.player-reservation-card__menu > a,
+.player-reservation-card__menu > button {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
   border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.player-reservation-card__reviewed {
-  font-size: 13px;
-  color: #b8860b;
-  letter-spacing: 1px;
-}
-
-.player-reservation-card__actions .player-reservation-card__share-button {
-  display: inline-block;
+  border-radius: var(--radius-sm);
+  background: transparent;
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-info-bg);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dark);
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
 }
 
+.player-reservation-card__menu > a:hover,
+.player-reservation-card__menu > button:hover {
+  background: var(--color-background);
+}
+
+.player-reservation-card__menu > .player-reservation-card__menu-danger {
+  color: var(--color-negative-text);
+}
+
+.player-reservation-card__reviewed {
+  font-size: 15px;
+  color: #b8860b;
+  letter-spacing: 1px;
+}
+
 .player-reservation-card__share-feedback {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-positive-text);
-  margin-top: 4px;
 }
 
 .player-reservation-card__reschedule-form {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 10px;
   padding: 12px;
   background: var(--color-background);
   border-radius: var(--radius-sm);
-  max-width: 260px;
 }
 
 .player-reservation-card__reschedule-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 2px;
-}
-
-.player-reservation-card__reschedule-cancel {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  background: var(--color-border);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.player-reservation-card__reschedule-confirm {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-dark-navy);
-  background: var(--color-accent-green);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.player-reservation-card__actions button {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-negative-text);
-  background: var(--color-negative-bg);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 4px 10px;
-  cursor: pointer;
+  flex-wrap: wrap;
 }
 
 .player-reservations-page__empty {
