@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { UIEvent } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { fetchCourtReviews, fetchPublicAgenda, fetchPublicCourt } from '../lib/player'
 import type { AgendaResponse } from '../lib/reservations'
@@ -19,6 +20,8 @@ import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportI
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import HeartToggle from '../components/HeartToggle'
+import { shareOrCopy } from '../lib/share'
+import { showToast } from '../lib/toast'
 import './CourtBookingPage.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -40,6 +43,52 @@ const SPORT_ICONS: Record<string, typeof SoccerBall> = {
 function sportIcon(value: string) {
   const Icon = SPORT_ICONS[value] ?? Trophy
   return <Icon />
+}
+
+type Period = 'manha' | 'tarde' | 'noite'
+
+const PERIODS: { key: Period; label: string }[] = [
+  { key: 'manha', label: 'Manhã' },
+  { key: 'tarde', label: 'Tarde' },
+  { key: 'noite', label: 'Noite' },
+]
+
+function periodOf(minute: number): Period {
+  if (minute < 12 * 60) return 'manha'
+  if (minute < 18 * 60) return 'tarde'
+  return 'noite'
+}
+
+function formatDayLabel(day: Date) {
+  const dd = String(day.getDate()).padStart(2, '0')
+  const mm = String(day.getMonth() + 1).padStart(2, '0')
+  return `${WEEKDAY_SHORT[day.getDay()]}, ${dd}/${mm}/${day.getFullYear()}`
+}
+
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="10" r="2.3" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  )
+}
+
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 15V4m0 0L8 8m4-4 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 interface PendingSlot {
@@ -77,6 +126,9 @@ export default function CourtBookingPage() {
   const [pendingSlot, setPendingSlot] = useState<PendingSlot | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<PendingSlot | null>(null)
   const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
+  const [period, setPeriod] = useState<Period | null>(null)
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const [amenitiesOpen, setAmenitiesOpen] = useState(false)
 
   async function load() {
     if (!courtId) return
@@ -109,7 +161,7 @@ export default function CourtBookingPage() {
   const days = Array.from({ length: 7 }, (_, i) => addDays(today, i))
   const selectedDay = days[selectedDayIndex]
   const selectedDayOfWeek = selectedDay.getDay()
-  const selectedDayLabel = `${WEEKDAY_SHORT[selectedDayOfWeek]} ${selectedDay.getDate()}`
+  const selectedDayLabel = formatDayLabel(selectedDay)
 
   const dayGrid = getDayStepGrid(selectedDayOfWeek, court.bookingStepMinutes, agenda.priceRules)
 
@@ -153,7 +205,25 @@ export default function CourtBookingPage() {
   const lowestPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : null
   const hasPriceVariation = lowestPrice !== null && Math.max(...availablePrices) > lowestPrice
 
-  const heroPhoto = court.photoUrls[0]
+  const periodsWithSlots = PERIODS.filter((item) => slots.some((slot) => periodOf(slot.startMinute) === item.key))
+  const activePeriod =
+    period && periodsWithSlots.some((item) => item.key === period) ? period : (periodsWithSlots[0]?.key ?? null)
+  const visibleSlots = periodsWithSlots.length > 1 ? slots.filter((slot) => periodOf(slot.startMinute) === activePeriod) : slots
+  const availableCountByPeriod = (key: Period) =>
+    slots.filter((slot) => slot.kind === 'available' && periodOf(slot.startMinute) === key).length
+
+  const amenities = [
+    surfaceLabel(court.surfaceType),
+    ...(court.hasLighting ? ['Iluminação'] : []),
+    `Reserva mínima de ${formatDuration(court.minBookingMinutes)}`,
+    ...(court.maxBookingMinutes != null ? [`Até ${formatDuration(court.maxBookingMinutes)} por reserva`] : []),
+    'Cancelamento até 2h antes',
+  ]
+  const visibleAmenities = amenitiesOpen ? amenities : amenities.slice(0, 4)
+  const fromPrice =
+    agenda.priceRules.length > 0 ? Math.min(...agenda.priceRules.map((rule) => Number(rule.pricePerHour))) : null
+
+  const photos = court.photoUrls
   const establishmentName = court.owner.establishmentName
 
   function selectDay(index: number) {
@@ -166,6 +236,21 @@ export default function CourtBookingPage() {
     setPendingSlot(null)
   }
 
+  function handleCarouselScroll(event: UIEvent<HTMLDivElement>) {
+    const el = event.currentTarget
+    setPhotoIndex(Math.round(el.scrollLeft / Math.max(el.clientWidth, 1)))
+  }
+
+  async function handleShare() {
+    const result = await shareOrCopy({
+      title: court!.name,
+      text: `Olha essa quadra: ${court!.name}`,
+      url: `${window.location.origin}${basePath}/${court!.id}`,
+    })
+    if (result === 'copied') showToast('Link copiado!', 'success')
+    if (result === 'failed') showToast('Não deu pra compartilhar. Copie o link da barra de endereço.', 'error')
+  }
+
   function confirmPendingSlot() {
     if (pendingSlot) setSelectedSlot(pendingSlot)
   }
@@ -174,8 +259,12 @@ export default function CourtBookingPage() {
     <div className="booking-page">
       <div className="booking-hero">
         <div className="booking-hero__media">
-          {heroPhoto ? (
-            <img src={heroPhoto} alt="" className="booking-hero__photo" />
+          {photos.length > 0 ? (
+            <div className="booking-hero__carousel" onScroll={handleCarouselScroll}>
+              {photos.map((photo, index) => (
+                <img key={`${index}-${photo.slice(-16)}`} src={photo} alt={index === 0 ? court.name : ''} className="booking-hero__photo" />
+              ))}
+            </div>
           ) : (
             <div className="booking-hero__fallback">{sportIcon(court.sport)}</div>
           )}
@@ -184,28 +273,67 @@ export default function CourtBookingPage() {
             ←
           </Link>
           <HeartToggle courtId={court.id} className="booking-hero__favorite" />
-          <div className="booking-hero__content">
-            <h1>{court.name}</h1>
+          <button type="button" className="booking-hero__share" onClick={handleShare} aria-label="Compartilhar quadra">
+            <ShareIcon />
+          </button>
+          {photos.length > 1 && (
+            <div className="booking-hero__dots" aria-hidden="true">
+              {photos.map((_, index) => (
+                <span key={index} className={`booking-hero__dot${index === photoIndex ? ' booking-hero__dot--active' : ''}`} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="booking-sheet">
+          <h1>{court.name}</h1>
+          <div className="booking-sheet__meta">
+            {(court.owner.establishmentAddress || establishmentName) && (
+              <span className="booking-sheet__place">
+                <PinIcon />
+                {court.owner.establishmentAddress ?? establishmentName}
+              </span>
+            )}
             {court.reviewCount > 0 && (
-              <span className="booking-hero__rating">
-                ★ {court.averageRating?.toFixed(1)} · {court.reviewCount} avaliações
+              <span className="booking-sheet__rating">
+                ★ {court.averageRating?.toFixed(1)}
+                {' · '}
+                <a href="#avaliacoes">
+                  {court.reviewCount} {court.reviewCount === 1 ? 'avaliação' : 'avaliações'}
+                </a>
               </span>
             )}
           </div>
-        </div>
+          {establishmentName && <p className="booking-hero__establishment">{establishmentName}</p>}
 
-        <div className="booking-hero__tags">
-          <span className="pill pill--info">{sportLabel(court.sport)}</span>
-          <span className="pill pill--neutral">{surfaceLabel(court.surfaceType)}</span>
-          {court.hasLighting && <span className="pill pill--neutral">Com iluminação</span>}
-        </div>
+          <div className="booking-hero__tags">
+            <span className="pill pill--info">{sportLabel(court.sport)}</span>
+            <span className="pill pill--neutral">{surfaceLabel(court.surfaceType)}</span>
+            {court.hasLighting && <span className="pill pill--neutral">Com iluminação</span>}
+          </div>
 
-        {establishmentName && (
-          <p className="booking-hero__establishment">
-            {establishmentName}
-            {court.owner.establishmentAddress ? ` · ${court.owner.establishmentAddress}` : ''}
-          </p>
-        )}
+          {fromPrice !== null && (
+            <p className="booking-sheet__price">
+              <span className="booking-sheet__price-label">a partir de</span>
+              <strong>{formatSlotPrice(fromPrice)}</strong>
+              <span className="booking-sheet__price-label">por hora</span>
+            </p>
+          )}
+
+          <ul className="booking-amenities">
+            {visibleAmenities.map((item) => (
+              <li key={item}>
+                <CheckIcon />
+                {item}
+              </li>
+            ))}
+          </ul>
+          {amenities.length > 4 && (
+            <button type="button" className="booking-sheet__more" onClick={() => setAmenitiesOpen((open) => !open)}>
+              {amenitiesOpen ? 'Ver menos' : 'Ver mais'}
+            </button>
+          )}
+        </div>
       </div>
 
       <section className="booking-section">
@@ -264,8 +392,25 @@ export default function CourtBookingPage() {
                 Preço total pra {formatDuration(duration)}. Em verde, os horários mais baratos do dia.
               </p>
             )}
+            {periodsWithSlots.length > 1 && (
+              <div className="period-tabs" role="tablist" aria-label="Período do dia">
+                {periodsWithSlots.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={activePeriod === item.key}
+                    className={`period-tab${activePeriod === item.key ? ' period-tab--active' : ''}`}
+                    onClick={() => setPeriod(item.key)}
+                  >
+                    {item.label}
+                    <span className="period-tab__count">{availableCountByPeriod(item.key)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="time-pills">
-              {slots.map((slot) => {
+              {visibleSlots.map((slot) => {
                 if (slot.kind === 'taken') {
                   return (
                     <div key={slot.startMinute} className="time-pill time-pill--taken">
@@ -322,7 +467,7 @@ export default function CourtBookingPage() {
       </section>
 
       {reviews.length > 0 && (
-        <section className="booking-section booking-page__reviews">
+        <section id="avaliacoes" className="booking-section booking-page__reviews">
           <h2 className="booking-section__title">O que os clientes acharam</h2>
           <div className="booking-page__reviews-list">
             {reviews.map((review) => (
