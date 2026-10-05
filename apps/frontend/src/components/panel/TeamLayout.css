@@ -1,0 +1,15 @@
+.team h1 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.team__subtitle {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  opacity: 0.65;
+  font-size: 15px;
+  max-width: 620px;
+  margin-bottom: 20px;
+}

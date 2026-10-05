@@ -85,16 +85,6 @@ function IconEquipment() {
   )
 }
 
-function IconStaff() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="10.5" r="2.2" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8 15.5c.6-1.6 2-2.5 4-2.5s3.4.9 4 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function IconReviews() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -131,7 +121,6 @@ const NAV_ITEMS = [
   { to: '/painel/cupons', label: 'Cupons', Icon: IconCoupon, end: false, ownerOnly: true },
   { to: '/painel/equipamentos', label: 'Equipamentos', Icon: IconEquipment, end: false, ownerOnly: true },
   { to: '/painel/avaliacoes', label: 'Avaliações', Icon: IconReviews, end: false, ownerOnly: true },
-  { to: '/painel/funcionarios', label: 'Funcionários', Icon: IconStaff, end: false, ownerOnly: true },
   { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false, ownerOnly: true },
 ]
 

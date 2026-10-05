@@ -69,12 +69,12 @@ export default function CourtDetailLayout() {
         </p>
       </div>
 
-      <nav className="court-detail__tabs">
+      <nav className="tabs">
         {tabs.map((tab) => (
           <NavLink
             key={tab.to}
             to={tab.to}
-            className={({ isActive }) => `court-detail__tab ${isActive ? 'court-detail__tab--active' : ''}`}
+            className={({ isActive }) => `tab ${isActive ? 'tab--active' : ''}`}
           >
             {tab.label}
           </NavLink>

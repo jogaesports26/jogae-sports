@@ -1,10 +1,3 @@
-.instructors-page h1 {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  color: var(--color-dark);
-  margin-bottom: 4px;
-}
-
 .instructors-page__subtitle {
   font-family: var(--font-body);
   color: var(--color-dark);
