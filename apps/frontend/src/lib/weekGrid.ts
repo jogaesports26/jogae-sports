@@ -41,21 +41,42 @@ export function addDays(date: Date, days: number) {
 }
 
 export interface GridRow {
-  key: string
   startMinute: number
   endMinute: number
 }
 
-/** Union of every distinct (start,end) block across all days, sorted — the row axis of the grid. */
-export function buildGridRows(priceRules: PriceRule[]): GridRow[] {
-  const seen = new Map<string, GridRow>()
+/** Janela padrão da grade da Agenda quando a quadra não tem preço/bloqueio fora dela. */
+export const AGENDA_DEFAULT_START_MINUTE = 6 * 60
+export const AGENDA_DEFAULT_END_MINUTE = 23 * 60
+export const AGENDA_ROW_STEP_MINUTES = 60
+
+/**
+ * Grade de horas cheias da Agenda, independente de preço — cada hora do dia vira uma linha,
+ * exista ou não regra de preço cadastrada pra ela (ver `getAgendaCellState` pra decidir o
+ * estado de cada célula). A janela padrão é 06:00–23:00, ampliada automaticamente se algum
+ * preço ou bloqueio recorrente da quadra cair fora dela, pra nunca esconder dado real.
+ */
+export function buildAgendaGridRows(priceRules: PriceRule[], recurringBlocks: RecurringMaintenanceBlock[]): GridRow[] {
+  let rangeStart = AGENDA_DEFAULT_START_MINUTE
+  let rangeEnd = AGENDA_DEFAULT_END_MINUTE
+
   for (const rule of priceRules) {
-    const key = `${rule.startMinute}-${rule.endMinute}`
-    if (!seen.has(key)) {
-      seen.set(key, { key, startMinute: rule.startMinute, endMinute: rule.endMinute })
-    }
+    rangeStart = Math.min(rangeStart, rule.startMinute)
+    rangeEnd = Math.max(rangeEnd, rule.endMinute)
   }
-  return [...seen.values()].sort((a, b) => a.startMinute - b.startMinute)
+  for (const block of recurringBlocks) {
+    rangeStart = Math.min(rangeStart, block.startMinute)
+    rangeEnd = Math.max(rangeEnd, block.endMinute)
+  }
+
+  rangeStart = Math.floor(rangeStart / AGENDA_ROW_STEP_MINUTES) * AGENDA_ROW_STEP_MINUTES
+  rangeEnd = Math.ceil(rangeEnd / AGENDA_ROW_STEP_MINUTES) * AGENDA_ROW_STEP_MINUTES
+
+  const rows: GridRow[] = []
+  for (let start = rangeStart; start < rangeEnd; start += AGENDA_ROW_STEP_MINUTES) {
+    rows.push({ startMinute: start, endMinute: start + AGENDA_ROW_STEP_MINUTES })
+  }
+  return rows
 }
 
 export interface CellOccupant {
@@ -132,6 +153,43 @@ export function sumPriceForRange(
   }
 
   return Math.round(total * 100) / 100
+}
+
+export type AgendaCellState =
+  | { kind: 'reserved'; reservation: Reservation; isLabelRow: boolean }
+  | { kind: 'blocked' }
+  | { kind: 'available' }
+  | { kind: 'noPrice' }
+
+/**
+ * Estado de uma célula da grade (dia x hora cheia) da Agenda. Ocupante (reserva/bloqueio)
+ * e preço são checados como duas camadas independentes — uma reserva ou bloqueio aparece
+ * mesmo numa hora sem preço cadastrado, em vez de sumir da grade como acontecia antes.
+ */
+export function getAgendaCellState(
+  dayOfWeek: number,
+  row: GridRow,
+  priceRules: PriceRule[],
+  dayDate: Date,
+  reservations: Reservation[],
+  blocks: MaintenanceBlock[],
+  recurringBlocks: RecurringMaintenanceBlock[],
+): AgendaCellState {
+  const occupant = findOccupant(dayDate, row.startMinute, row.endMinute, reservations, blocks, recurringBlocks)
+
+  if (occupant?.type === 'reservation' && occupant.reservation) {
+    const start = new Date(occupant.reservation.startsAt)
+    const startMinuteOfDay = start.getHours() * 60 + start.getMinutes()
+    const isLabelRow = startMinuteOfDay >= row.startMinute && startMinuteOfDay < row.endMinute
+    return { kind: 'reserved', reservation: occupant.reservation, isLabelRow }
+  }
+
+  if (occupant?.type === 'block' || occupant?.type === 'recurringBlock') {
+    return { kind: 'blocked' }
+  }
+
+  const hasPrice = sumPriceForRange(dayOfWeek, row.startMinute, row.endMinute, priceRules) !== null
+  return hasPrice ? { kind: 'available' } : { kind: 'noPrice' }
 }
 
 /** Um intervalo [startMinute, endMinute) tem preço definido e está livre de ocupantes. */
