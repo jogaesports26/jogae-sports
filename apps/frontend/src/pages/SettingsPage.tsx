@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { fetchProfile, updateProfile } from '../lib/profile'
@@ -7,6 +8,14 @@ import { fetchCep } from '../lib/cep'
 import { AMENITY_OPTIONS } from '../lib/amenities'
 import { showToast } from '../lib/toast'
 import './SettingsPage.css'
+
+const TABS = [
+  { key: 'geral', label: 'Geral' },
+  { key: 'lojinha', label: 'Lojinha pública' },
+  { key: 'metas', label: 'Metas' },
+] as const
+
+type TabKey = (typeof TABS)[number]['key']
 
 function slugify(value: string) {
   return value
@@ -21,6 +30,9 @@ function slugify(value: string) {
 
 export default function SettingsPage() {
   const { onSessionExpired } = usePainelContext()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedTab = searchParams.get('aba')
+  const tab: TabKey = TABS.find((item) => item.key === requestedTab)?.key ?? 'geral'
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
@@ -189,172 +201,192 @@ export default function SettingsPage() {
         <p className="settings-page__loading">Carregando...</p>
       ) : (
         <form className="settings-page__form" onSubmit={handleSubmit}>
-          <label className="settings-page__field field">
-            <span>Nome do estabelecimento</span>
-            <input
-              className="input"
-              value={name}
-              onChange={(event) => handleNameChange(event.target.value)}
-              placeholder="Ex: Arena Gol de Placa"
-            />
-          </label>
-
-          <label className="settings-page__field field">
-            <span>Link da sua lojinha</span>
-            <div className="settings-page__slug-row">
-              <span className="settings-page__slug-prefix">jogae.com/</span>
-              <input
-                className="input"
-                value={slug}
-                onChange={(event) => handleSlugChange(event.target.value)}
-                placeholder="arena-gol-de-placa"
-              />
-            </div>
-            <span className="settings-page__hint">
-              É esse link que você compartilha com seus clientes pra eles reservarem — no
-              WhatsApp, Instagram ou num QR code na recepção.
-            </span>
-            {slug && (
-              <div className="settings-page__slug-preview">
-                <span>{`${window.location.origin}/${slug}`}</span>
-                <button type="button" onClick={handleCopyLink}>
-                  {linkCopied ? 'Copiado!' : 'Copiar link'}
-                </button>
-              </div>
-            )}
-            {slug && (
-              <div className="settings-page__qrcode">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`${window.location.origin}/${slug}`)}`}
-                  alt={`QR code da lojinha ${slug}`}
-                  width={96}
-                  height={96}
-                />
-                <div className="settings-page__qrcode-info">
-                  <span>QR code da lojinha</span>
-                  <p>Imprima e deixe na recepção pra clientes escanearem e reservarem direto pelo celular.</p>
-                  <button type="button" onClick={handleDownloadQr}>
-                    Baixar QR code
-                  </button>
-                  {qrError && <span className="settings-page__qrcode-error">{qrError}</span>}
-                </div>
-              </div>
-            )}
-            {slug && (
-              <div className="settings-page__embed">
-                <span className="settings-page__embed-title">Widget pra embutir no seu site</span>
-                <p className="settings-page__hint">
-                  Cole esse código numa página do seu site pra mostrar suas quadras e deixar os
-                  clientes reservarem sem sair de lá.
-                </p>
-                <code className="settings-page__embed-code">{buildEmbedCode()}</code>
-                <button type="button" onClick={handleCopyEmbedCode}>
-                  {embedCodeCopied ? 'Copiado!' : 'Copiar código'}
-                </button>
-              </div>
-            )}
-          </label>
-
-          <label className="settings-page__field field">
-            <span>Telefone de contato</span>
-            <input
-              className="input"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="(85) 99999-9999"
-            />
-          </label>
-
-          <label className="settings-page__field field">
-            <span>CEP</span>
-            <div className="settings-page__cep-row">
-              <input
-                className="input"
-                value={cep}
-                onChange={(event) => setCep(event.target.value)}
-                placeholder="60000-000"
-                maxLength={9}
-              />
-              <button type="button" onClick={handleCepLookup} disabled={cepLoading}>
-                {cepLoading ? 'Buscando...' : 'Buscar'}
+          <nav className="tabs" aria-label="Seções das configurações">
+            {TABS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={`tab ${tab === item.key ? 'tab--active' : ''}`}
+                aria-current={tab === item.key ? 'page' : undefined}
+                onClick={() => setSearchParams(item.key === 'geral' ? {} : { aba: item.key }, { replace: true })}
+              >
+                {item.label}
               </button>
-            </div>
-            {cepError && <span className="settings-page__cep-error">{cepError}</span>}
-          </label>
+            ))}
+          </nav>
 
-          <label className="settings-page__field field">
-            <span>Endereço</span>
-            <input
-              className="input"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              placeholder="Rua, número, bairro, cidade"
-            />
-          </label>
+          <div className="settings-page__section" hidden={tab !== 'geral'}>
+            <label className="settings-page__field field">
+              <span>Nome do estabelecimento</span>
+              <input
+                className="input"
+                value={name}
+                onChange={(event) => handleNameChange(event.target.value)}
+                placeholder="Ex: Arena Gol de Placa"
+              />
+            </label>
 
-          <label className="settings-page__field field">
-            <span>Foto de capa da lojinha (URL)</span>
-            <input
-              className="input"
-              value={coverPhotoUrl}
-              onChange={(event) => setCoverPhotoUrl(event.target.value)}
-              placeholder="https://..."
-            />
-            <span className="settings-page__hint">
-              Aparece no topo da sua lojinha pública. Cole o link de uma imagem já hospedada em algum
-              lugar (Instagram, Google Drive público, etc.).
-            </span>
-            {coverPhotoUrl && (
-              <img src={coverPhotoUrl} alt="Prévia da foto de capa" className="settings-page__cover-preview" />
-            )}
-          </label>
+            <label className="settings-page__field field">
+              <span>Telefone de contato</span>
+              <input
+                className="input"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="(85) 99999-9999"
+              />
+            </label>
 
-          <label className="settings-page__field field">
-            <span>Sobre o estabelecimento</span>
-            <textarea
-              className="input"
-              value={aboutDescription}
-              onChange={(event) => setAboutDescription(event.target.value)}
-              placeholder="Conte um pouco sobre o espaço: história, diferenciais, horário de funcionamento..."
-              rows={4}
-              maxLength={1000}
-            />
-            <span className="settings-page__hint">Aparece na sua lojinha pública, abaixo das quadras.</span>
-          </label>
+            <label className="settings-page__field field">
+              <span>CEP</span>
+              <div className="settings-page__cep-row">
+                <input
+                  className="input"
+                  value={cep}
+                  onChange={(event) => setCep(event.target.value)}
+                  placeholder="60000-000"
+                  maxLength={9}
+                />
+                <button type="button" onClick={handleCepLookup} disabled={cepLoading}>
+                  {cepLoading ? 'Buscando...' : 'Buscar'}
+                </button>
+              </div>
+              {cepError && <span className="settings-page__cep-error">{cepError}</span>}
+            </label>
 
-          <div className="settings-page__field field">
-            <span>Comodidades</span>
-            <div className="settings-page__amenities">
-              {AMENITY_OPTIONS.map((option) => (
-                <label key={option.value} className="settings-page__amenity">
-                  <input
-                    type="checkbox"
-                    checked={amenities.includes(option.value)}
-                    onChange={() => toggleAmenity(option.value)}
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-            <span className="settings-page__hint">Aparecem como tags na sua lojinha pública.</span>
+            <label className="settings-page__field field">
+              <span>Endereço</span>
+              <input
+                className="input"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder="Rua, número, bairro, cidade"
+              />
+            </label>
           </div>
 
-          <label className="settings-page__field field">
-            <span>Meta de faturamento mensal</span>
-            <div className="settings-page__slug-row">
-              <span className="settings-page__slug-prefix">R$</span>
+          <div className="settings-page__section" hidden={tab !== 'lojinha'}>
+            <label className="settings-page__field field">
+              <span>Link da sua lojinha</span>
+              <div className="settings-page__slug-row">
+                <span className="settings-page__slug-prefix">jogae.com/</span>
+                <input
+                  className="input"
+                  value={slug}
+                  onChange={(event) => handleSlugChange(event.target.value)}
+                  placeholder="arena-gol-de-placa"
+                />
+              </div>
+              <span className="settings-page__hint">
+                É esse link que você compartilha com seus clientes pra eles reservarem — no
+                WhatsApp, Instagram ou num QR code na recepção.
+              </span>
+              {slug && (
+                <div className="settings-page__slug-preview">
+                  <span>{`${window.location.origin}/${slug}`}</span>
+                  <button type="button" onClick={handleCopyLink}>
+                    {linkCopied ? 'Copiado!' : 'Copiar link'}
+                  </button>
+                </div>
+              )}
+              {slug && (
+                <div className="settings-page__qrcode">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`${window.location.origin}/${slug}`)}`}
+                    alt={`QR code da lojinha ${slug}`}
+                    width={96}
+                    height={96}
+                  />
+                  <div className="settings-page__qrcode-info">
+                    <span>QR code da lojinha</span>
+                    <p>Imprima e deixe na recepção pra clientes escanearem e reservarem direto pelo celular.</p>
+                    <button type="button" onClick={handleDownloadQr}>
+                      Baixar QR code
+                    </button>
+                    {qrError && <span className="settings-page__qrcode-error">{qrError}</span>}
+                  </div>
+                </div>
+              )}
+              {slug && (
+                <div className="settings-page__embed">
+                  <span className="settings-page__embed-title">Widget pra embutir no seu site</span>
+                  <p className="settings-page__hint">
+                    Cole esse código numa página do seu site pra mostrar suas quadras e deixar os
+                    clientes reservarem sem sair de lá.
+                  </p>
+                  <code className="settings-page__embed-code">{buildEmbedCode()}</code>
+                  <button type="button" onClick={handleCopyEmbedCode}>
+                    {embedCodeCopied ? 'Copiado!' : 'Copiar código'}
+                  </button>
+                </div>
+              )}
+            </label>
+
+            <label className="settings-page__field field">
+              <span>Foto de capa da lojinha (URL)</span>
               <input
                 className="input"
-                value={monthlyRevenueGoal}
-                onChange={(event) => setMonthlyRevenueGoal(event.target.value)}
-                placeholder="5000"
-                inputMode="decimal"
+                value={coverPhotoUrl}
+                onChange={(event) => setCoverPhotoUrl(event.target.value)}
+                placeholder="https://..."
               />
+              <span className="settings-page__hint">
+                Aparece no topo da sua lojinha pública. Cole o link de uma imagem já hospedada em algum
+                lugar (Instagram, Google Drive público, etc.).
+              </span>
+              {coverPhotoUrl && (
+                <img src={coverPhotoUrl} alt="Prévia da foto de capa" className="settings-page__cover-preview" />
+              )}
+            </label>
+
+            <label className="settings-page__field field">
+              <span>Sobre o estabelecimento</span>
+              <textarea
+                className="input"
+                value={aboutDescription}
+                onChange={(event) => setAboutDescription(event.target.value)}
+                placeholder="Conte um pouco sobre o espaço: história, diferenciais, horário de funcionamento..."
+                rows={4}
+                maxLength={1000}
+              />
+              <span className="settings-page__hint">Aparece na sua lojinha pública, abaixo das quadras.</span>
+            </label>
+
+            <div className="settings-page__field field">
+              <span>Comodidades</span>
+              <div className="settings-page__amenities">
+                {AMENITY_OPTIONS.map((option) => (
+                  <label key={option.value} className="settings-page__amenity">
+                    <input
+                      type="checkbox"
+                      checked={amenities.includes(option.value)}
+                      onChange={() => toggleAmenity(option.value)}
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </div>
+              <span className="settings-page__hint">Aparecem como tags na sua lojinha pública.</span>
             </div>
-            <span className="settings-page__hint">
-              Usada pra mostrar o progresso do mês na tela de relatórios.
-            </span>
-          </label>
+          </div>
+
+          <div className="settings-page__section" hidden={tab !== 'metas'}>
+            <label className="settings-page__field field">
+              <span>Meta de faturamento mensal</span>
+              <div className="settings-page__slug-row">
+                <span className="settings-page__slug-prefix">R$</span>
+                <input
+                  className="input"
+                  value={monthlyRevenueGoal}
+                  onChange={(event) => setMonthlyRevenueGoal(event.target.value)}
+                  placeholder="5000"
+                  inputMode="decimal"
+                />
+              </div>
+              <span className="settings-page__hint">
+                Usada pra mostrar o progresso do mês na tela de relatórios.
+              </span>
+            </label>
+          </div>
 
           {error && <p className="settings-page__error">{error}</p>}
 
