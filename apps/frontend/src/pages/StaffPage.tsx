@@ -86,7 +86,6 @@ export default function StaffPage() {
 
   return (
     <div className="staff-page">
-      <h1>Funcionários</h1>
       <p className="staff-page__subtitle">
         Cadastre e-mail e senha pro funcionário entrar no painel (aba "Sou funcionário" na tela de login). Ele só vê Visão geral e Quadras, com a agenda liberada conforme a permissão.
       </p>

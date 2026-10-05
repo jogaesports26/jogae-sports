@@ -67,7 +67,6 @@ export default function InstructorsPage() {
 
   return (
     <div className="instructors-page">
-      <h1>Equipe</h1>
       <p className="instructors-page__subtitle">
         Professores e instrutores da sua arena — associe um a uma reserva na hora de lançar.
       </p>

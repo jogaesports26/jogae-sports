@@ -15,6 +15,7 @@ import CourtWaitlistPage from './pages/CourtWaitlistPage'
 import CourtMaintenancePage from './pages/CourtMaintenancePage'
 import ReportsPage from './pages/ReportsPage'
 import CustomersPage from './pages/CustomersPage'
+import TeamLayout from './components/panel/TeamLayout'
 import InstructorsPage from './pages/InstructorsPage'
 import CouponsPage from './pages/CouponsPage'
 import EquipmentPage from './pages/EquipmentPage'
@@ -51,11 +52,15 @@ function App() {
           </Route>
           <Route path="relatorios" element={<ReportsPage />} />
           <Route path="clientes" element={<CustomersPage />} />
-          <Route path="equipe" element={<InstructorsPage />} />
+          <Route path="equipe" element={<TeamLayout />}>
+            <Route index element={<Navigate to="instrutores" replace />} />
+            <Route path="instrutores" element={<InstructorsPage />} />
+            <Route path="acesso" element={<StaffPage />} />
+          </Route>
           <Route path="cupons" element={<CouponsPage />} />
           <Route path="equipamentos" element={<EquipmentPage />} />
           <Route path="avaliacoes" element={<AvaliacoesPage />} />
-          <Route path="funcionarios" element={<StaffPage />} />
+          <Route path="funcionarios" element={<Navigate to="/painel/equipe/acesso" replace />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>
         <Route path="/minhas-reservas" element={<PortalLayout />}>
