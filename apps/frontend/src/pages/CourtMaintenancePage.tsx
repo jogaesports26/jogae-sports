@@ -90,20 +90,23 @@ export default function CourtMaintenancePage() {
       )}
 
       {blocks !== null && blocks.length > 0 && (
-        <div className="court-maintenance-page__list">
+        <div className="list-stack">
           {blocks.map((block) => (
-            <div key={block.id} className="court-maintenance-page__item">
-              <div className="court-maintenance-page__info">
-                <strong>{formatRange(block.startsAt, block.endsAt)}</strong>
-                <small>{block.reason || 'Sem motivo informado'}</small>
+            <div key={block.id} className="list-card">
+              <div className="list-card__header">
+                <strong className="list-card__title">{formatRange(block.startsAt, block.endsAt)}</strong>
+                {block.completedAt ? (
+                  <span className="pill pill--positive">
+                    Concluído · R$ {Number(block.cost ?? 0).toFixed(2).replace('.', ',')}
+                  </span>
+                ) : (
+                  <span className="pill pill--warning">Pendente</span>
+                )}
               </div>
+              <span className="list-card__meta">{block.reason || 'Sem motivo informado'}</span>
 
-              {block.completedAt ? (
-                <span className="pill pill--positive">
-                  Concluído · R$ {Number(block.cost ?? 0).toFixed(2).replace('.', ',')}
-                </span>
-              ) : (
-                <div className="court-maintenance-page__actions">
+              {!block.completedAt && (
+                <div className="list-card__actions">
                   <input
                     className="input input--sm court-maintenance-page__cost-input"
                     type="number"

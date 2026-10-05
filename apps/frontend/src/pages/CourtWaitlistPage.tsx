@@ -61,27 +61,29 @@ export default function CourtWaitlistPage() {
       )}
 
       {waitlist !== null && waitlist.length > 0 && (
-        <div className="court-waitlist-page__list">
+        <div className="list-stack">
           {waitlist.map((entry) => (
-            <div key={entry.id} className="court-waitlist-page__item">
-              <span className="court-waitlist-page__slot">
-                {new Date(entry.startsAt).toLocaleDateString('pt-BR')} ·{' '}
-                {new Date(entry.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                {'–'}
-                {new Date(entry.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-              <span className="court-waitlist-page__name">
-                <strong>{entry.name}</strong>
-                <small>{entry.phone}</small>
-              </span>
-              <button
-                type="button"
-                className="court-waitlist-page__remove"
-                onClick={() => handleRemove(entry.id)}
-                aria-label="Remover da fila"
-              >
-                ×
-              </button>
+            <div key={entry.id} className="list-card">
+              <div className="list-card__header">
+                <strong className="list-card__title">{entry.name}</strong>
+                <button
+                  type="button"
+                  className="list-card__remove"
+                  onClick={() => handleRemove(entry.id)}
+                  aria-label="Remover da fila"
+                >
+                  ×
+                </button>
+              </div>
+              <span className="list-card__meta">{entry.phone}</span>
+              <div className="list-card__actions">
+                <span className="pill pill--info">
+                  {new Date(entry.startsAt).toLocaleDateString('pt-BR')} ·{' '}
+                  {new Date(entry.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  {'–'}
+                  {new Date(entry.endsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
             </div>
           ))}
         </div>
