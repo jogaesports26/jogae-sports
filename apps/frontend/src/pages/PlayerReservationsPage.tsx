@@ -24,6 +24,13 @@ const STATUS_LABELS: Record<PlayerReservation['status'], string> = {
   NO_SHOW: 'Não compareceu',
 }
 
+const STATUS_PILLS: Record<PlayerReservation['status'], string> = {
+  CONFIRMED: 'pill--positive',
+  CANCELLED: 'pill--neutral',
+  COMPLETED: 'pill--info',
+  NO_SHOW: 'pill--negative',
+}
+
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
@@ -50,6 +57,7 @@ export default function PlayerReservationsPage() {
   const [reschedulingId, setReschedulingId] = useState<string | null>(null)
   const [newStartsAt, setNewStartsAt] = useState('')
   const [newEndsAt, setNewEndsAt] = useState('')
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   function load() {
     fetchPlayerReservations()
@@ -66,6 +74,21 @@ export default function PlayerReservationsPage() {
   useEffect(() => {
     if (player) load()
   }, [player])
+
+  useEffect(() => {
+    if (!openMenuId) return
+    function close(event: Event) {
+      if (event instanceof KeyboardEvent && event.key !== 'Escape') return
+      if (event instanceof MouseEvent && (event.target as HTMLElement).closest('.player-reservation-card__menu-wrap')) return
+      setOpenMenuId(null)
+    }
+    document.addEventListener('mousedown', close)
+    document.addEventListener('keydown', close)
+    return () => {
+      document.removeEventListener('mousedown', close)
+      document.removeEventListener('keydown', close)
+    }
+  }, [openMenuId])
 
   async function handleCancel(id: string) {
     try {
@@ -138,128 +161,145 @@ export default function PlayerReservationsPage() {
       )}
 
       {reservations !== null && reservations.length > 0 && (
-        <div className="player-reservations-page__list">
+        <div className="list-stack player-reservations-page__list">
           {reservations.map((reservation) => (
-            <div key={reservation.id} className="player-reservation-card">
-              <div>
-                <strong>{reservation.court.name}</strong>
-                {reservation.court.owner.establishmentName && (
-                  <span className="player-reservation-card__establishment">
-                    {' '}
-                    · {reservation.court.owner.establishmentName}
-                  </span>
-                )}
-                <p className="player-reservation-card__time">{formatReservationRange(reservation)}</p>
-                <p className="player-reservation-card__price">
-                  R$ {Number(reservation.priceSnapshot).toFixed(2).replace('.', ',')}
-                </p>
-                {shareResultId?.id === reservation.id && shareResultId.result === 'copied' && (
-                  <p className="player-reservation-card__share-feedback">Link copiado! Cole numa conversa.</p>
-                )}
-                {reschedulingId === reservation.id && (
-                  <div className="player-reservation-card__reschedule-form">
-                    <label className="field field--sm">
-                      <span>Novo início</span>
-                      <input
-                        className="input input--sm"
-                        type="datetime-local"
-                        value={newStartsAt}
-                        onChange={(e) => setNewStartsAt(e.target.value)}
-                      />
-                    </label>
-                    <label className="field field--sm">
-                      <span>Novo fim</span>
-                      <input
-                        className="input input--sm"
-                        type="datetime-local"
-                        value={newEndsAt}
-                        onChange={(e) => setNewEndsAt(e.target.value)}
-                      />
-                    </label>
-                    <div className="player-reservation-card__reschedule-actions">
-                      <button
-                        type="button"
-                        className="player-reservation-card__reschedule-cancel"
-                        onClick={() => setReschedulingId(null)}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        className="player-reservation-card__reschedule-confirm"
-                        onClick={() => handleReschedule(reservation.id)}
-                      >
-                        Confirmar novo horário
-                      </button>
-                    </div>
-                  </div>
-                )}
+            <div key={reservation.id} className="list-card player-reservation-card">
+              <div className="list-card__header">
+                <div className="player-reservation-card__title">
+                  <strong className="list-card__title">{reservation.court.name}</strong>
+                  {reservation.court.owner.establishmentName && (
+                    <span className="list-card__meta">{reservation.court.owner.establishmentName}</span>
+                  )}
+                </div>
+                <span className={`pill ${STATUS_PILLS[reservation.status]}`}>{STATUS_LABELS[reservation.status]}</span>
               </div>
-              <div className="player-reservation-card__actions">
-                <span
-                  className={`player-reservation-card__status player-reservation-card__status--${reservation.status.toLowerCase()}`}
-                >
-                  {STATUS_LABELS[reservation.status]}
+
+              <div className="player-reservation-card__when">
+                <span className="player-reservation-card__time">{formatReservationRange(reservation)}</span>
+                <span className="player-reservation-card__price">
+                  R$ {Number(reservation.priceSnapshot).toFixed(2).replace('.', ',')}
                 </span>
-                {reservation.status === 'CONFIRMED' && (
-                  <>
-                    <button
-                      className="player-reservation-card__share-button"
-                      onClick={() => handleShare(reservation)}
-                    >
-                      Convidar pra jogar
+              </div>
+
+              {shareResultId?.id === reservation.id && shareResultId.result === 'copied' && (
+                <p className="player-reservation-card__share-feedback">Link copiado! Cole numa conversa.</p>
+              )}
+
+              {reschedulingId === reservation.id && (
+                <div className="player-reservation-card__reschedule-form">
+                  <label className="field field--sm">
+                    <span>Novo início</span>
+                    <input
+                      className="input input--sm"
+                      type="datetime-local"
+                      value={newStartsAt}
+                      onChange={(e) => setNewStartsAt(e.target.value)}
+                    />
+                  </label>
+                  <label className="field field--sm">
+                    <span>Novo fim</span>
+                    <input
+                      className="input input--sm"
+                      type="datetime-local"
+                      value={newEndsAt}
+                      onChange={(e) => setNewEndsAt(e.target.value)}
+                    />
+                  </label>
+                  <div className="player-reservation-card__reschedule-actions">
+                    <button type="button" className="btn btn--ghost btn--sm" onClick={() => setReschedulingId(null)}>
+                      Cancelar
                     </button>
-                    <a
-                      className="player-reservation-card__share-button"
-                      href={buildGoogleCalendarUrl({
-                        title: reservation.court.name,
-                        details: `Reserva no Jogaê Sports — ${reservation.court.name}`,
-                        startsAt: reservation.startsAt,
-                        endsAt: reservation.endsAt,
-                      })}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Google Calendar
-                    </a>
                     <button
-                      className="player-reservation-card__share-button"
-                      onClick={() => setReceiptReservation(reservation)}
+                      type="button"
+                      className="btn btn--primary btn--sm"
+                      onClick={() => handleReschedule(reservation.id)}
                     >
-                      Comprovante
+                      Confirmar novo horário
                     </button>
-                    <button
-                      className="player-reservation-card__share-button"
-                      onClick={() => startRescheduling(reservation)}
-                    >
-                      Reagendar
-                    </button>
-                    <button onClick={() => setCancellingReservation(reservation)}>Cancelar</button>
-                  </>
-                )}
-                {reservation.status === 'COMPLETED' && (
-                  <button
-                    className="player-reservation-card__share-button"
-                    onClick={() => setReceiptReservation(reservation)}
-                  >
+                  </div>
+                </div>
+              )}
+
+              {reservation.status === 'CONFIRMED' && (
+                <div className="player-reservation-card__actions">
+                  <button type="button" className="btn btn--primary" onClick={() => handleShare(reservation)}>
+                    Convidar pra jogar
+                  </button>
+                  <button type="button" className="btn btn--outline" onClick={() => setReceiptReservation(reservation)}>
                     Comprovante
                   </button>
-                )}
-                {reservation.status === 'COMPLETED' && !reservation.review && (
-                  <button
-                    className="player-reservation-card__review-button"
-                    onClick={() => setReviewingReservation(reservation)}
-                  >
-                    Avaliar
+                  <div className="player-reservation-card__menu-wrap">
+                    <button
+                      type="button"
+                      className="btn btn--outline player-reservation-card__menu-button"
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuId === reservation.id}
+                      aria-label="Mais ações da reserva"
+                      onClick={() => setOpenMenuId((current) => (current === reservation.id ? null : reservation.id))}
+                    >
+                      ⋮
+                    </button>
+                    {openMenuId === reservation.id && (
+                      <div className="player-reservation-card__menu" role="menu">
+                        <a
+                          role="menuitem"
+                          href={buildGoogleCalendarUrl({
+                            title: reservation.court.name,
+                            details: `Reserva no Jogaê Sports — ${reservation.court.name}`,
+                            startsAt: reservation.startsAt,
+                            endsAt: reservation.endsAt,
+                          })}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => setOpenMenuId(null)}
+                        >
+                          Adicionar ao Google Calendar
+                        </a>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setOpenMenuId(null)
+                            startRescheduling(reservation)
+                          }}
+                        >
+                          Reagendar
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="player-reservation-card__menu-danger"
+                          onClick={() => {
+                            setOpenMenuId(null)
+                            setCancellingReservation(reservation)
+                          }}
+                        >
+                          Cancelar reserva
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {reservation.status === 'COMPLETED' && (
+                <div className="player-reservation-card__actions">
+                  {!reservation.review && (
+                    <button type="button" className="btn btn--primary" onClick={() => setReviewingReservation(reservation)}>
+                      Avaliar
+                    </button>
+                  )}
+                  <button type="button" className="btn btn--outline" onClick={() => setReceiptReservation(reservation)}>
+                    Comprovante
                   </button>
-                )}
-                {reservation.review && (
-                  <span className="player-reservation-card__reviewed">
-                    {'★'.repeat(reservation.review.rating)}
-                    {'☆'.repeat(5 - reservation.review.rating)}
-                  </span>
-                )}
-              </div>
+                  {reservation.review && (
+                    <span className="player-reservation-card__reviewed">
+                      {'★'.repeat(reservation.review.rating)}
+                      {'☆'.repeat(5 - reservation.review.rating)}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
