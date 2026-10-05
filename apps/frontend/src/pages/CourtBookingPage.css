@@ -629,3 +629,20 @@
     transition: none;
   }
 }
+
+/* Skeleton de carregamento */
+
+.booking-skeleton--hero {
+  aspect-ratio: 4 / 3;
+}
+
+.booking-skeleton--sheet {
+  height: 160px;
+  margin: -28px 12px 0;
+  position: relative;
+}
+
+.booking-skeleton--pills {
+  height: 72px;
+  margin-top: 28px;
+}

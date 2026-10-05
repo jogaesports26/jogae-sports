@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   cancelPlayerReservation,
   fetchPlayerReservations,
@@ -48,6 +49,13 @@ function toDatetimeLocalValue(date: Date): string {
 
 export default function PlayerReservationsPage() {
   const player = getPlayerUser()
+  const lastSlug = (() => {
+    try {
+      return localStorage.getItem('jogae_last_slug')
+    } catch {
+      return null
+    }
+  })()
   const [reservations, setReservations] = useState<PlayerReservation[] | null>(null)
   const [error, setError] = useState('')
   const [reviewingReservation, setReviewingReservation] = useState<PlayerReservation | null>(null)
@@ -152,11 +160,21 @@ export default function PlayerReservationsPage() {
 
       {error && <p className="player-reservations-page__error">{error}</p>}
 
-      {!error && reservations === null && <p className="player-reservations-page__loading">Carregando...</p>}
+      {!error && reservations === null && (
+        <div className="list-stack player-reservations-page__list" aria-busy="true" aria-label="Carregando suas reservas">
+          <div className="skeleton player-reservations-page__skeleton" />
+          <div className="skeleton player-reservations-page__skeleton" />
+        </div>
+      )}
 
       {reservations !== null && reservations.length === 0 && (
         <div className="player-reservations-page__empty">
           <p>Você ainda não tem nenhuma reserva.</p>
+          {lastSlug && (
+            <Link to={`/${lastSlug}`} className="btn btn--primary btn--sm">
+              Ver quadras e reservar
+            </Link>
+          )}
         </div>
       )}
 

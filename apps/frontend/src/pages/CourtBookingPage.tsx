@@ -154,7 +154,15 @@ export default function CourtBookingPage() {
   }, [courtId])
 
   if (error) return <p className="booking-page__error">{error}</p>
-  if (!court || !agenda) return <p className="booking-page__loading">Carregando...</p>
+  if (!court || !agenda) {
+    return (
+      <div className="booking-page" aria-busy="true" aria-label="Carregando a quadra">
+        <div className="skeleton booking-skeleton booking-skeleton--hero" />
+        <div className="skeleton booking-skeleton booking-skeleton--sheet" />
+        <div className="skeleton booking-skeleton booking-skeleton--pills" />
+      </div>
+    )
+  }
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
