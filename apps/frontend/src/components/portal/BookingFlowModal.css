@@ -364,3 +364,168 @@
   gap: 10px;
   margin-top: 24px;
 }
+
+/* Resumo da quadra no topo e barra superior (mobile) */
+
+.booking-modal__topbar {
+  display: none;
+}
+
+.booking-modal__summary {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-right: 28px;
+}
+
+.booking-modal__thumb {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--gradient-brand);
+}
+
+.booking-modal__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.booking-modal__summary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.booking-modal__summary-info h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.booking-modal__summary-when {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.booking-modal__summary-price {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  color: var(--color-primary);
+}
+
+.booking-modal__cta {
+  margin-top: 20px;
+}
+
+/* Mobile: a confirmação vira tela cheia — barra com voltar, blocos brancos empilhados em fundo cinza e CTA fixo embaixo */
+
+@media (max-width: 640px) {
+  .booking-modal__overlay--sheet {
+    padding: 0;
+    align-items: stretch;
+    background: var(--color-background);
+  }
+
+  .booking-modal--sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: none;
+    min-height: 100svh;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--color-background);
+  }
+
+  .booking-modal--sheet > .booking-modal__close {
+    display: none;
+  }
+
+  .booking-modal--sheet .booking-modal__topbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 0 56px;
+    background: var(--color-white);
+    box-shadow: var(--shadow-soft-sm);
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+
+  .booking-modal--sheet .booking-modal__back {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 20px;
+    color: var(--color-dark);
+    cursor: pointer;
+  }
+
+  .booking-modal--sheet .booking-modal__summary,
+  .booking-modal--sheet .booking-modal__section,
+  .booking-modal--sheet .booking-modal__celebration {
+    margin: 0;
+    padding: 16px;
+    background: var(--color-white);
+    border-top: none;
+  }
+
+  .booking-modal--sheet .booking-modal__summary {
+    padding-right: 16px;
+  }
+
+  .booking-modal--sheet > form,
+  .booking-modal--sheet > .booking-modal__form {
+    margin: 0;
+    padding: 16px;
+    background: var(--color-white);
+  }
+
+  .booking-modal--sheet .booking-modal__cta,
+  .booking-modal--sheet .booking-modal__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: auto 0 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--color-white);
+    box-shadow: 0 -8px 24px -12px rgba(0, 24, 46, 0.18);
+  }
+
+  .booking-modal--sheet .booking-modal__cta .btn,
+  .booking-modal--sheet .booking-modal__actions .btn {
+    min-height: 48px;
+  }
+
+  .booking-modal--sheet .booking-modal__link {
+    min-height: 44px;
+    padding: 0 4px;
+  }
+
+  .booking-modal--sheet .booking-modal__coupon-row .input,
+  .booking-modal--sheet .booking-modal__coupon-apply {
+    min-height: 44px;
+  }
+}

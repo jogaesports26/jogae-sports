@@ -19,6 +19,8 @@ interface BookingFlowModalProps {
   courtId: string
   courtName: string
   establishmentName?: string | null
+  photoUrl?: string | null
+  sportLabel?: string
   slug: string
   dayLabel: string
   dayDate: Date
@@ -43,6 +45,8 @@ export default function BookingFlowModal({
   courtId,
   courtName,
   establishmentName,
+  photoUrl,
+  sportLabel,
   slug,
   dayLabel,
   dayDate,
@@ -166,22 +170,40 @@ export default function BookingFlowModal({
   )
 
   return (
-    <div className="booking-modal__overlay" onClick={onClose}>
+    <div className="booking-modal__overlay booking-modal__overlay--sheet" onClick={onClose}>
       <div
-        className="booking-modal"
+        className="booking-modal booking-modal--sheet"
         role="dialog"
         aria-modal="true"
         aria-label={step === 'success' ? 'Reserva confirmada' : 'Confirmar reserva'}
         onClick={(event) => event.stopPropagation()}
       >
+        <div className="booking-modal__topbar">
+          <button type="button" className="booking-modal__back" onClick={onClose} aria-label="Voltar">
+            ←
+          </button>
+          <span>{step === 'success' ? 'Reserva confirmada' : 'Confirmar reserva'}</span>
+        </div>
+
         <button className="booking-modal__close" onClick={onClose} aria-label="Fechar">
           ×
         </button>
 
         {step !== 'success' && (
           <>
-            <h2>{courtName}</h2>
-            {establishmentName && <p className="booking-modal__establishment">{establishmentName}</p>}
+            <div className="booking-modal__summary">
+              <div className="booking-modal__thumb">
+                {photoUrl && <img src={photoUrl} alt="" />}
+              </div>
+              <div className="booking-modal__summary-info">
+                <h2>{courtName}</h2>
+                {establishmentName && <p className="booking-modal__establishment">{establishmentName}</p>}
+                <span className="booking-modal__summary-when">
+                  {dayLabel} · {timeLabel}
+                </span>
+                <strong className="booking-modal__summary-price">{money(finalPrice)}</strong>
+              </div>
+            </div>
 
             <section className="booking-modal__section">
               <h3>Sua reserva</h3>
@@ -200,6 +222,12 @@ export default function BookingFlowModal({
                     Editar
                   </button>
                 </div>
+                {sportLabel && (
+                  <div className="booking-modal__row">
+                    <dt>Esporte</dt>
+                    <dd>{sportLabel}</dd>
+                  </div>
+                )}
               </dl>
             </section>
 
@@ -281,9 +309,11 @@ export default function BookingFlowModal({
             </section>
 
             {step === 'confirm' && (
-              <button type="button" className="btn btn--primary btn--full" disabled={isLoading} onClick={handleConfirm}>
-                {isLoading ? 'Confirmando...' : `Confirmar reserva · ${money(finalPrice)}`}
-              </button>
+              <div className="booking-modal__cta">
+                <button type="button" className="btn btn--primary btn--full" disabled={isLoading} onClick={handleConfirm}>
+                  {isLoading ? 'Confirmando...' : `Confirmar reserva · ${money(finalPrice)}`}
+                </button>
+              </div>
             )}
 
             {step === 'login' && (
