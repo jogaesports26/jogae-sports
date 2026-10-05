@@ -35,6 +35,10 @@ function toISOAt(dayDate: Date, minutes: number) {
   return date.toISOString()
 }
 
+function money(value: number) {
+  return `R$ ${value.toFixed(2).replace('.', ',')}`
+}
+
 export default function BookingFlowModal({
   courtId,
   courtName,
@@ -60,6 +64,7 @@ export default function BookingFlowModal({
   const [isLoading, setIsLoading] = useState(false)
   const [shareResult, setShareResult] = useState<ShareResult | null>(null)
   const [showReceipt, setShowReceipt] = useState(false)
+  const [bookingCode, setBookingCode] = useState('')
 
   useEffect(() => {
     fetchActiveEquipmentForCourt(courtId)
@@ -75,10 +80,13 @@ export default function BookingFlowModal({
         price,
       )
     : 0
-  const equipmentTotal = equipmentList.reduce(
-    (sum, item) => sum + (equipmentQuantities[item.id] ?? 0) * item.pricePerUnit,
-    0,
-  )
+  const equipmentLines = equipmentList
+    .filter((item) => (equipmentQuantities[item.id] ?? 0) > 0)
+    .map((item) => {
+      const quantity = equipmentQuantities[item.id] ?? 0
+      return { id: item.id, label: `${quantity}× ${item.name}`, amount: quantity * item.pricePerUnit }
+    })
+  const equipmentTotal = equipmentLines.reduce((sum, line) => sum + line.amount, 0)
   const finalPrice = price - discount + equipmentTotal
 
   function setEquipmentQuantity(id: string, quantity: number) {
@@ -112,7 +120,7 @@ export default function BookingFlowModal({
   async function handleConfirm() {
     setIsLoading(true)
     try {
-      await createPlayerReservation(courtId, {
+      const reservation = await createPlayerReservation(courtId, {
         startsAt: toISOAt(dayDate, startMinute),
         endsAt: toISOAt(dayDate, endMinute),
         couponCode: couponPreview ? couponCode.trim() : undefined,
@@ -120,6 +128,7 @@ export default function BookingFlowModal({
           .filter(([, quantity]) => quantity > 0)
           .map(([equipmentId, quantity]) => ({ equipmentId, quantity })),
       })
+      setBookingCode(reservation.id.slice(0, 8).toUpperCase())
       setStep('success')
       onBooked()
     } catch (err) {
@@ -129,136 +138,230 @@ export default function BookingFlowModal({
     }
   }
 
+  const timeLabel = `${formatMinutes(startMinute)} – ${formatMinutes(endMinute)}`
+
+  const priceBreakdown = (
+    <dl className="booking-modal__rows">
+      <div className="booking-modal__row">
+        <dt>Quadra</dt>
+        <dd>{money(price)}</dd>
+      </div>
+      {equipmentLines.map((line) => (
+        <div key={line.id} className="booking-modal__row">
+          <dt>{line.label}</dt>
+          <dd>{money(line.amount)}</dd>
+        </div>
+      ))}
+      {couponPreview && discount > 0 && (
+        <div className="booking-modal__row booking-modal__row--discount">
+          <dt>Cupom {couponPreview.code}</dt>
+          <dd>− {money(discount)}</dd>
+        </div>
+      )}
+      <div className="booking-modal__row booking-modal__row--total">
+        <dt>Total</dt>
+        <dd>{money(finalPrice)}</dd>
+      </div>
+    </dl>
+  )
+
   return (
     <div className="booking-modal__overlay" onClick={onClose}>
-      <div className="booking-modal" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="booking-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={step === 'success' ? 'Reserva confirmada' : 'Confirmar reserva'}
+        onClick={(event) => event.stopPropagation()}
+      >
         <button className="booking-modal__close" onClick={onClose} aria-label="Fechar">
           ×
         </button>
 
-        <h2>{courtName}</h2>
-        <p className="booking-modal__slot">
-          {dayLabel} · {formatMinutes(startMinute)} – {formatMinutes(endMinute)}
-        </p>
         {step !== 'success' && (
-          <div className="booking-modal__coupon">
-            <div className="booking-modal__coupon-row">
-              <input
-                className="input"
-                value={couponCode}
-                onChange={(event) => {
-                  setCouponCode(event.target.value.toUpperCase())
-                  setCouponPreview(null)
-                  setCouponError('')
-                }}
-                placeholder="Código do cupom (opcional)"
-              />
-              <button
-                type="button"
-                className="booking-modal__coupon-apply"
-                onClick={handleApplyCoupon}
-                disabled={!couponCode.trim() || isValidatingCoupon}
-              >
-                {isValidatingCoupon ? 'Validando...' : 'Aplicar'}
-              </button>
-            </div>
-            {couponError && <p className="booking-modal__coupon-error">{couponError}</p>}
-            {couponPreview && (
-              <p className="booking-modal__coupon-applied">
-                Cupom {couponPreview.code} aplicado — desconto de R$ {discount.toFixed(2).replace('.', ',')}
-              </p>
-            )}
-          </div>
-        )}
+          <>
+            <h2>{courtName}</h2>
+            {establishmentName && <p className="booking-modal__establishment">{establishmentName}</p>}
 
-        {step !== 'success' && equipmentList.length > 0 && (
-          <div className="booking-modal__equipment">
-            {equipmentList.map((item) => (
-              <div key={item.id} className="booking-modal__equipment-item">
-                <span>
-                  {item.name} <small>R$ {item.pricePerUnit.toFixed(2).replace('.', ',')}</small>
-                </span>
-                <div className="booking-modal__equipment-stepper">
-                  <button
-                    type="button"
-                    onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) - 1)}
-                    disabled={(equipmentQuantities[item.id] ?? 0) === 0}
-                  >
-                    −
-                  </button>
-                  <span>{equipmentQuantities[item.id] ?? 0}</span>
-                  <button
-                    type="button"
-                    onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) + 1)}
-                  >
-                    +
+            <section className="booking-modal__section">
+              <h3>Sua reserva</h3>
+              <dl className="booking-modal__rows">
+                <div className="booking-modal__row">
+                  <dt>Data</dt>
+                  <dd>{dayLabel}</dd>
+                  <button type="button" className="booking-modal__link" onClick={onClose}>
+                    Editar
                   </button>
                 </div>
+                <div className="booking-modal__row">
+                  <dt>Horário</dt>
+                  <dd>{timeLabel}</dd>
+                  <button type="button" className="booking-modal__link" onClick={onClose}>
+                    Editar
+                  </button>
+                </div>
+              </dl>
+            </section>
+
+            <section className="booking-modal__section">
+              <h3>Cupom</h3>
+              <div className="booking-modal__coupon">
+                <div className="booking-modal__coupon-row">
+                  <input
+                    className="input"
+                    value={couponCode}
+                    onChange={(event) => {
+                      setCouponCode(event.target.value.toUpperCase())
+                      setCouponPreview(null)
+                      setCouponError('')
+                    }}
+                    placeholder="Código do cupom (opcional)"
+                  />
+                  <button
+                    type="button"
+                    className="booking-modal__coupon-apply"
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCode.trim() || isValidatingCoupon}
+                  >
+                    {isValidatingCoupon ? 'Validando...' : 'Aplicar'}
+                  </button>
+                </div>
+                {couponError && <p className="booking-modal__coupon-error">{couponError}</p>}
+                {couponPreview && (
+                  <p className="booking-modal__coupon-applied">
+                    Cupom {couponPreview.code} aplicado — desconto de {money(discount)}
+                  </p>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            </section>
 
-        <p className="booking-modal__price">
-          {couponPreview || equipmentTotal > 0 ? (
-            <>
-              <span className="booking-modal__price-original">R$ {price.toFixed(2).replace('.', ',')}</span>{' '}
-              R$ {finalPrice.toFixed(2).replace('.', ',')}
-            </>
-          ) : (
-            <>R$ {price.toFixed(2).replace('.', ',')}</>
-          )}
-        </p>
+            {equipmentList.length > 0 && (
+              <section className="booking-modal__section">
+                <h3>Equipamentos</h3>
+                <div className="booking-modal__equipment">
+                  {equipmentList.map((item) => (
+                    <div key={item.id} className="booking-modal__equipment-item">
+                      <span>
+                        {item.name} <small>{money(item.pricePerUnit)}</small>
+                      </span>
+                      <div className="booking-modal__equipment-stepper">
+                        <button
+                          type="button"
+                          onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) - 1)}
+                          disabled={(equipmentQuantities[item.id] ?? 0) === 0}
+                          aria-label={`Menos ${item.name}`}
+                        >
+                          −
+                        </button>
+                        <span>{equipmentQuantities[item.id] ?? 0}</span>
+                        <button
+                          type="button"
+                          onClick={() => setEquipmentQuantity(item.id, (equipmentQuantities[item.id] ?? 0) + 1)}
+                          aria-label={`Mais ${item.name}`}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {step === 'confirm' && (
-          <div className="booking-modal__form">
-            <p className="booking-modal__hint">Confirmar reserva com seus dados salvos?</p>
-            <button className="booking-modal__submit" disabled={isLoading} onClick={handleConfirm}>
-              {isLoading ? 'Confirmando...' : 'Confirmar reserva'}
-            </button>
-          </div>
-        )}
+            <section className="booking-modal__section">
+              <h3>Detalhes do preço</h3>
+              {priceBreakdown}
+            </section>
 
-        {step === 'login' && (
-          <PlayerLoginForm
-            hint="Digite seu nome e telefone pra confirmar a reserva."
-            submitLabel="Confirmar e reservar"
-            onSuccess={handleConfirm}
-          />
+            <section className="booking-modal__section">
+              <h3>Cancelamento</h3>
+              <p className="booking-modal__policy">
+                Você pode cancelar ou reagendar até 2 horas antes do horário, direto em Minhas reservas.
+              </p>
+            </section>
+
+            {step === 'confirm' && (
+              <button type="button" className="btn btn--primary btn--full" disabled={isLoading} onClick={handleConfirm}>
+                {isLoading ? 'Confirmando...' : `Confirmar reserva · ${money(finalPrice)}`}
+              </button>
+            )}
+
+            {step === 'login' && (
+              <PlayerLoginForm
+                hint="Digite seu nome e telefone pra confirmar a reserva."
+                submitLabel="Confirmar e reservar"
+                onSuccess={handleConfirm}
+              />
+            )}
+          </>
         )}
 
         {step === 'success' && (
-          <div className="booking-modal__form">
-            <p className="booking-modal__success">Reserva confirmada! Você já pode fechar esta janela.</p>
-            <button type="button" className="booking-modal__invite" onClick={handleInvite}>
-              Convidar pra jogar
-            </button>
-            {shareResult === 'copied' && (
-              <p className="booking-modal__hint">Link copiado! Cole numa conversa pra convidar.</p>
-            )}
-            {shareResult === 'failed' && (
-              <p className="booking-modal__hint">Não deu pra compartilhar automaticamente — copie o link da barra de endereço.</p>
-            )}
-            <a
-              className="booking-modal__invite"
-              href={buildGoogleCalendarUrl({
-                title: courtName,
-                details: `Reserva no Jogaê Sports — ${courtName}`,
-                startsAt: toISOAt(dayDate, startMinute),
-                endsAt: toISOAt(dayDate, endMinute),
-              })}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Adicionar ao Google Calendar
-            </a>
-            <button type="button" className="booking-modal__invite" onClick={() => setShowReceipt(true)}>
-              Ver comprovante
-            </button>
-            <button className="booking-modal__submit" onClick={onClose}>
-              Fechar
-            </button>
-          </div>
+          <>
+            <div className="booking-modal__celebration">
+              <span className="booking-modal__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <h2>Reserva confirmada!</h2>
+              <p className="booking-modal__establishment">
+                {courtName}
+                {establishmentName ? ` · ${establishmentName}` : ''}
+              </p>
+              {bookingCode && <span className="pill pill--info">Reserva #{bookingCode}</span>}
+            </div>
+
+            <section className="booking-modal__section">
+              <h3>Sua reserva</h3>
+              <dl className="booking-modal__rows">
+                <div className="booking-modal__row">
+                  <dt>Data</dt>
+                  <dd>{dayLabel}</dd>
+                </div>
+                <div className="booking-modal__row">
+                  <dt>Horário</dt>
+                  <dd>{timeLabel}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section className="booking-modal__section">
+              <h3>Resumo do pagamento</h3>
+              {priceBreakdown}
+            </section>
+
+            <div className="booking-modal__actions">
+              <button type="button" className="btn btn--primary btn--full" onClick={handleInvite}>
+                Convidar pra jogar
+              </button>
+              {shareResult === 'copied' && (
+                <p className="booking-modal__hint">Link copiado! Cole numa conversa pra convidar.</p>
+              )}
+              {shareResult === 'failed' && (
+                <p className="booking-modal__hint">Não deu pra compartilhar automaticamente — copie o link da barra de endereço.</p>
+              )}
+              <a
+                className="btn btn--outline btn--full"
+                href={buildGoogleCalendarUrl({
+                  title: courtName,
+                  details: `Reserva no Jogaê Sports — ${courtName}`,
+                  startsAt: toISOAt(dayDate, startMinute),
+                  endsAt: toISOAt(dayDate, endMinute),
+                })}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Adicionar ao Google Calendar
+              </a>
+              <button type="button" className="btn btn--outline btn--full" onClick={() => setShowReceipt(true)}>
+                Ver comprovante
+              </button>
+              <button type="button" className="btn btn--ghost btn--full" onClick={onClose}>
+                Fechar
+              </button>
+            </div>
+          </>
         )}
       </div>
 
