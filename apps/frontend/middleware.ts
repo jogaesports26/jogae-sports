@@ -16,7 +16,7 @@ export const config = {
   matcher: ['/((?!api/|assets/|.*\\..*).*)', '/:slug/manifest.webmanifest', '/:slug/icon.svg'],
 }
 
-const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas'])
+const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas', 'termos', 'privacidade'])
 const API_URL = process.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
 const TIMEOUT_MS = 2500
 

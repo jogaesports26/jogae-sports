@@ -26,6 +26,12 @@ import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
 import { UpdateMaintenanceBlockDto } from './dto/update-maintenance-block.dto';
 
+export interface PublicStats {
+  establishments: number;
+  courts: number;
+  reservations: number;
+}
+
 const CANCELLATION_MIN_NOTICE_MS = 2 * 60 * 60 * 1000;
 
 @Injectable()
@@ -52,6 +58,28 @@ export class ReservationsService {
       discountAmount,
       finalPrice: Math.round((basePrice - discountAmount) * 100) / 100,
     };
+  }
+
+  /** Números reais da plataforma pra landing (só contagens, nada identificável). Cache curto em memória. */
+  private statsCache: { at: number; value: PublicStats } | null = null;
+
+  async getPublicStats(): Promise<PublicStats> {
+    const now = Date.now();
+    if (this.statsCache && now - this.statsCache.at < 5 * 60 * 1000) {
+      return this.statsCache.value;
+    }
+    const [establishments, courts, reservations] = await Promise.all([
+      this.prisma.user.count({
+        where: { role: 'COURT_OWNER', establishmentSlug: { not: null } },
+      }),
+      this.prisma.court.count({ where: { active: true } }),
+      this.prisma.reservation.count({
+        where: { status: { in: ['CONFIRMED', 'COMPLETED'] } },
+      }),
+    ]);
+    const value = { establishments, courts, reservations };
+    this.statsCache = { at: now, value };
+    return value;
   }
 
   /** Tema + dados mínimos de meta/OG da lojinha. Leve e cacheável (ETag pelo `rev` do tema). */

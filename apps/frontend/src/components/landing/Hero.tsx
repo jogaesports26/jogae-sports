@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
-import DeviceMockup from '../../pages/DeviceMockup'
 import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy, Whistle } from '../../pages/SportIcons'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { SITE } from '../../lib/site'
 import './Hero.css'
 
 export default function Hero() {
@@ -22,7 +22,7 @@ export default function Hero() {
       <div className="hero__content reveal" ref={contentRef}>
         <h1>Sua quadra parou de depender do WhatsApp.</h1>
         <p className="hero__subtitle">
-          Agenda, reservas online e pagamentos em um só painel — sem horário duplicado, sem
+          Agenda, reservas online e financeiro em um só painel — sem horário duplicado, sem
           mensagem fora de hora, sem planilha pra fechar o mês.
         </p>
         <div className="hero__actions">
@@ -36,33 +36,38 @@ export default function Hero() {
         <ul className="hero__proof">
           <li>Sem taxa por reserva</li>
           <li>Sem fidelidade</li>
-          <li>Suporte direto no WhatsApp</li>
+          {SITE.whatsapp && <li>Suporte direto no WhatsApp</li>}
         </ul>
       </div>
 
       <div className="hero__mockup-wrap reveal" ref={mockupRef}>
-        <DeviceMockup className="hero__mockup" />
-
-        <div className="hero__badge hero__badge--payment">
-          <span className="hero__badge-dot" aria-hidden="true" />
-          <span>
-            <strong>+ R$ 140,00</strong>
-            <small>Pix recebido (Quadra 2)</small>
-          </span>
-        </div>
-
-        <div className="hero__badge hero__badge--occupancy">
-          <span className="hero__badge-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </span>
-          <span>
-            <strong>Grade 100% ocupada</strong>
-            <small>hoje</small>
-          </span>
-        </div>
+        <figure className="hero__shots">
+          <div className="hero__browser">
+            <div className="hero__browser-bar" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+            <img
+              src="/landing/painel.jpg"
+              width={1360}
+              height={860}
+              alt="Painel do Jogaê Sports com faturamento do mês, ocupação e as reservas de hoje"
+              fetchPriority="high"
+            />
+          </div>
+          <div className="hero__phone">
+            <img
+              src="/landing/quadra.jpg"
+              width={390}
+              height={844}
+              alt="Página de reserva de uma quadra, vista no celular"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <figcaption>Telas reais do produto, com dados de demonstração.</figcaption>
+        </figure>
 
         <div className="hero__badge hero__badge--booking">
           <span className="hero__badge-icon hero__badge-icon--positive" aria-hidden="true">
@@ -71,8 +76,8 @@ export default function Hero() {
             </svg>
           </span>
           <span>
-            <strong>Nova reserva pelo link</strong>
-            <small>Sáb · 19h · sem mensagem no WhatsApp</small>
+            <strong>Reserva feita pelo link</strong>
+            <small>sem mensagem no WhatsApp</small>
           </span>
         </div>
       </div>

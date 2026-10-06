@@ -193,19 +193,37 @@
 }
 
 .landing__feature-icon {
-  width: 44px;
-  height: 44px;
+  position: relative;
+  width: 56px;
+  height: 56px;
   margin-bottom: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--color-info-bg);
+  background: var(--color-dark-navy);
+  overflow: hidden;
+}
+
+/* Linhas de quadra ao fundo do azulejo: assinatura visual de esporte, sem ilustração de template */
+.landing__feature-icon::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+  border-radius: 8px;
+  background: linear-gradient(
+    to right,
+    transparent calc(50% - 0.75px),
+    color-mix(in srgb, var(--color-accent) 35%, transparent) calc(50% - 0.75px) calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
 }
 
 .landing__feature-icon svg {
-  width: 24px;
-  height: 24px;
+  position: relative;
+  width: 28px;
+  height: 28px;
 }
 
 .landing__feature-card h3 {
@@ -261,7 +279,7 @@
 
 .landing__footer-columns {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr repeat(auto-fit, minmax(120px, 1fr));
   gap: 32px;
   padding-bottom: 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);

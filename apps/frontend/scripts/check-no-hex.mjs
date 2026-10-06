@@ -9,7 +9,6 @@ const ALLOWED = new Set([
   'styles/tokens.css',
   'pages/DeviceMockup.tsx',
   'pages/SportIcons.tsx',
-  'pages/LandingPage.tsx',
 ])
 const HEX = /#[0-9a-fA-F]{3,8}\b/g
 

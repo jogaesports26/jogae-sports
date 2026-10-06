@@ -13,6 +13,7 @@ import type { FinancialReport } from '../lib/reports'
 import { fetchCustomers, INACTIVE_THRESHOLD_DAYS, isBirthdayThisMonth } from '../lib/customers'
 import type { Customer } from '../lib/customers'
 import { toDateInputValue } from '../lib/weekGrid'
+import { formatCurrency } from '../lib/money'
 import './OverviewPage.css'
 
 const STATUS_LABELS: Record<TodayReservation['status'], string> = {
@@ -24,10 +25,6 @@ const STATUS_LABELS: Record<TodayReservation['status'], string> = {
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-}
-
-function formatCurrency(value: number) {
-  return `R$ ${value.toFixed(2).replace('.', ',')}`
 }
 
 export default function OverviewPage() {

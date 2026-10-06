@@ -18,7 +18,7 @@ const STEPS = [
     number: '03',
     title: 'Receba no piloto automático',
     description:
-      'Seus clientes agendam e pagam sozinhos, sem risco de horário duplicado ou calote.',
+      'Seus clientes agendam sozinhos a qualquer hora, sem risco de horário duplicado.',
   },
 ]
 

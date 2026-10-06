@@ -3,6 +3,16 @@ import type { Request, Response } from 'express';
 import { ReservationsService } from './reservations.service';
 import { parseThemeOverrides } from '../theme/theme.util';
 
+@Controller('public/stats')
+export class PublicStatsController {
+  constructor(private readonly reservationsService: ReservationsService) {}
+
+  @Get()
+  getStats() {
+    return this.reservationsService.getPublicStats();
+  }
+}
+
 @Controller('public/estabelecimentos')
 export class PublicEstablishmentController {
   constructor(private readonly reservationsService: ReservationsService) {}

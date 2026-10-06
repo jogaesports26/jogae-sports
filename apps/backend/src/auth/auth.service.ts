@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RESERVED_SLUGS } from '../common/reserved-slugs';
 import {
   buildStoredTheme,
   resolveTheme,
@@ -119,6 +120,12 @@ export class AuthService {
 
   private async updateProfileRow(userId: string, dto: UpdateProfileDto) {
     const { theme, ...rest } = dto;
+
+    if (dto.establishmentSlug && RESERVED_SLUGS.has(dto.establishmentSlug)) {
+      throw new BadRequestException(
+        'Esse link é reservado pelo sistema, escolha outro',
+      );
+    }
     const data: Prisma.UserUpdateInput = { ...rest };
 
     if (theme !== undefined) {

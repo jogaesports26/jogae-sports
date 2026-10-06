@@ -9,6 +9,7 @@ import { fetchProfile } from '../lib/profile'
 import { downloadReportsCsv, fetchCommercialReport, fetchReports } from '../lib/reports'
 import type { CommercialReport, FinancialReport } from '../lib/reports'
 import { toDateInputValue } from '../lib/weekGrid'
+import { formatCurrency } from '../lib/money'
 import './ReportsPage.css'
 
 type QuickRange = 'today' | '7d' | 'thisMonth' | 'lastMonth' | 'custom'
@@ -45,10 +46,6 @@ function rangeFor(range: QuickRange, today: Date): { from: Date; to: Date } {
     default:
       return currentMonthRange(today)
   }
-}
-
-function formatCurrency(value: number) {
-  return `R$ ${value.toFixed(2).replace('.', ',')}`
 }
 
 function formatDayLabel(dateStr: string) {

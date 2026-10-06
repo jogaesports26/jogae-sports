@@ -28,6 +28,15 @@ describe('AuthService', () => {
     service = new AuthService(prisma as any, jwtService as any);
   });
 
+  describe('updateProfile', () => {
+    it('rejeita link da lojinha que conflita com rota do app', async () => {
+      await expect(
+        service.updateProfile('u1', { establishmentSlug: 'painel' }),
+      ).rejects.toThrow('reservado');
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('register', () => {
     it('rejeita e-mail já cadastrado', async () => {
       prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
