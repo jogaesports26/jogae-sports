@@ -28,6 +28,7 @@ import EstablishmentPage from './pages/EstablishmentPage'
 import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
 import NotFoundPage from './pages/NotFoundPage'
+import LegalPage from './pages/LegalPage'
 import ToastHost from './components/ToastHost'
 
 function App() {
@@ -40,6 +41,8 @@ function App() {
         <Route path="/cadastro" element={<RegisterPage />} />
         <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
         <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+        <Route path="/termos" element={<LegalPage kind="termos" />} />
+        <Route path="/privacidade" element={<LegalPage kind="privacidade" />} />
         <Route path="/painel" element={<PainelLayout />}>
           <Route index element={<OverviewPage />} />
           <Route path="agenda" element={<AgendaGeralPage />} />

@@ -1,4 +1,5 @@
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import Savings from './Savings'
 import './Comparison.css'
 
 const MANUAL_ITEMS = [
@@ -10,7 +11,7 @@ const MANUAL_ITEMS = [
 
 const JOGAE_ITEMS = [
   'Grade atualizada em tempo real para você e seus clientes.',
-  'Pagamento integrado no ato da reserva.',
+  'Preço de cada horário já na reserva, sem negociar por mensagem.',
   'Link de autoatendimento 24h por dia.',
   'Relatório financeiro e taxa de ocupação instantâneos.',
 ]
@@ -54,6 +55,8 @@ export default function Comparison() {
           </ul>
         </div>
       </div>
+
+      <Savings />
     </section>
   )
 }

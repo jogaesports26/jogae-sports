@@ -1,0 +1,87 @@
+/**
+ * Reescrita do <head> do index.html pelo Edge Middleware (../middleware.ts).
+ * Funções puras, sem dependência de runtime, pra rodar no Edge e nos testes (node --test).
+ */
+
+export interface HeadData {
+  title: string
+  description: string
+  url: string
+  image?: string | null
+  themeColor?: string | null
+  /** Variáveis CSS de tema já validadas pelo backend; entram num <style> no HTML inicial (sem flash). */
+  cssVars?: Record<string, string>
+  /** Sobrescritas da marca no modo escuro; valem só com <html data-theme="dark">. */
+  cssVarsDark?: Record<string, string>
+  /** Objeto exposto em window.__JOGAE_THEME__ pro frontend começar com o tema certo. */
+  bootstrap?: unknown
+  /** Link do manifest PWA da lojinha (instalável com nome e ícone do dono). */
+  manifestHref?: string
+}
+
+const LINE_SEPARATORS = new RegExp('[\\u2028\\u2029]', 'g')
+const SCHEME_SCRIPT =
+  "try{var t=localStorage.getItem('jogae_color_scheme');" +
+  "if(!t&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';" +
+  "if(t==='dark')document.documentElement.dataset.theme='dark'}catch(e){}"
+const CSS_NAME = /^--[a-z0-9-]+$/
+// Só caracteres que aparecem em cores, medidas e pilhas de fonte; barra qualquer coisa que feche o <style>.
+const CSS_VALUE = /^[#\w\s,.'()%-]+$/
+
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+export function truncate(value: string, max: number): string {
+  const clean = value.replace(/\s+/g, ' ').trim()
+  return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean
+}
+
+export function cssVarsToStyle(vars: Record<string, string>): string {
+  const declarations = Object.entries(vars)
+    .filter(([name, value]) => CSS_NAME.test(name) && CSS_VALUE.test(value))
+    .map(([name, value]) => `${name}:${value}`)
+    .join(';')
+  return `:root{${declarations}}`
+}
+
+function setMeta(html: string, attr: 'name' | 'property', key: string, content: string): string {
+  const tag = `<meta ${attr}="${key}" content="${escapeHtml(content)}" />`
+  const existing = new RegExp(`<meta\\s+${attr}="${key}"[^>]*>`, 'i')
+  return existing.test(html) ? html.replace(existing, tag) : html.replace('</head>', `    ${tag}\n  </head>`)
+}
+
+export function renderHead(html: string, data: HeadData): string {
+  let out = html.replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(data.title)}</title>`)
+  out = setMeta(out, 'name', 'description', data.description)
+  if (data.themeColor) out = setMeta(out, 'name', 'theme-color', data.themeColor)
+  out = setMeta(out, 'property', 'og:title', data.title)
+  out = setMeta(out, 'property', 'og:description', data.description)
+  out = setMeta(out, 'property', 'og:url', data.url)
+  if (data.image) {
+    out = setMeta(out, 'property', 'og:image', data.image)
+    out = setMeta(out, 'name', 'twitter:card', 'summary_large_image')
+    out = setMeta(out, 'name', 'twitter:image', data.image)
+  }
+
+  const injected: string[] = []
+  if (data.manifestHref) {
+    injected.push(`<link rel="manifest" href="${escapeHtml(data.manifestHref)}" />`)
+    injected.push(`<meta name="apple-mobile-web-app-title" content="${escapeHtml(truncate(data.title.split(' · ')[0], 24))}" />`)
+  }
+  if (data.cssVars) injected.push(`<style id="jogae-theme">${cssVarsToStyle(data.cssVars)}</style>`)
+  if (data.cssVarsDark) {
+    injected.push(`<style id="jogae-theme-dark">:root[data-theme='dark']{${cssVarsToStyle(data.cssVarsDark).slice(6, -1)}}</style>`)
+  }
+  // Antes da primeira pintura: aplica o modo escuro salvo (ou do sistema) e evita o flash de tela clara.
+  injected.push(`<script>${SCHEME_SCRIPT}</script>`)
+  if (data.bootstrap !== undefined) {
+    const json = JSON.stringify(data.bootstrap).replace(/</g, '\\u003c').replace(LINE_SEPARATORS, '')
+    injected.push(`<script>window.__JOGAE_THEME__=${json}</script>`)
+  }
+  return injected.length ? out.replace('</head>', `    ${injected.join('\n    ')}\n  </head>`) : out
+}

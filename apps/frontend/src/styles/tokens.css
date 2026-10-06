@@ -1,0 +1,119 @@
+/*
+ * Fonte única dos tokens de design. Nenhum outro CSS/TSX pode ter cor hex
+ * (o `npm run lint` roda scripts/check-no-hex.mjs e falha se tiver).
+ *
+ * Duas famílias, que não se misturam:
+ *  - MARCA (--brand-*): muda por lojinha quando o dono personaliza o tema
+ *    (ver lib/theme.ts). Usada em seleção, links, preço, CTA e hero.
+ *  - SEMÂNTICA (--color-positive/negative/warning/info/rating): significado
+ *    fixo (sucesso, erro, aviso, informação). Nunca muda com o tema.
+ */
+:root {
+  /* ---- MARCA (padrão Jogaê; sobrescrita por loja em /:slug/**) ---- */
+  --brand-primary: #013ff6;
+  --brand-50: #e8edff;
+  --brand-600: #0132c4;
+  --brand-text: #013ff6; /* variante com contraste AA sobre branco (links, preço) */
+  --on-brand: #ffffff; /* texto sobre --brand-primary */
+  --brand-action: #acec00; /* CTA principal (botão de ação) */
+  --on-action: #00182e; /* texto sobre --brand-action */
+  --brand-dark: #00182e; /* fim do gradiente do hero */
+
+  /* Amostras dos presets de tema (só pra tela de escolha no painel; o valor real vem do backend) */
+  --swatch-jogae-a: #013ff6;
+  --swatch-jogae-b: #acec00;
+  --swatch-quadra-a: #0b7a3b;
+  --swatch-quadra-b: #f5c518;
+  --swatch-areia-a: #c2410c;
+  --swatch-areia-b: #0b3d91;
+  --swatch-noite-a: #5b2bd9;
+  --swatch-noite-b: #ffd43b;
+  --swatch-classico-a: #243447;
+  --swatch-classico-b: #e8590c;
+
+  /* ---- Neutros fixos ---- */
+  --color-dark-navy: #00182e;
+  --color-white: #ffffff;
+  --color-surface: #ffffff; /* fundo de cards/modais; vira escuro no modo escuro */
+  --color-background: #f4f5fa;
+  --color-skeleton: #e9ebf3;
+  --color-text-secondary: #5b6472;
+  --color-text-muted: #8b94a3;
+  --color-border: rgba(0, 24, 46, 0.08);
+  --border-subtle: 1px solid var(--color-border);
+
+  /* ---- SEMÂNTICA (fixa) ---- */
+  --color-positive: #1b9e52;
+  --color-positive-bg: #e6f9d9;
+  --color-positive-text: #456f08;
+  --color-negative: #c62828;
+  --color-negative-bg: #fde8ea;
+  --color-negative-text: #b3283f;
+  --color-warning-bg: #fff1dc;
+  --color-warning-text: #9a5b00;
+  --color-info-bg: #e8edff;
+  --color-info-text: #013ff6;
+  --color-favorite: #e63950;
+  /* Estrelas de avaliação: contraste AA sobre branco */
+  --color-rating: #8a6400;
+  --color-focus: #00182e; /* anel de foco: fixo, nunca segue o tema */
+
+  /* ---- Aliases que os componentes já consomem ---- */
+  --color-primary: var(--brand-primary);
+  --color-accent-green: var(--brand-action);
+  --color-accent: var(--brand-action);
+  --color-dark: var(--color-dark-navy);
+
+  /* Gradiente-assinatura, reservado pro CTA de maior hierarquia */
+  --gradient-brand: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-action) 100%);
+
+  --font-heading: 'Inter Tight', 'Syne', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Raio por hierarquia — container de página > card > elemento interno */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-card: 20px;
+  --radius-pill: 9999px;
+
+  /* Sombra suave e difusa. --shadow-neo mantém o nome por compatibilidade. */
+  --shadow-soft-sm: 0 4px 12px -4px rgba(0, 24, 46, 0.12);
+  --shadow-soft: 0 12px 24px -8px rgba(0, 24, 46, 0.14);
+  --shadow-soft-lg: 0 24px 48px -12px rgba(0, 24, 46, 0.18);
+  --shadow-neo: var(--shadow-soft);
+}
+
+/*
+ * Modo escuro (só nas rotas da lojinha; o painel do dono continua claro).
+ * Neutros são uma paleta fixa; a marca (--brand-*) é derivada em OKLCH no backend
+ * (cssVarsDark em theme/theme.util.ts) e aplicada por lib/theme.ts.
+ * --color-surface precisa bater com DARK_SURFACE do backend.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #0e141b;
+  --color-surface: #16202b;
+  --color-dark: #e8edf3;
+  --color-text-secondary: #a3afbf;
+  --color-text-muted: #7d8999;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-skeleton: #1d2a38;
+
+  --color-positive-bg: #1d3a1a;
+  --color-positive-text: #a6e07a;
+  --color-negative-bg: #3d1a20;
+  --color-negative-text: #ff9aa7;
+  --color-warning-bg: #3d2d10;
+  --color-warning-text: #f5c36b;
+  --color-info-bg: #1b2a4d;
+  --color-info-text: #9db8ff;
+  --color-rating: #f5c542;
+  --color-focus: #ffffff;
+  /* Marca padrão no escuro (a da lojinha vem do backend e sobrescreve) */
+  --brand-text: #8aa6ff;
+  --brand-50: #1b2a4d;
+
+  --shadow-soft-sm: 0 4px 12px -4px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 12px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-soft-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}

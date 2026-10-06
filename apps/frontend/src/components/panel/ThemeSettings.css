@@ -1,0 +1,262 @@
+.theme-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+@media (min-width: 960px) {
+  .theme-settings {
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr);
+    align-items: start;
+  }
+
+  .theme-settings__preview {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.theme-settings__group {
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-settings__group legend {
+  padding: 0 8px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.theme-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.theme-preset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.theme-preset--active {
+  border-color: var(--color-dark);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+.theme-preset__swatch {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.theme-preset__swatch span {
+  flex: 1;
+}
+
+.theme-settings__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.theme-colors {
+  display: grid;
+  gap: 12px;
+}
+
+.theme-colors__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-colors__picker {
+  width: 48px;
+  height: 44px;
+  padding: 2px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  cursor: pointer;
+}
+
+.theme-colors small {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.theme-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.theme-settings__version {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.theme-history h3 {
+  margin: 20px 0 8px;
+  font-size: 16px;
+}
+
+.theme-history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.theme-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 12px;
+  border: var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+/* Prévia: usa as próprias variáveis do tema (inline no .theme-mock), igual à lojinha */
+
+.theme-settings__preview-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.theme-settings__error {
+  color: var(--color-negative-text);
+  background: var(--color-negative-bg);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 14px;
+}
+
+.theme-settings__note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.theme-settings__note--warn {
+  color: var(--color-warning-text);
+}
+
+.theme-mock {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--color-background);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-body);
+}
+
+.theme-mock__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  background: var(--brand-primary);
+  color: var(--on-brand);
+}
+
+.theme-mock__hero strong {
+  font-size: 20px;
+}
+
+.theme-mock__hero span {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.theme-mock__logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  margin-bottom: 6px;
+}
+
+.theme-mock__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+
+.theme-mock__price {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.theme-mock__price strong {
+  font-size: 18px;
+  color: var(--brand-text);
+}
+
+.theme-mock__pills {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-mock__pill {
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.theme-mock__pill--active {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--on-brand);
+}
+
+.theme-mock__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-text);
+}
+
+.theme-mock__cta {
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--brand-action);
+  color: var(--on-action);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+}

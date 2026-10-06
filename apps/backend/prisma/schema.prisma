@@ -25,6 +25,7 @@ model User {
   aboutDescription     String?
   coverPhotoUrl        String?
   amenities            String[] @default([])
+  theme                Json?
 
   courts              Court[]
   passwordResetTokens PasswordResetToken[]

@@ -51,7 +51,7 @@
 }
 
 .btn--outline {
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   border-color: var(--color-border);
 }
@@ -151,7 +151,7 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
   padding: 10px 12px;
   border: var(--border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -265,7 +265,7 @@ textarea.input {
   gap: 10px;
   padding: 16px;
   border-radius: var(--radius-md);
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm);
   font-family: var(--font-body);
 }
@@ -318,7 +318,7 @@ textarea.input {
 /* Placeholder de carregamento (skeleton): dá o tamanho com altura/largura/aspect-ratio no uso. */
 .skeleton {
   border-radius: var(--radius-card);
-  background: linear-gradient(90deg, #e9ebf3 25%, #f4f5fa 50%, #e9ebf3 75%);
+  background: linear-gradient(90deg, var(--color-skeleton) 25%, var(--color-background) 50%, var(--color-skeleton) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s linear infinite;
 }
@@ -458,4 +458,17 @@ textarea.input {
 .modal__close:hover {
   background: var(--color-negative-bg);
   color: var(--color-negative-text);
+}
+
+/* Texto só pra leitor de tela */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

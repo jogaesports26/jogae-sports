@@ -1,0 +1,74 @@
+.social-proof {
+  padding: 7vw 6vw;
+  text-align: center;
+  background: var(--color-surface);
+}
+
+.social-proof h2 {
+  font-size: 34px;
+  margin-bottom: 32px;
+}
+
+.social-proof__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px 56px;
+  margin: 0 0 40px;
+}
+
+.social-proof__stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.social-proof__stats dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--brand-text);
+}
+
+.social-proof__stats dt {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.social-proof__quotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.social-proof__quote {
+  margin: 0;
+  padding: 24px;
+  border-radius: var(--radius-card);
+  background: var(--color-background);
+}
+
+.social-proof__quote blockquote {
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+
+.social-proof__quote figcaption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-proof__quote img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.social-proof__quote small {
+  display: block;
+  color: var(--color-text-secondary);
+}

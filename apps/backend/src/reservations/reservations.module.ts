@@ -10,7 +10,10 @@ import { EquipmentModule } from '../equipment/equipment.module';
 import { ReservationsController } from './reservations.controller';
 import { OverviewController } from './overview.controller';
 import { PublicCourtsController } from './public-courts.controller';
-import { PublicEstablishmentController } from './public-establishment.controller';
+import {
+  PublicEstablishmentController,
+  PublicStatsController,
+} from './public-establishment.controller';
 import { PlayerReservationsController } from './player-reservations.controller';
 import { ReservationsService } from './reservations.service';
 
@@ -30,6 +33,7 @@ import { ReservationsService } from './reservations.service';
     OverviewController,
     PublicCourtsController,
     PublicEstablishmentController,
+    PublicStatsController,
     PlayerReservationsController,
   ],
   providers: [ReservationsService],

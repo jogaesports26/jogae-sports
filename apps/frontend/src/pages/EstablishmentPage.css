@@ -11,9 +11,9 @@
   flex-direction: column;
   gap: 16px;
   padding: 24px 20px 20px;
-  background: var(--color-primary);
+  background: var(--brand-primary);
   border-radius: var(--radius-card) var(--radius-card) 28px 28px;
-  color: var(--color-white);
+  color: var(--on-brand);
   box-shadow: var(--shadow-soft);
 }
 
@@ -21,7 +21,7 @@
   font-family: var(--font-heading);
   font-size: 26px;
   line-height: 1.2;
-  color: var(--color-white);
+  color: var(--on-brand);
   margin-bottom: 6px;
 }
 
@@ -32,7 +32,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--on-brand) 85%, transparent);
 }
 
 .establishment-hero__address svg {
@@ -47,7 +47,7 @@
   gap: 10px;
   min-height: 48px;
   padding: 0 4px 0 14px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: 12px;
   color: var(--color-text-secondary);
 }
@@ -114,8 +114,8 @@
   height: 16px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
-  background: var(--color-accent-green);
-  color: var(--color-dark-navy);
+  background: var(--brand-action);
+  color: var(--on-action);
   font-family: var(--font-body);
   font-size: 11px;
   font-weight: 700;
@@ -144,22 +144,38 @@
 }
 
 .establishment-filters__chip--active {
-  background: var(--color-white);
+  background: var(--color-surface);
   border-color: var(--color-white);
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 /* Capa e comodidades */
 
 .establishment-page__cover {
   width: 100%;
-  aspect-ratio: 16 / 6;
+  aspect-ratio: 16 / 5;
+  max-height: 220px;
   object-fit: cover;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
 }
 
+.establishment-page__amenities-toggle {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-text);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .establishment-page__amenities {
+  margin-top: 4px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -200,7 +216,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm), inset 0 0 0 2px transparent;
   transition: box-shadow 0.15s ease, background-color 0.15s ease;
 }
@@ -218,16 +234,16 @@
 }
 
 .establishment-sport:hover .establishment-sport__icon {
-  background: var(--color-info-bg);
+  background: var(--brand-50);
 }
 
 .establishment-sport--active .establishment-sport__icon {
-  background: var(--color-info-bg);
-  box-shadow: var(--shadow-soft-sm), inset 0 0 0 2px var(--color-primary);
+  background: var(--brand-50);
+  box-shadow: var(--shadow-soft-sm), inset 0 0 0 2px var(--brand-primary);
 }
 
 .establishment-sport--active .establishment-sport__label {
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 /* Cards de quadra */
@@ -243,7 +259,7 @@
   flex-direction: column;
   text-decoration: none;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
   overflow: hidden;
@@ -296,8 +312,8 @@
   bottom: 12px;
   padding: 6px 12px;
   border-radius: 10px;
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: var(--brand-primary);
+  color: var(--on-brand);
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
@@ -352,7 +368,7 @@
 
 .establishment-trust {
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
 }
@@ -386,11 +402,11 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .establishment-trust a {
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-weight: 600;
 }
 
@@ -419,7 +435,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
   font-family: var(--font-body);
@@ -433,7 +449,7 @@
 
 .establishment-skeleton {
   border-radius: var(--radius-card);
-  background: linear-gradient(90deg, #e9ebf3 25%, #f4f5fa 50%, #e9ebf3 75%);
+  background: linear-gradient(90deg, var(--color-skeleton) 25%, var(--color-background) 50%, var(--color-skeleton) 75%);
   background-size: 200% 100%;
   animation: establishment-shimmer 1.4s linear infinite;
 }
@@ -477,5 +493,5 @@
 
 /* Os ícones de esporte vêm em lima (pensados pro fundo escuro/azul); sobre o círculo branco o lima tem 1,4:1 — aqui usam a cor de seleção. */
 .establishment-sport__icon svg [stroke] {
-  stroke: var(--color-primary);
+  stroke: var(--brand-primary);
 }

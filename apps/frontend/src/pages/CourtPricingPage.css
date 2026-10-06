@@ -53,7 +53,7 @@
   height: 28px;
   border-radius: 50%;
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-white);
   color: var(--color-dark);
   cursor: pointer;
   font-size: 14px;
@@ -99,7 +99,7 @@
   padding: 8px 14px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-white);
   color: var(--color-dark);
   cursor: pointer;
 }
@@ -107,7 +107,7 @@
 .court-pricing-page__gen-day--active {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .court-pricing-page__gen-row {

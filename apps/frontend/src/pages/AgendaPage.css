@@ -184,7 +184,7 @@
 }
 
 .agenda-grid__cell--available {
-  background: #fff;
+  background: var(--color-white);
   box-shadow: inset 0 0 0 1px var(--color-border);
   color: var(--color-primary);
   font-size: 16px;

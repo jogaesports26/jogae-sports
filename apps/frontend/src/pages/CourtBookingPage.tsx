@@ -16,7 +16,8 @@ import {
   toDateInputValue,
   WEEKDAY_SHORT,
 } from '../lib/weekGrid'
-import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
+import { photoSrcSet, PHOTO_SIZES } from '../lib/images'
+import SportIcon from '../components/SportIcon'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import HeartToggle from '../components/HeartToggle'
@@ -30,21 +31,6 @@ const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
 
 const DURATION_CHOICES = [30, 45, 60, 90, 120, 150, 180, 240]
-
-const SPORT_ICONS: Record<string, typeof SoccerBall> = {
-  FUTEBOL: SoccerBall,
-  FUTSAL: SoccerBall,
-  SOCIETY: SoccerBall,
-  VOLEI: Volleyball,
-  BEACH_TENNIS: TennisBall,
-  TENIS: TennisBall,
-  BASQUETE: Basketball,
-}
-
-function sportIcon(value: string) {
-  const Icon = SPORT_ICONS[value] ?? Trophy
-  return <Icon />
-}
 
 type Period = 'manha' | 'tarde' | 'noite'
 
@@ -129,6 +115,7 @@ export default function CourtBookingPage() {
   const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
   const [period, setPeriod] = useState<Period | null>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
   const [amenitiesOpen, setAmenitiesOpen] = useState(false)
   const pickedDayRef = useRef(false)
 
@@ -307,6 +294,11 @@ export default function CourtBookingPage() {
     setPendingSlot(null)
   }
 
+  function scrollCarousel(direction: -1 | 1) {
+    const el = carouselRef.current
+    if (el) el.scrollBy({ left: direction * el.clientWidth, behavior: 'smooth' })
+  }
+
   function handleCarouselScroll(event: UIEvent<HTMLDivElement>) {
     const el = event.currentTarget
     setPhotoIndex(Math.round(el.scrollLeft / Math.max(el.clientWidth, 1)))
@@ -328,22 +320,34 @@ export default function CourtBookingPage() {
 
   return (
     <div className="booking-page">
-      <div className="booking-hero">
+      <div className="booking-layout">
+      <div className="booking-layout__hero booking-hero">
         <div className="booking-hero__media">
           {photos.length > 0 ? (
-            <div className="booking-hero__carousel" onScroll={handleCarouselScroll}>
+            <div
+              ref={carouselRef}
+              className="booking-hero__carousel"
+              role="region"
+              aria-roledescription="carrossel"
+              aria-label={`Fotos de ${court.name}`}
+              tabIndex={photos.length > 1 ? 0 : undefined}
+              onScroll={handleCarouselScroll}
+            >
               {photos.map((photo, index) => (
                 <img
                   key={`${index}-${photo.slice(-16)}`}
                   src={photo}
-                  alt={`${court.name} — foto ${index + 1}`}
+                  srcSet={photoSrcSet(photo)}
+                  sizes={PHOTO_SIZES}
+                  alt={`${court.name} — foto ${index + 1} de ${photos.length}`}
                   loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
                   className="booking-hero__photo"
                 />
               ))}
             </div>
           ) : (
-            <div className="booking-hero__fallback">{sportIcon(court.sport)}</div>
+            <div className="booking-hero__fallback"><SportIcon sport={court.sport} /></div>
           )}
           <div className="booking-hero__scrim" />
           <Link to={basePath} className="booking-hero__back" aria-label="Voltar pra lojinha">
@@ -353,6 +357,31 @@ export default function CourtBookingPage() {
           <button type="button" className="booking-hero__share" onClick={handleShare} aria-label="Compartilhar quadra">
             <ShareIcon />
           </button>
+          {photos.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="booking-hero__nav booking-hero__nav--prev"
+                aria-label="Foto anterior"
+                disabled={photoIndex === 0}
+                onClick={() => scrollCarousel(-1)}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="booking-hero__nav booking-hero__nav--next"
+                aria-label="Próxima foto"
+                disabled={photoIndex >= photos.length - 1}
+                onClick={() => scrollCarousel(1)}
+              >
+                ›
+              </button>
+              <p className="sr-only" aria-live="polite">
+                Foto {photoIndex + 1} de {photos.length}
+              </p>
+            </>
+          )}
           {photos.length > 1 && (
             <div className="booking-hero__dots" aria-hidden="true">
               {photos.map((_, index) => (
@@ -413,6 +442,7 @@ export default function CourtBookingPage() {
         </div>
       </div>
 
+      <div className="booking-layout__main">
       <section className="booking-section">
         <h2 className="booking-section__title">Escolha o dia</h2>
         <div className="day-pills">
@@ -549,8 +579,24 @@ export default function CourtBookingPage() {
         )}
       </section>
 
+      {pendingSlot && (
+        <div className="booking-summary-bar">
+          <div className="booking-summary-bar__info">
+            <strong>
+              {pendingSlot.dayLabel} · {formatMinutes(pendingSlot.startMinute)}–{formatMinutes(pendingSlot.endMinute)}
+            </strong>
+            <span>R$ {pendingSlot.price.toFixed(2).replace('.', ',')}</span>
+          </div>
+          <button type="button" className="btn btn--primary" onClick={confirmPendingSlot}>
+            Reservar agora
+          </button>
+        </div>
+      )}
+
+      </div>
+
       {reviews.length > 0 && (
-        <section id="avaliacoes" className="booking-section booking-page__reviews">
+        <section id="avaliacoes" className="booking-section booking-page__reviews booking-layout__reviews">
           <h2 className="booking-section__title">O que os clientes acharam</h2>
           <div className="booking-page__reviews-list">
             {reviews.map((review) => (
@@ -571,20 +617,7 @@ export default function CourtBookingPage() {
           </div>
         </section>
       )}
-
-      {pendingSlot && (
-        <div className="booking-summary-bar">
-          <div className="booking-summary-bar__info">
-            <strong>
-              {pendingSlot.dayLabel} · {formatMinutes(pendingSlot.startMinute)}–{formatMinutes(pendingSlot.endMinute)}
-            </strong>
-            <span>R$ {pendingSlot.price.toFixed(2).replace('.', ',')}</span>
-          </div>
-          <button type="button" className="btn btn--primary" onClick={confirmPendingSlot}>
-            Reservar agora
-          </button>
-        </div>
-      )}
+      </div>
 
       {selectedSlot && courtId && slug && (
         <BookingFlowModal

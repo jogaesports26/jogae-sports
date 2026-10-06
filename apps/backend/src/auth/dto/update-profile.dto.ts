@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Matches,
@@ -55,4 +56,9 @@ export class UpdateProfileDto {
   @IsString({ each: true })
   @ArrayMaxSize(20)
   amenities?: string[];
+
+  /** Validado e derivado em theme/theme.util.ts (buildStoredTheme). */
+  @IsOptional()
+  @IsObject()
+  theme?: Record<string, unknown>;
 }
