@@ -5,7 +5,9 @@ import type { Establishment } from '../lib/player'
 import { SPORT_OPTIONS, SURFACE_OPTIONS } from '../lib/courts'
 import { amenityLabel } from '../lib/amenities'
 import { formatPhone, phoneDigits } from '../lib/phone'
-import { SoccerBall, Basketball, Volleyball, TennisBall, Trophy } from './SportIcons'
+import { photoSrcSet } from '../lib/images'
+import SportIcon from '../components/SportIcon'
+import { Trophy } from './SportIcons'
 import HeartToggle from '../components/HeartToggle'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { CANCELLATION_POLICY } from '../lib/policy'
@@ -14,21 +16,6 @@ import './EstablishmentPage.css'
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
-
-const SPORT_ICONS: Record<string, typeof SoccerBall> = {
-  FUTEBOL: SoccerBall,
-  FUTSAL: SoccerBall,
-  SOCIETY: SoccerBall,
-  VOLEI: Volleyball,
-  BEACH_TENNIS: TennisBall,
-  TENIS: TennisBall,
-  BASQUETE: Basketball,
-}
-
-function sportIcon(value: string) {
-  const Icon = SPORT_ICONS[value] ?? Trophy
-  return <Icon />
-}
 
 function normalize(value: string) {
   return value
@@ -301,7 +288,7 @@ export default function EstablishmentPage() {
               aria-pressed={sportFilter === sport}
               onClick={() => setSportFilter(sport)}
             >
-              <span className="establishment-sport__icon">{sportIcon(sport)}</span>
+              <span className="establishment-sport__icon"><SportIcon sport={sport} /></span>
               <span className="establishment-sport__label">{sportLabel(sport)}</span>
             </button>
           ))}
@@ -323,10 +310,17 @@ export default function EstablishmentPage() {
             <Link key={court.id} to={`${basePath}/${court.id}`} className="establishment-card">
               <div className="establishment-card__media">
                 {court.photoUrls[0] ? (
-                  <img src={court.photoUrls[0]} alt={court.name} loading="lazy" />
+                  <img
+                    src={court.photoUrls[0]}
+                    srcSet={photoSrcSet(court.photoUrls[0])}
+                    sizes="(min-width: 960px) 340px, 50vw"
+                    alt={court.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <span className="establishment-card__icon" aria-hidden="true">
-                    {sportIcon(court.sport)}
+                    <SportIcon sport={court.sport} />
                   </span>
                 )}
                 <HeartToggle courtId={court.id} className="establishment-card__favorite" />

@@ -716,3 +716,55 @@
     margin-top: 0;
   }
 }
+
+/* Carrossel acessível: setas com alvo de 44px, foco visível e anúncio da foto atual */
+
+.booking-hero__carousel:focus-visible {
+  outline: 3px solid var(--color-surface);
+  outline-offset: -3px;
+}
+
+.booking-hero__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-dark);
+  font-size: 26px;
+  line-height: 1;
+  box-shadow: var(--shadow-soft-sm);
+  cursor: pointer;
+}
+
+.booking-hero__nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.booking-hero__nav--prev {
+  left: 12px;
+}
+
+.booking-hero__nav--next {
+  right: 12px;
+}
+
+/* No celular o gesto de arrastar basta; as setas aparecem onde há mouse/teclado. */
+@media (hover: hover) and (pointer: fine) {
+  .booking-hero__nav {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-hero__carousel {
+    scroll-behavior: auto;
+  }
+}
