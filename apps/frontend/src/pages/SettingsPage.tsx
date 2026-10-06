@@ -8,11 +8,14 @@ import { fetchCep } from '../lib/cep'
 import { AMENITY_OPTIONS } from '../lib/amenities'
 import { showToast } from '../lib/toast'
 import ImageDropzone from '../components/ImageDropzone'
+import ThemeSettings from '../components/panel/ThemeSettings'
+import type { StoredTheme } from '../lib/theme'
 import './SettingsPage.css'
 
 const TABS = [
   { key: 'geral', label: 'Geral' },
   { key: 'lojinha', label: 'Lojinha pública' },
+  { key: 'aparencia', label: 'Aparência' },
   { key: 'metas', label: 'Metas' },
 ] as const
 
@@ -43,6 +46,7 @@ export default function SettingsPage() {
   const [aboutDescription, setAboutDescription] = useState('')
   const [coverPhotoUrl, setCoverPhotoUrl] = useState('')
   const [amenities, setAmenities] = useState<string[]>([])
+  const [theme, setTheme] = useState<StoredTheme | null>(null)
   const [cep, setCep] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [cepError, setCepError] = useState('')
@@ -79,6 +83,7 @@ export default function SettingsPage() {
         setAddress(profile.establishmentAddress ?? '')
         setSlug(profile.establishmentSlug ?? '')
         setSlugTouched(Boolean(profile.establishmentSlug))
+        setTheme(profile.theme ?? null)
         setMonthlyRevenueGoal(
           profile.monthlyRevenueGoal !== null ? String(profile.monthlyRevenueGoal) : '',
         )
@@ -362,6 +367,10 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          <div className="settings-page__section" hidden={tab !== 'aparencia'}>
+            <ThemeSettings initial={theme} storeName={name} onSessionExpired={onSessionExpired} />
+          </div>
+
           <div className="settings-page__section" hidden={tab !== 'metas'}>
             <label className="settings-page__field field">
               <span>Meta de faturamento mensal</span>
@@ -383,9 +392,12 @@ export default function SettingsPage() {
 
           {error && <p className="settings-page__error">{error}</p>}
 
-          <button type="submit" className="settings-page__submit" disabled={saving}>
-            {saving ? 'Salvando...' : 'Salvar alterações'}
-          </button>
+          {/* Aparência tem o próprio botão de salvar (grava só o tema). */}
+          {tab !== 'aparencia' && (
+            <button type="submit" className="settings-page__submit" disabled={saving}>
+              {saving ? 'Salvando...' : 'Salvar alterações'}
+            </button>
+          )}
         </form>
       )}
     </div>

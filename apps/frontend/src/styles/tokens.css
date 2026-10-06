@@ -19,6 +19,18 @@
   --on-action: #00182e; /* texto sobre --brand-action */
   --brand-dark: #00182e; /* fim do gradiente do hero */
 
+  /* Amostras dos presets de tema (só pra tela de escolha no painel; o valor real vem do backend) */
+  --swatch-jogae-a: #013ff6;
+  --swatch-jogae-b: #acec00;
+  --swatch-quadra-a: #0b7a3b;
+  --swatch-quadra-b: #f5c518;
+  --swatch-areia-a: #c2410c;
+  --swatch-areia-b: #0b3d91;
+  --swatch-noite-a: #5b2bd9;
+  --swatch-noite-b: #ffd43b;
+  --swatch-classico-a: #243447;
+  --swatch-classico-b: #e8590c;
+
   /* ---- Neutros fixos ---- */
   --color-dark-navy: #00182e;
   --color-white: #ffffff;

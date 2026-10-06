@@ -95,3 +95,37 @@ export function useStoreTheme(slug: string | null | undefined): StoreTheme | nul
 
   return theme
 }
+
+/** Escolhas do dono (o que ele edita). A derivação completa é feita no backend. */
+export interface ThemeInput {
+  preset?: string
+  primary?: string
+  action?: string
+  radius?: 'sm' | 'md' | 'lg'
+  font?: 'inter' | 'system' | 'serif'
+  logoUrl?: string
+  coverUrl?: string
+}
+
+export interface ResolvedTheme {
+  cssVars: Record<string, string>
+  themeColor: string
+  warnings: string[]
+  adjustments: string[]
+}
+
+export interface StoredTheme extends ThemeInput {
+  version: number
+  rev: number
+  resolved: ResolvedTheme
+  history: ThemeInput[]
+}
+
+/** Mesmos presets do backend (theme.util.ts); só pra mostrar as amostras de cor na escolha. */
+export const THEME_PRESET_OPTIONS = [
+  { key: 'jogae', label: 'Jogaê', swatch: ['var(--swatch-jogae-a)', 'var(--swatch-jogae-b)'] },
+  { key: 'quadra', label: 'Quadra', swatch: ['var(--swatch-quadra-a)', 'var(--swatch-quadra-b)'] },
+  { key: 'areia', label: 'Areia', swatch: ['var(--swatch-areia-a)', 'var(--swatch-areia-b)'] },
+  { key: 'noite', label: 'Noite', swatch: ['var(--swatch-noite-a)', 'var(--swatch-noite-b)'] },
+  { key: 'classico', label: 'Clássico', swatch: ['var(--swatch-classico-a)', 'var(--swatch-classico-b)'] },
+] as const
