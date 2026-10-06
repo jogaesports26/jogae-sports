@@ -2,7 +2,10 @@
  * Manifest PWA e ícone por lojinha, gerados pelo Edge Middleware (../middleware.ts).
  * Ficam na mesma origem do app (exigência da instalação). Funções puras, testáveis com node --test.
  */
-import { escapeHtml } from './head.ts'
+
+// Sem import de ./head: o bundler da Vercel não aceita extensão .ts, e o node --test não resolve import sem ela.
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 export interface ManifestInput {
   slug: string

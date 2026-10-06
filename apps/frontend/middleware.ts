@@ -8,8 +8,8 @@
  * Slug inexistente responde 404 de verdade. Qualquer falha aqui deixa a requisição
  * seguir normalmente (o SPA continua funcionando, só sem a otimização).
  */
-import { renderHead, truncate } from './edge/head.ts'
-import { buildManifest, monogramSvg } from './edge/manifest.ts'
+import { renderHead, truncate } from './edge/head'
+import { buildManifest, monogramSvg } from './edge/manifest'
 
 export const config = {
   // Ignora arquivos estáticos (com ponto) e a API; as rotas fixas do app são filtradas abaixo.
@@ -17,7 +17,9 @@ export const config = {
 }
 
 const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas', 'termos', 'privacidade'])
-const API_URL = process.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
+// `process` não é tipado no runtime Edge da Vercel; lê pelo globalThis.
+const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+const API_URL = env?.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
 const TIMEOUT_MS = 2500
 
 interface ThemeResponse {
