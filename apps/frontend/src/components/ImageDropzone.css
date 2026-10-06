@@ -48,7 +48,7 @@
   border-radius: 50%;
   border: none;
   background: rgba(0, 24, 46, 0.75);
-  color: #fff;
+  color: var(--color-white);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;

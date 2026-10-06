@@ -65,7 +65,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #8b94a3;
+  color: var(--color-text-muted);
   line-height: 1;
 }
 

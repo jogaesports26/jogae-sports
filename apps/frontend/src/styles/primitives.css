@@ -318,7 +318,7 @@ textarea.input {
 /* Placeholder de carregamento (skeleton): dá o tamanho com altura/largura/aspect-ratio no uso. */
 .skeleton {
   border-radius: var(--radius-card);
-  background: linear-gradient(90deg, #e9ebf3 25%, #f4f5fa 50%, #e9ebf3 75%);
+  background: linear-gradient(90deg, var(--color-skeleton) 25%, var(--color-background) 50%, var(--color-skeleton) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s linear infinite;
 }
