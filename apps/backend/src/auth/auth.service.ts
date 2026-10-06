@@ -12,6 +12,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import {
+  buildStoredTheme,
+  resolveTheme,
+  type StoredTheme,
+  type ThemeInput,
+} from '../theme/theme.util';
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const GENERIC_RESET_MESSAGE =
@@ -85,6 +91,7 @@ export class AuthService {
       aboutDescription: user.aboutDescription,
       coverPhotoUrl: user.coverPhotoUrl,
       amenities: user.amenities,
+      theme: (user.theme as StoredTheme | null) ?? null,
     };
   }
 
@@ -106,15 +113,27 @@ export class AuthService {
       aboutDescription: user.aboutDescription,
       coverPhotoUrl: user.coverPhotoUrl,
       amenities: user.amenities,
+      theme: (user.theme as StoredTheme | null) ?? null,
     };
   }
 
   private async updateProfileRow(userId: string, dto: UpdateProfileDto) {
-    try {
-      return await this.prisma.user.update({
+    const { theme, ...rest } = dto;
+    const data: Prisma.UserUpdateInput = { ...rest };
+
+    if (theme !== undefined) {
+      const current = await this.prisma.user.findUniqueOrThrow({
         where: { id: userId },
-        data: dto,
+        select: { theme: true },
       });
+      data.theme = buildStoredTheme(
+        theme,
+        current.theme as StoredTheme | null,
+      ) as unknown as Prisma.InputJsonValue;
+    }
+
+    try {
+      return await this.prisma.user.update({ where: { id: userId }, data });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -124,6 +143,30 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  /** Calcula o tema sem gravar — alimenta o preview ao vivo do painel. */
+  previewTheme(input: ThemeInput) {
+    return resolveTheme(input);
+  }
+
+  /** Volta pra uma versão anterior do tema (índice 0 = a mais recente do histórico). */
+  async restoreTheme(userId: string, index: number) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { theme: true },
+    });
+    const current = user.theme as StoredTheme | null;
+    const target = current?.history?.[index];
+    if (!current || !target) {
+      throw new BadRequestException('Versão de tema não encontrada.');
+    }
+    const restored = buildStoredTheme(target, current);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { theme: restored as unknown as Prisma.InputJsonValue },
+    });
+    return restored;
   }
 
   async forgotPassword(email: string) {

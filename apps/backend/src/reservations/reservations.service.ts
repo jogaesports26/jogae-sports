@@ -15,6 +15,7 @@ import { InstructorsService } from '../instructors/instructors.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { EquipmentService } from '../equipment/equipment.service';
 import { ReservationEquipmentItemDto } from '../equipment/dto/reservation-equipment-item.dto';
+import { defaultTheme, type StoredTheme } from '../theme/theme.util';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
@@ -48,6 +49,32 @@ export class ReservationsService {
     };
   }
 
+  /** Tema + dados mínimos de meta/OG da lojinha. Leve e cacheável (ETag pelo `rev` do tema). */
+  async getThemeBySlug(slug: string) {
+    const owner = await this.prisma.user.findUnique({
+      where: { establishmentSlug: slug },
+      select: {
+        establishmentName: true,
+        aboutDescription: true,
+        coverPhotoUrl: true,
+        theme: true,
+      },
+    });
+    if (!owner) {
+      throw new NotFoundException('Estabelecimento não encontrado');
+    }
+    const theme = (owner.theme as StoredTheme | null) ?? defaultTheme();
+    return {
+      rev: theme.rev,
+      name: owner.establishmentName,
+      description: owner.aboutDescription,
+      coverUrl: theme.coverUrl ?? owner.coverPhotoUrl,
+      logoUrl: theme.logoUrl ?? null,
+      themeColor: theme.resolved.themeColor,
+      cssVars: theme.resolved.cssVars,
+    };
+  }
+
   async getEstablishmentBySlug(slug: string) {
     const owner = await this.prisma.user.findUnique({
       where: { establishmentSlug: slug },
@@ -58,6 +85,7 @@ export class ReservationsService {
         aboutDescription: true,
         coverPhotoUrl: true,
         amenities: true,
+        theme: true,
         courts: {
           where: { active: true },
           select: {
@@ -92,6 +120,7 @@ export class ReservationsService {
       aboutDescription: owner.aboutDescription,
       coverPhotoUrl: owner.coverPhotoUrl,
       amenities: owner.amenities,
+      theme: (owner.theme as StoredTheme | null) ?? defaultTheme(),
       courts: owner.courts.map((court) => ({
         ...court,
         fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
@@ -157,7 +186,11 @@ export class ReservationsService {
         select: { id: true, startsAt: true, endsAt: true, status: true },
       }),
       this.prisma.maintenanceBlock.findMany({
-        where: { courtId, startsAt: { gte: start, lt: end }, completedAt: null },
+        where: {
+          courtId,
+          startsAt: { gte: start, lt: end },
+          completedAt: null,
+        },
       }),
       this.prisma.priceRule.findMany({
         where: { courtId },
@@ -637,7 +670,11 @@ export class ReservationsService {
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.maintenanceBlock.findMany({
-        where: { courtId, startsAt: { gte: start, lt: end }, completedAt: null },
+        where: {
+          courtId,
+          startsAt: { gte: start, lt: end },
+          completedAt: null,
+        },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.priceRule.findMany({
@@ -1037,7 +1074,12 @@ export class ReservationsService {
     }
 
     const overlappingBlock = await this.prisma.maintenanceBlock.findFirst({
-      where: { courtId, startsAt: { lt: endsAt }, endsAt: { gt: startsAt }, completedAt: null },
+      where: {
+        courtId,
+        startsAt: { lt: endsAt },
+        endsAt: { gt: startsAt },
+        completedAt: null,
+      },
     });
 
     if (overlappingBlock) {

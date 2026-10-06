@@ -2,12 +2,14 @@ import {
   Body,
   Controller,
   Get,
+  ParseIntPipe,
   HttpCode,
   HttpStatus,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import type { ThemeInput } from '../theme/theme.util';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -61,5 +63,24 @@ export class AuthController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.authService.updateProfile(user.sub, dto);
+  }
+
+  @Post('me/theme/preview')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('COURT_OWNER')
+  previewTheme(@Body() input: ThemeInput) {
+    return this.authService.previewTheme(input);
+  }
+
+  @Post('me/theme/restore')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('COURT_OWNER')
+  restoreTheme(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body('index', ParseIntPipe) index: number,
+  ) {
+    return this.authService.restoreTheme(user.sub, index);
   }
 }
