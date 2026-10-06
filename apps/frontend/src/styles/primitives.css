@@ -51,7 +51,7 @@
 }
 
 .btn--outline {
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   border-color: var(--color-border);
 }
@@ -151,7 +151,7 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
   padding: 10px 12px;
   border: var(--border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -265,7 +265,7 @@ textarea.input {
   gap: 10px;
   padding: 16px;
   border-radius: var(--radius-md);
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm);
   font-family: var(--font-body);
 }

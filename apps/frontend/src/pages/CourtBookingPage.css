@@ -97,7 +97,7 @@
 
 .booking-hero__back:hover,
 .booking-hero__share:hover {
-  background: var(--color-white);
+  background: var(--color-surface);
 }
 
 .booking-hero__favorite {
@@ -134,7 +134,7 @@
 .booking-hero__dot--active {
   width: 18px;
   border-radius: var(--radius-pill);
-  background: var(--color-white);
+  background: var(--color-surface);
 }
 
 /* Folha de informações sobreposta à foto */
@@ -143,7 +143,7 @@
   position: relative;
   margin: -28px 12px 0;
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
 }
@@ -315,7 +315,7 @@
   gap: 6px;
   min-width: 52px;
   padding: 10px 8px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-soft-sm);
@@ -360,7 +360,7 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: var(--border-subtle);
   border-radius: var(--radius-pill);
   padding: 8px 16px;
@@ -400,7 +400,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: var(--border-subtle);
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -504,7 +504,7 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--brand-text);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-pill);
   padding: 6px 12px;
@@ -526,7 +526,7 @@
 }
 
 .booking-review {
-  background: var(--color-white);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-soft-sm);
@@ -593,7 +593,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-lg);
   padding: 16px 16px 16px 20px;
@@ -662,7 +662,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
   font-family: var(--font-body);

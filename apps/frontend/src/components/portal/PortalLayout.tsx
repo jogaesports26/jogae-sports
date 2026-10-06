@@ -5,7 +5,7 @@ import { formatPhone } from '../../lib/phone'
 import ChatWidget from './ChatWidget'
 import PortalTabBar from './PortalTabBar'
 import PoweredBy from './PoweredBy'
-import { useStoreTheme } from '../../lib/theme'
+import { useColorScheme, useStoreTheme } from '../../lib/theme'
 import './PortalLayout.css'
 
 const LAST_SLUG_KEY = 'jogae_last_slug'
@@ -36,7 +36,8 @@ export default function PortalLayout() {
   // A tela da quadra já tem a barra fixa de reserva embaixo, então não mostra a barra de abas nela.
   const showTabs = !isCourtPage
   const homeSlug = slug ?? readLastSlug()
-  const theme = useStoreTheme(homeSlug)
+  const { scheme, toggle: toggleScheme } = useColorScheme()
+  const theme = useStoreTheme(homeSlug, { scheme })
   const storeName = theme?.name ?? null
 
   function handleLogout() {
@@ -81,6 +82,24 @@ export default function PortalLayout() {
               </svg>
             </button>
           )}
+          <button
+            type="button"
+            className="portal__scheme-button"
+            aria-label={scheme === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'}
+            aria-pressed={scheme === 'dark'}
+            onClick={toggleScheme}
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              {scheme === 'dark' ? (
+                <>
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </>
+              ) : (
+                <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+              )}
+            </svg>
+          </button>
           {player ? (
             <>
               <Link to="/minhas-reservas">Minhas reservas</Link>

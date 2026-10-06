@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px max(6vw, calc((100% - var(--portal-max)) / 2));
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm);
   position: relative;
   z-index: 1;
@@ -62,7 +62,7 @@
 .portal__nav-links a.portal__login-link {
   font-weight: 700;
   color: var(--brand-text);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1.5px solid var(--brand-primary);
   border-radius: var(--radius-pill);
   padding: 0 18px;
@@ -78,7 +78,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   padding: 6px 14px;
@@ -163,7 +163,7 @@
   height: 44px;
   border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   cursor: pointer;
 }
@@ -186,4 +186,26 @@
   .portal--tabbed .portal__nav-links a[href='/minhas-reservas']:not(.portal__login-link) {
     display: none;
   }
+}
+
+.portal__scheme-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.portal__scheme-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.portal__scheme-button:hover {
+  background: var(--brand-50);
 }

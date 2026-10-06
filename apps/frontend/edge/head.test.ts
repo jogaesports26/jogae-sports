@@ -64,3 +64,16 @@ test('truncate e escapeHtml', () => {
   assert.equal(truncate('x'.repeat(30), 10).length, 10)
   assert.equal(escapeHtml('<&">'), '&lt;&amp;&quot;&gt;')
 })
+
+test('injeta o tema escuro e o script de modo escuro antes da pintura', () => {
+  const html = renderHead(SHELL, {
+    title: 't',
+    description: 'd',
+    url: 'https://x.test/',
+    cssVars: { '--brand-primary': '#0b7a3b' },
+    cssVarsDark: { '--brand-primary': '#3fb871' },
+  })
+  assert.match(html, /<style id="jogae-theme-dark">:root\[data-theme='dark'\]\{--brand-primary:#3fb871\}<\/style>/)
+  assert.match(html, /dataset\.theme='dark'/)
+})
+

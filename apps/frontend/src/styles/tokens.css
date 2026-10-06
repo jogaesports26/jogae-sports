@@ -34,6 +34,7 @@
   /* ---- Neutros fixos ---- */
   --color-dark-navy: #00182e;
   --color-white: #ffffff;
+  --color-surface: #ffffff; /* fundo de cards/modais; vira escuro no modo escuro */
   --color-background: #f4f5fa;
   --color-skeleton: #e9ebf3;
   --color-text-secondary: #5b6472;
@@ -62,7 +63,6 @@
   --color-accent-green: var(--brand-action);
   --color-accent: var(--brand-action);
   --color-dark: var(--color-dark-navy);
-  --color-surface: var(--color-white);
 
   /* Gradiente-assinatura, reservado pro CTA de maior hierarquia */
   --gradient-brand: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-action) 100%);
@@ -81,4 +81,39 @@
   --shadow-soft: 0 12px 24px -8px rgba(0, 24, 46, 0.14);
   --shadow-soft-lg: 0 24px 48px -12px rgba(0, 24, 46, 0.18);
   --shadow-neo: var(--shadow-soft);
+}
+
+/*
+ * Modo escuro (só nas rotas da lojinha; o painel do dono continua claro).
+ * Neutros são uma paleta fixa; a marca (--brand-*) é derivada em OKLCH no backend
+ * (cssVarsDark em theme/theme.util.ts) e aplicada por lib/theme.ts.
+ * --color-surface precisa bater com DARK_SURFACE do backend.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #0e141b;
+  --color-surface: #16202b;
+  --color-dark: #e8edf3;
+  --color-text-secondary: #a3afbf;
+  --color-text-muted: #7d8999;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-skeleton: #1d2a38;
+
+  --color-positive-bg: #1d3a1a;
+  --color-positive-text: #a6e07a;
+  --color-negative-bg: #3d1a20;
+  --color-negative-text: #ff9aa7;
+  --color-warning-bg: #3d2d10;
+  --color-warning-text: #f5c36b;
+  --color-info-bg: #1b2a4d;
+  --color-info-text: #9db8ff;
+  --color-rating: #f5c542;
+  --color-focus: #ffffff;
+  /* Marca padrão no escuro (a da lojinha vem do backend e sobrescreve) */
+  --brand-text: #8aa6ff;
+  --brand-50: #1b2a4d;
+
+  --shadow-soft-sm: 0 4px 12px -4px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 12px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-soft-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
 }

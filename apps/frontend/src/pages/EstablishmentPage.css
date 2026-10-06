@@ -47,7 +47,7 @@
   gap: 10px;
   min-height: 48px;
   padding: 0 4px 0 14px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: 12px;
   color: var(--color-text-secondary);
 }
@@ -144,7 +144,7 @@
 }
 
 .establishment-filters__chip--active {
-  background: var(--color-white);
+  background: var(--color-surface);
   border-color: var(--color-white);
   color: var(--brand-text);
 }
@@ -216,7 +216,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm), inset 0 0 0 2px transparent;
   transition: box-shadow 0.15s ease, background-color 0.15s ease;
 }
@@ -259,7 +259,7 @@
   flex-direction: column;
   text-decoration: none;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
   overflow: hidden;
@@ -368,7 +368,7 @@
 
 .establishment-trust {
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
 }
@@ -435,7 +435,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
   font-family: var(--font-body);

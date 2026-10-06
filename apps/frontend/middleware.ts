@@ -9,10 +9,11 @@
  * seguir normalmente (o SPA continua funcionando, só sem a otimização).
  */
 import { renderHead, truncate } from './edge/head.ts'
+import { buildManifest, monogramSvg } from './edge/manifest.ts'
 
 export const config = {
   // Ignora arquivos estáticos (com ponto) e a API; as rotas fixas do app são filtradas abaixo.
-  matcher: ['/((?!api/|assets/|.*\\..*).*)'],
+  matcher: ['/((?!api/|assets/|.*\\..*).*)', '/:slug/manifest.webmanifest', '/:slug/icon.svg'],
 }
 
 const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas'])
@@ -27,6 +28,7 @@ interface ThemeResponse {
   logoUrl: string | null
   themeColor: string
   cssVars: Record<string, string>
+  cssVarsDark?: Record<string, string>
 }
 
 interface CourtResponse {
@@ -43,9 +45,35 @@ async function getJson<T>(path: string): Promise<{ status: number; data: T | nul
 /** Só imagem por link; data URL (base64) é grande demais pra og:image e muitos crawlers ignoram. */
 const linkImage = (value: string | null | undefined) => (value && /^https?:\/\//i.test(value) ? value : null)
 
+async function storeAsset(slug: string, file: 'manifest.webmanifest' | 'icon.svg'): Promise<Response | undefined> {
+  try {
+    const theme = await getJson<ThemeResponse>(`/public/estabelecimentos/${encodeURIComponent(slug)}/theme`)
+    if (theme.status === 404) return new Response('Not found', { status: 404 })
+    if (!theme.data) return undefined
+    const store = theme.data
+    const name = store.name ?? 'Jogaê Sports'
+    const cache = 'public, s-maxage=300, stale-while-revalidate=3600'
+
+    if (file === 'icon.svg') {
+      const svg = monogramSvg(name, store.cssVars['--brand-primary'], store.cssVars['--on-brand'])
+      return new Response(svg, { headers: { 'content-type': 'image/svg+xml', 'cache-control': cache } })
+    }
+    const manifest = buildManifest({ slug, name, themeColor: store.themeColor, logoUrl: store.logoUrl })
+    return new Response(JSON.stringify(manifest), {
+      headers: { 'content-type': 'application/manifest+json', 'cache-control': cache },
+    })
+  } catch {
+    return undefined
+  }
+}
+
 export default async function middleware(request: Request): Promise<Response | undefined> {
   const url = new URL(request.url)
   const [slug, second] = url.pathname.split('/').filter(Boolean)
+
+  if (slug && (second === 'manifest.webmanifest' || second === 'icon.svg')) {
+    return storeAsset(slug, second)
+  }
   // O embed (iframe no site do cliente) não leva tema do dono por padrão: só com ?theme=auto, resolvido no navegador.
   if (!slug || RESERVED.has(slug) || second === 'embed') return undefined
 
@@ -84,7 +112,9 @@ export default async function middleware(request: Request): Promise<Response | u
       image,
       themeColor: store.themeColor,
       cssVars: store.cssVars,
+      cssVarsDark: store.cssVarsDark,
       bootstrap: { slug, theme: store },
+      manifestHref: `/${encodeURIComponent(slug)}/manifest.webmanifest`,
     })
     return new Response(body, {
       headers: {

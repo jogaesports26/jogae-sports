@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import {
   buildStoredTheme,
   contrastRatio,
+  DARK_SURFACE,
   defaultTheme,
   hexToOklch,
   normalizeHex,
@@ -92,6 +93,32 @@ describe('theme.util', () => {
       const { cssVars } = resolveTheme({ radius: 'lg', font: 'serif' });
       expect(cssVars['--radius-card']).toBe('28px');
       expect(cssVars['--font-body']).toContain('Georgia');
+    });
+  });
+
+  describe('modo escuro', () => {
+    it('todo preset deriva marca legível sobre a superfície escura', () => {
+      for (const preset of Object.keys(THEME_PRESETS)) {
+        const { cssVarsDark: dark } = resolveTheme({ preset });
+        expect(
+          contrastRatio(dark['--brand-text'], DARK_SURFACE),
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(dark['--brand-primary'], DARK_SURFACE),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(dark['--on-brand'], dark['--brand-primary']),
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(dark['--on-action'], dark['--brand-action']),
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+
+    it('cor primária muito escura é clareada no escuro, sem mudar a do claro', () => {
+      const result = resolveTheme({ primary: '#1a1a40' });
+      expect(result.cssVars['--brand-primary']).toBe('#1a1a40');
+      expect(result.cssVarsDark['--brand-primary']).not.toBe('#1a1a40');
     });
   });
 

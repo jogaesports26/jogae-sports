@@ -10,6 +10,8 @@ export interface StoreTheme {
   logoUrl: string | null
   themeColor: string
   cssVars: Record<string, string>
+  /** Sobrescritas de marca no modo escuro (derivadas no backend). */
+  cssVarsDark?: Record<string, string>
 }
 
 declare global {
@@ -59,7 +61,7 @@ function initialTheme(slug: string | null): StoreTheme | null {
  */
 export function useStoreTheme(
   slug: string | null | undefined,
-  { enabled = true, query = '' }: { enabled?: boolean; query?: string } = {},
+  { enabled = true, query = '', scheme = 'light' }: { enabled?: boolean; query?: string; scheme?: ColorScheme } = {},
 ): StoreTheme | null {
   const key = enabled ? (slug ?? null) : null
   // Com parâmetros (embed) o tema é calculado no servidor pra essa combinação; não usa o atalho de cache/injeção.
@@ -85,8 +87,10 @@ export function useStoreTheme(
   useEffect(() => {
     if (!theme || !key) return
     const root = document.documentElement
-    const names = Object.keys(theme.cssVars)
-    names.forEach((name) => root.style.setProperty(name, theme.cssVars[name]))
+    // No escuro, a marca derivada no backend sobrescreve a do claro; neutros vêm de tokens.css ([data-theme='dark']).
+    const vars = scheme === 'dark' ? { ...theme.cssVars, ...theme.cssVarsDark } : theme.cssVars
+    const names = Object.keys(vars)
+    names.forEach((name) => root.style.setProperty(name, vars[name]))
 
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
     const previousColor = meta?.content
@@ -96,9 +100,59 @@ export function useStoreTheme(
       names.forEach((name) => root.style.removeProperty(name))
       if (meta && previousColor !== undefined) meta.content = previousColor
     }
-  }, [theme, key])
+  }, [theme, key, scheme])
 
   return key ? theme : null
+}
+
+export type ColorScheme = 'light' | 'dark'
+const SCHEME_KEY = 'jogae_color_scheme'
+
+function readSchemePreference(): ColorScheme | null {
+  try {
+    const value = localStorage.getItem(SCHEME_KEY)
+    return value === 'light' || value === 'dark' ? value : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Modo claro/escuro da lojinha. Segue o sistema até a pessoa escolher no botão do topo;
+ * a escolha fica salva neste aparelho. Marca <html data-theme="dark"> só enquanto a rota da lojinha estiver montada.
+ */
+export function useColorScheme() {
+  const [preference, setPreference] = useState<ColorScheme | null>(() => readSchemePreference())
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const onChange = (event: MediaQueryListEvent) => setSystemDark(event.matches)
+    media.addEventListener('change', onChange)
+    return () => media.removeEventListener('change', onChange)
+  }, [])
+
+  const scheme: ColorScheme = preference ?? (systemDark ? 'dark' : 'light')
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (scheme === 'dark') root.dataset.theme = 'dark'
+    return () => {
+      delete root.dataset.theme
+    }
+  }, [scheme])
+
+  function toggle() {
+    const next: ColorScheme = scheme === 'dark' ? 'light' : 'dark'
+    setPreference(next)
+    try {
+      localStorage.setItem(SCHEME_KEY, next)
+    } catch {
+      // sem localStorage, a escolha vale só até recarregar
+    }
+  }
+
+  return { scheme, toggle }
 }
 
 /** Escolhas do dono (o que ele edita). A derivação completa é feita no backend. */

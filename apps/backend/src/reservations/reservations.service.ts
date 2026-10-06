@@ -91,6 +91,8 @@ export class ReservationsService {
       logoUrl: theme.logoUrl ?? null,
       themeColor: theme.resolved.themeColor,
       cssVars: theme.resolved.cssVars,
+      cssVarsDark:
+        theme.resolved.cssVarsDark ?? resolveTheme(theme).cssVarsDark,
     };
   }
 

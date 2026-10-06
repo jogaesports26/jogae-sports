@@ -15,7 +15,10 @@ export const THEME_HISTORY_LIMIT = 5;
 
 const WHITE = '#ffffff';
 const NAVY = '#00182e';
+/** Superfície (cards) do modo escuro. Paleta de neutros fixa; só a marca é derivada. Mantida em sync com tokens.css. */
+export const DARK_SURFACE = '#16202b';
 const MIN_CONTRAST = 4.5;
+const MIN_NON_TEXT_CONTRAST = 3;
 const MAX_PRIMARY_LIGHTNESS = 0.93;
 
 export type ThemeRadius = 'sm' | 'md' | 'lg';
@@ -33,6 +36,8 @@ export interface ThemeInput {
 
 export interface ResolvedTheme {
   cssVars: Record<string, string>;
+  /** Sobrescritas das variáveis de marca no modo escuro (derivadas em OKLCH). */
+  cssVarsDark: Record<string, string>;
   themeColor: string;
   warnings: string[];
   adjustments: string[];
@@ -165,6 +170,40 @@ const FONT_STACK: Record<ThemeFont, string> = {
   serif: "Georgia, 'Times New Roman', serif",
 };
 
+/** Clareia `color` (OKLCH) até atingir `ratio` de contraste contra `background`. */
+function liftUntil(color: string, background: string, ratio: number): string {
+  const base = hexToOklch(color);
+  let lightness = base.l;
+  let result = color;
+  while (contrastRatio(result, background) < ratio && lightness < 0.95) {
+    lightness += 0.01;
+    result = oklchToHex({ ...base, l: lightness });
+  }
+  return result;
+}
+
+function deriveDark(primary: string, action: string): Record<string, string> {
+  const primaryOk = hexToOklch(primary);
+  const primaryDark = liftUntil(primary, DARK_SURFACE, MIN_NON_TEXT_CONTRAST);
+  const actionDark = liftUntil(action, DARK_SURFACE, MIN_NON_TEXT_CONTRAST);
+  return {
+    '--brand-primary': primaryDark,
+    '--brand-50': oklchToHex({
+      l: 0.28,
+      c: Math.min(primaryOk.c, 0.05),
+      h: primaryOk.h,
+    }),
+    '--brand-600': oklchToHex({
+      ...hexToOklch(primaryDark),
+      l: Math.min(hexToOklch(primaryDark).l + 0.08, 0.95),
+    }),
+    '--brand-text': liftUntil(primary, DARK_SURFACE, MIN_CONTRAST),
+    '--on-brand': bestOn(primaryDark),
+    '--brand-action': actionDark,
+    '--on-action': bestOn(actionDark),
+  };
+}
+
 export function resolveTheme(input: ThemeInput): ResolvedTheme {
   const warnings: string[] = [];
   const adjustments: string[] = [];
@@ -238,6 +277,7 @@ export function resolveTheme(input: ThemeInput): ResolvedTheme {
       '--radius-card': `${radius.card}px`,
       '--font-body': FONT_STACK[input.font ?? 'inter'],
     },
+    cssVarsDark: deriveDark(primary, action),
     themeColor: primary,
     warnings,
     adjustments,
