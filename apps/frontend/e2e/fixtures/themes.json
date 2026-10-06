@@ -1,0 +1,132 @@
+{
+  "jogae": {
+    "cssVars": {
+      "--brand-primary": "#013ff6",
+      "--brand-50": "#ebf6ff",
+      "--brand-600": "#0015d9",
+      "--brand-text": "#013ff6",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#acec00",
+      "--on-action": "#00182e",
+      "--brand-dark": "#051335",
+      "--radius-sm": "10px",
+      "--radius-md": "16px",
+      "--radius-card": "20px",
+      "--font-body": "'Inter', system-ui, sans-serif"
+    },
+    "cssVarsDark": {
+      "--brand-primary": "#175aff",
+      "--brand-50": "#1c2842",
+      "--brand-600": "#3076ff",
+      "--brand-text": "#3881ff",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#acec00",
+      "--on-action": "#00182e"
+    },
+    "themeColor": "#013ff6"
+  },
+  "quadra": {
+    "cssVars": {
+      "--brand-primary": "#0b7a3b",
+      "--brand-50": "#e7fbeb",
+      "--brand-600": "#006224",
+      "--brand-text": "#0b7a3b",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#f5c518",
+      "--on-action": "#00182e",
+      "--brand-dark": "#001e04",
+      "--radius-sm": "10px",
+      "--radius-md": "16px",
+      "--radius-card": "20px",
+      "--font-body": "'Inter', system-ui, sans-serif"
+    },
+    "cssVarsDark": {
+      "--brand-primary": "#0b7a3b",
+      "--brand-50": "#14301c",
+      "--brand-600": "#319252",
+      "--brand-text": "#389958",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#f5c518",
+      "--on-action": "#00182e"
+    },
+    "themeColor": "#0b7a3b"
+  },
+  "areia": {
+    "cssVars": {
+      "--brand-primary": "#c2410c",
+      "--brand-50": "#ffefe7",
+      "--brand-600": "#a62400",
+      "--brand-text": "#c2410c",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#0b3d91",
+      "--on-action": "#ffffff",
+      "--brand-dark": "#2e0600",
+      "--radius-sm": "10px",
+      "--radius-md": "16px",
+      "--radius-card": "20px",
+      "--font-body": "'Inter', system-ui, sans-serif"
+    },
+    "cssVarsDark": {
+      "--brand-primary": "#c2410c",
+      "--brand-50": "#3e2016",
+      "--brand-600": "#de5b2f",
+      "--brand-text": "#e25e32",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#3567bf",
+      "--on-action": "#ffffff"
+    },
+    "themeColor": "#c2410c"
+  },
+  "noite": {
+    "cssVars": {
+      "--brand-primary": "#5b2bd9",
+      "--brand-50": "#f3f3ff",
+      "--brand-600": "#4900bd",
+      "--brand-text": "#5b2bd9",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#ffd43b",
+      "--on-action": "#00182e",
+      "--brand-dark": "#140f34",
+      "--radius-sm": "10px",
+      "--radius-md": "16px",
+      "--radius-card": "20px",
+      "--font-body": "'Inter', system-ui, sans-serif"
+    },
+    "cssVarsDark": {
+      "--brand-primary": "#6f4af5",
+      "--brand-50": "#272540",
+      "--brand-600": "#8466ff",
+      "--brand-text": "#8d70ff",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#ffd43b",
+      "--on-action": "#00182e"
+    },
+    "themeColor": "#5b2bd9"
+  },
+  "classico": {
+    "cssVars": {
+      "--brand-primary": "#243447",
+      "--brand-50": "#e7f7ff",
+      "--brand-600": "#112032",
+      "--brand-text": "#243447",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#e8590c",
+      "--on-action": "#00182e",
+      "--brand-dark": "#081728",
+      "--radius-sm": "10px",
+      "--radius-md": "16px",
+      "--radius-card": "20px",
+      "--font-body": "'Inter', system-ui, sans-serif"
+    },
+    "cssVarsDark": {
+      "--brand-primary": "#596b80",
+      "--brand-50": "#1a2a3c",
+      "--brand-600": "#708298",
+      "--brand-text": "#75889e",
+      "--on-brand": "#ffffff",
+      "--brand-action": "#e8590c",
+      "--on-action": "#00182e"
+    },
+    "themeColor": "#243447"
+  }
+}
