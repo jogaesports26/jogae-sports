@@ -15,7 +15,12 @@ import { InstructorsService } from '../instructors/instructors.service';
 import { CouponsService } from '../coupons/coupons.service';
 import { EquipmentService } from '../equipment/equipment.service';
 import { ReservationEquipmentItemDto } from '../equipment/dto/reservation-equipment-item.dto';
-import { defaultTheme, type StoredTheme } from '../theme/theme.util';
+import {
+  defaultTheme,
+  resolveTheme,
+  type StoredTheme,
+  type ThemeInput,
+} from '../theme/theme.util';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { RescheduleReservationDto } from './dto/reschedule-reservation.dto';
 import { CreateMaintenanceBlockDto } from './dto/create-maintenance-block.dto';
@@ -50,7 +55,7 @@ export class ReservationsService {
   }
 
   /** Tema + dados mínimos de meta/OG da lojinha. Leve e cacheável (ETag pelo `rev` do tema). */
-  async getThemeBySlug(slug: string) {
+  async getThemeBySlug(slug: string, overrides: ThemeInput = {}) {
     const owner = await this.prisma.user.findUnique({
       where: { establishmentSlug: slug },
       select: {
@@ -63,7 +68,21 @@ export class ReservationsService {
     if (!owner) {
       throw new NotFoundException('Estabelecimento não encontrado');
     }
-    const theme = (owner.theme as StoredTheme | null) ?? defaultTheme();
+    const stored = (owner.theme as StoredTheme | null) ?? defaultTheme();
+    const hasOverrides = Object.keys(overrides).length > 0;
+    // Embed com parâmetros: recalcula em cima do tema do dono (cores novas descartam as do preset).
+    const theme = hasOverrides
+      ? {
+          ...stored,
+          resolved: resolveTheme({
+            ...stored,
+            ...(overrides.primary && !overrides.action
+              ? { action: undefined }
+              : {}),
+            ...overrides,
+          }),
+        }
+      : stored;
     return {
       rev: theme.rev,
       name: owner.establishmentName,

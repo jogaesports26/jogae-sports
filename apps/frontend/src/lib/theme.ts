@@ -38,8 +38,9 @@ function writeCache(slug: string, theme: StoreTheme) {
   }
 }
 
-export async function fetchStoreTheme(slug: string): Promise<StoreTheme | null> {
-  const response = await fetch(`${API_URL}/public/estabelecimentos/${encodeURIComponent(slug)}/theme`)
+export async function fetchStoreTheme(slug: string, query = ''): Promise<StoreTheme | null> {
+  const suffix = query ? `?${query}` : ''
+  const response = await fetch(`${API_URL}/public/estabelecimentos/${encodeURIComponent(slug)}/theme${suffix}`)
   if (!response.ok) return null
   return response.json()
 }
@@ -56,17 +57,21 @@ function initialTheme(slug: string | null): StoreTheme | null {
  * da lojinha estiver montada (modais renderizados fora do wrapper herdam também).
  * Nunca é usado no painel do dono. Sem slug ou sem tema → mantém o padrão Jogaê.
  */
-export function useStoreTheme(slug: string | null | undefined): StoreTheme | null {
-  const key = slug ?? null
-  const [theme, setTheme] = useState<StoreTheme | null>(() => initialTheme(key))
+export function useStoreTheme(
+  slug: string | null | undefined,
+  { enabled = true, query = '' }: { enabled?: boolean; query?: string } = {},
+): StoreTheme | null {
+  const key = enabled ? (slug ?? null) : null
+  // Com parâmetros (embed) o tema é calculado no servidor pra essa combinação; não usa o atalho de cache/injeção.
+  const [theme, setTheme] = useState<StoreTheme | null>(() => (query ? null : initialTheme(key)))
 
   useEffect(() => {
     if (!key) return
     let cancelled = false
-    fetchStoreTheme(key)
+    fetchStoreTheme(key, query)
       .then((fresh) => {
         if (cancelled || !fresh) return
-        writeCache(key, fresh)
+        if (!query) writeCache(key, fresh)
         setTheme(fresh)
       })
       .catch(() => {
@@ -75,10 +80,10 @@ export function useStoreTheme(slug: string | null | undefined): StoreTheme | nul
     return () => {
       cancelled = true
     }
-  }, [key])
+  }, [key, query])
 
   useEffect(() => {
-    if (!theme) return
+    if (!theme || !key) return
     const root = document.documentElement
     const names = Object.keys(theme.cssVars)
     names.forEach((name) => root.style.setProperty(name, theme.cssVars[name]))
@@ -91,9 +96,9 @@ export function useStoreTheme(slug: string | null | undefined): StoreTheme | nul
       names.forEach((name) => root.style.removeProperty(name))
       if (meta && previousColor !== undefined) meta.content = previousColor
     }
-  }, [theme])
+  }, [theme, key])
 
-  return theme
+  return key ? theme : null
 }
 
 /** Escolhas do dono (o que ele edita). A derivação completa é feita no backend. */

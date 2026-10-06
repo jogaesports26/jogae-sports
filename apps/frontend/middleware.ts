@@ -46,7 +46,8 @@ const linkImage = (value: string | null | undefined) => (value && /^https?:\/\//
 export default async function middleware(request: Request): Promise<Response | undefined> {
   const url = new URL(request.url)
   const [slug, second] = url.pathname.split('/').filter(Boolean)
-  if (!slug || RESERVED.has(slug)) return undefined
+  // O embed (iframe no site do cliente) não leva tema do dono por padrão: só com ?theme=auto, resolvido no navegador.
+  if (!slug || RESERVED.has(slug) || second === 'embed') return undefined
 
   try {
     const theme = await getJson<ThemeResponse>(`/public/estabelecimentos/${encodeURIComponent(slug)}/theme`)

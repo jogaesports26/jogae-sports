@@ -310,3 +310,41 @@ export function buildStoredTheme(
 export function defaultTheme(): StoredTheme {
   return buildStoredTheme({ preset: DEFAULT_PRESET });
 }
+
+const RADIUS_VALUES: ThemeRadius[] = ['sm', 'md', 'lg'];
+const FONT_VALUES: ThemeFont[] = ['inter', 'system', 'serif'];
+
+/**
+ * Parâmetros do embed (?primary=%23rrggbb&action=...&radius=sm|md|lg&font=inter|system|serif).
+ * Qualquer valor fora do formato dá 400; chaves desconhecidas são ignoradas.
+ */
+export function parseThemeOverrides(
+  query: Record<string, unknown>,
+): ThemeInput {
+  const overrides: ThemeInput = {};
+  const str = (key: string) =>
+    typeof query[key] === 'string' && query[key] !== ''
+      ? query[key]
+      : undefined;
+
+  const primary = str('primary');
+  if (primary) overrides.primary = normalizeHex(primary);
+  const action = str('action');
+  if (action) overrides.action = normalizeHex(action);
+
+  const radius = str('radius');
+  if (radius) {
+    if (!RADIUS_VALUES.includes(radius as ThemeRadius)) {
+      throw new BadRequestException('radius deve ser sm, md ou lg.');
+    }
+    overrides.radius = radius as ThemeRadius;
+  }
+  const font = str('font');
+  if (font) {
+    if (!FONT_VALUES.includes(font as ThemeFont)) {
+      throw new BadRequestException('font deve ser inter, system ou serif.');
+    }
+    overrides.font = font as ThemeFont;
+  }
+  return overrides;
+}

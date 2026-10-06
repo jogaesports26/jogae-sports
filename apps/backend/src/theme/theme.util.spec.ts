@@ -6,6 +6,7 @@ import {
   hexToOklch,
   normalizeHex,
   oklchToHex,
+  parseThemeOverrides,
   resolveTheme,
   THEME_HISTORY_LIMIT,
   THEME_PRESETS,
@@ -120,6 +121,31 @@ describe('theme.util', () => {
     it('o tema padrão usa o preset Jogaê', () => {
       expect(defaultTheme().resolved.cssVars['--brand-primary']).toBe(
         '#013ff6',
+      );
+    });
+  });
+
+  describe('parseThemeOverrides (parâmetros do embed)', () => {
+    it('aceita cores, raio e fonte válidos e ignora chaves desconhecidas', () => {
+      expect(
+        parseThemeOverrides({
+          primary: '#ABC',
+          radius: 'lg',
+          font: 'serif',
+          foo: 'bar',
+        }),
+      ).toEqual({ primary: '#aabbcc', radius: 'lg', font: 'serif' });
+    });
+
+    it('rejeita valores fora do formato', () => {
+      expect(() => parseThemeOverrides({ primary: 'red' })).toThrow(
+        BadRequestException,
+      );
+      expect(() => parseThemeOverrides({ radius: 'xl' })).toThrow(
+        BadRequestException,
+      );
+      expect(() => parseThemeOverrides({ font: 'comic' })).toThrow(
+        BadRequestException,
       );
     });
   });

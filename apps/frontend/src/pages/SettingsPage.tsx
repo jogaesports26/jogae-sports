@@ -56,6 +56,7 @@ export default function SettingsPage() {
   const [linkCopied, setLinkCopied] = useState(false)
   const [qrError, setQrError] = useState('')
   const [embedCodeCopied, setEmbedCodeCopied] = useState(false)
+  const [embedThemed, setEmbedThemed] = useState(true)
 
   async function handleCepLookup() {
     if (cep.replace(/\D/g, '').length !== 8) {
@@ -159,7 +160,7 @@ export default function SettingsPage() {
   }
 
   function buildEmbedCode() {
-    const embedUrl = `${window.location.origin}/${slug}/embed`
+    const embedUrl = `${window.location.origin}/${slug}/embed${embedThemed ? '?theme=auto' : ''}`
     return `<iframe src="${embedUrl}" width="100%" height="640" style="border:0" title="Reservar quadra"></iframe>`
   }
 
@@ -319,6 +320,10 @@ export default function SettingsPage() {
                     Cole esse código numa página do seu site pra mostrar suas quadras e deixar os
                     clientes reservarem sem sair de lá.
                   </p>
+                  <label className="theme-settings__toggle">
+                    <input type="checkbox" checked={embedThemed} onChange={(event) => setEmbedThemed(event.target.checked)} />
+                    Usar as cores da minha lojinha no widget
+                  </label>
                   <code className="settings-page__embed-code">{buildEmbedCode()}</code>
                   <button type="button" onClick={handleCopyEmbedCode}>
                     {embedCodeCopied ? 'Copiado!' : 'Copiar código'}
