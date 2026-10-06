@@ -122,6 +122,7 @@ export default function EstablishmentPage() {
   const { basePath } = useOutletContext<{ basePath: string }>()
   const [establishment, setEstablishment] = useState<Establishment | null>(null)
   const [error, setError] = useState('')
+  const [amenitiesOpen, setAmenitiesOpen] = useState(false)
   const [sportFilter, setSportFilter] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -150,6 +151,11 @@ export default function EstablishmentPage() {
     )
   }
   if (!establishment) return <EstablishmentSkeleton />
+
+  // Capa do dono (tema) ou foto de capa; some se for a mesma foto do 1º card, pra não repetir no topo.
+  const firstCourtPhoto = establishment.courts[0]?.photoUrls[0]
+  const coverCandidate = establishment.theme?.coverUrl ?? establishment.coverPhotoUrl
+  const coverUrl = coverCandidate && coverCandidate !== firstCourtPhoto ? coverCandidate : null
 
   const availableSports = [...new Set(establishment.courts.map((court) => court.sport))]
   const query = normalize(search.trim())
@@ -248,17 +254,29 @@ export default function EstablishmentPage() {
         )}
       </header>
 
-      {establishment.coverPhotoUrl && (
-        <img src={establishment.coverPhotoUrl} alt={establishment.establishmentName ?? 'Foto do local'} className="establishment-page__cover" />
+      {coverUrl && (
+        <img src={coverUrl} alt={establishment.establishmentName ?? 'Foto do local'} className="establishment-page__cover" />
       )}
 
       {establishment.amenities.length > 0 && (
-        <div className="establishment-page__amenities">
-          {establishment.amenities.map((amenity) => (
-            <span key={amenity} className="pill pill--neutral">
-              {amenityLabel(amenity)}
-            </span>
-          ))}
+        <div className="establishment-page__amenities-block">
+          <button
+            type="button"
+            className="establishment-page__amenities-toggle"
+            aria-expanded={amenitiesOpen}
+            onClick={() => setAmenitiesOpen((open) => !open)}
+          >
+            {amenitiesOpen ? 'Esconder comodidades' : `Ver comodidades (${establishment.amenities.length})`}
+          </button>
+          {amenitiesOpen && (
+            <div className="establishment-page__amenities">
+              {establishment.amenities.map((amenity) => (
+                <span key={amenity} className="pill pill--neutral">
+                  {amenityLabel(amenity)}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

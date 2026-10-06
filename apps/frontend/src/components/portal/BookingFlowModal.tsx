@@ -12,6 +12,7 @@ import { showToast } from '../../lib/toast'
 import { CANCELLATION_POLICY } from '../../lib/policy'
 import PlayerLoginForm from './PlayerLoginForm'
 import ReceiptModal from './ReceiptModal'
+import PoweredBy from './PoweredBy'
 import './BookingFlowModal.css'
 
 type Step = 'confirm' | 'login' | 'success'
@@ -390,6 +391,7 @@ export default function BookingFlowModal({
                 Fechar
               </button>
             </div>
+            <PoweredBy />
           </>
         )}
       </div>

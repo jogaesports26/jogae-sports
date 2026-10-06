@@ -1,0 +1,17 @@
+.powered-by {
+  margin: 0;
+  padding: 16px 20px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.powered-by a {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.powered-by a:hover {
+  color: var(--brand-text);
+}

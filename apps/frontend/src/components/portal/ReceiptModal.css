@@ -2,7 +2,7 @@
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
   margin-bottom: 2px;
 }
 
@@ -17,7 +17,7 @@
 .receipt-modal__price {
   font-family: var(--font-heading);
   font-size: 24px;
-  color: var(--color-primary);
+  color: var(--brand-text);
   margin: 6px 0 16px;
 }
 
@@ -60,4 +60,11 @@
   .receipt-modal__no-print {
     display: none;
   }
+}
+
+.receipt-modal__powered {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-secondary);
 }

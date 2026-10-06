@@ -27,7 +27,7 @@
 .player-reservation-card__time {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .player-reservation-card__price {
@@ -151,7 +151,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--brand-text);
   text-decoration: none;
 }
 

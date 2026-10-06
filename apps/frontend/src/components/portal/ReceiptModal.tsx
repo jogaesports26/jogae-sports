@@ -63,6 +63,7 @@ export default function ReceiptModal({
             Imprimir
           </button>
         </div>
+        <p className="receipt-modal__powered">Emitido por Jogaê Sports</p>
         {shareResult === 'copied' && (
           <p className="booking-modal__hint receipt-modal__no-print">Link copiado! Cole numa conversa.</p>
         )}

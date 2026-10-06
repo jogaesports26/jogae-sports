@@ -43,6 +43,7 @@ export interface Establishment {
   aboutDescription: string | null
   coverPhotoUrl: string | null
   amenities: string[]
+  theme?: { coverUrl?: string; logoUrl?: string } | null
   courts: EstablishmentCourt[]
 }
 

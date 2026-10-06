@@ -113,10 +113,10 @@
 
 .booking-modal__coupon-apply {
   padding: 0 14px;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--brand-primary);
   border-radius: var(--radius-sm);
   background: var(--color-white);
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
@@ -192,8 +192,8 @@
 
 .booking-modal__submit {
   padding: 12px;
-  background: var(--color-accent-green);
-  color: var(--color-dark-navy);
+  background: var(--brand-action);
+  color: var(--on-action);
   border: none;
   border-radius: var(--radius-pill);
   font-family: var(--font-body);
@@ -218,8 +218,8 @@
   display: block;
   padding: 12px;
   background: var(--color-white);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  color: var(--brand-text);
+  border: 1px solid var(--brand-primary);
   border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-size: 15px;
@@ -230,7 +230,7 @@
 }
 
 .booking-modal__invite:hover {
-  background: var(--color-info-bg);
+  background: var(--brand-50);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -311,7 +311,7 @@
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -420,7 +420,7 @@
 .booking-modal__summary-price {
   font-family: var(--font-heading);
   font-size: 17px;
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .booking-modal__cta {

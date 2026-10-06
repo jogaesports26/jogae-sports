@@ -14,11 +14,11 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-accent-green);
+  background: var(--brand-action);
   border: none;
   box-shadow: var(--shadow-soft);
   font-size: 22px;
-  color: var(--color-dark-navy);
+  color: var(--on-action);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -98,8 +98,8 @@
 
 .chat-widget__bubble--user {
   align-self: flex-end;
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: var(--brand-primary);
+  color: var(--on-brand);
 }
 
 .chat-widget__form {
@@ -121,15 +121,15 @@
 }
 
 .chat-widget__form input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--brand-primary);
 }
 
 .chat-widget__form button {
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 700;
-  color: var(--color-dark-navy);
-  background: var(--color-accent-green);
+  color: var(--on-action);
+  background: var(--brand-action);
   border: none;
   border-radius: var(--radius-pill);
   padding: 0 14px;

@@ -84,8 +84,8 @@
 
 .review-modal__submit {
   padding: 12px;
-  background: var(--color-accent-green);
-  color: var(--color-dark-navy);
+  background: var(--brand-action);
+  color: var(--on-action);
   border: none;
   border-radius: var(--radius-pill);
   font-family: var(--font-body);

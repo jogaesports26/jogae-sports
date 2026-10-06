@@ -328,7 +328,8 @@ export default function CourtBookingPage() {
 
   return (
     <div className="booking-page">
-      <div className="booking-hero">
+      <div className="booking-layout">
+      <div className="booking-layout__hero booking-hero">
         <div className="booking-hero__media">
           {photos.length > 0 ? (
             <div className="booking-hero__carousel" onScroll={handleCarouselScroll}>
@@ -413,6 +414,7 @@ export default function CourtBookingPage() {
         </div>
       </div>
 
+      <div className="booking-layout__main">
       <section className="booking-section">
         <h2 className="booking-section__title">Escolha o dia</h2>
         <div className="day-pills">
@@ -549,8 +551,24 @@ export default function CourtBookingPage() {
         )}
       </section>
 
+      {pendingSlot && (
+        <div className="booking-summary-bar">
+          <div className="booking-summary-bar__info">
+            <strong>
+              {pendingSlot.dayLabel} · {formatMinutes(pendingSlot.startMinute)}–{formatMinutes(pendingSlot.endMinute)}
+            </strong>
+            <span>R$ {pendingSlot.price.toFixed(2).replace('.', ',')}</span>
+          </div>
+          <button type="button" className="btn btn--primary" onClick={confirmPendingSlot}>
+            Reservar agora
+          </button>
+        </div>
+      )}
+
+      </div>
+
       {reviews.length > 0 && (
-        <section id="avaliacoes" className="booking-section booking-page__reviews">
+        <section id="avaliacoes" className="booking-section booking-page__reviews booking-layout__reviews">
           <h2 className="booking-section__title">O que os clientes acharam</h2>
           <div className="booking-page__reviews-list">
             {reviews.map((review) => (
@@ -571,20 +589,7 @@ export default function CourtBookingPage() {
           </div>
         </section>
       )}
-
-      {pendingSlot && (
-        <div className="booking-summary-bar">
-          <div className="booking-summary-bar__info">
-            <strong>
-              {pendingSlot.dayLabel} · {formatMinutes(pendingSlot.startMinute)}–{formatMinutes(pendingSlot.endMinute)}
-            </strong>
-            <span>R$ {pendingSlot.price.toFixed(2).replace('.', ',')}</span>
-          </div>
-          <button type="button" className="btn btn--primary" onClick={confirmPendingSlot}>
-            Reservar agora
-          </button>
-        </div>
-      )}
+      </div>
 
       {selectedSlot && courtId && slug && (
         <BookingFlowModal
