@@ -853,4 +853,148 @@ describe('ReservationsService', () => {
       expect(result).toEqual({ id: 'res-1' });
     });
   });
+
+  describe('status da reserva (concluída / falta)', () => {
+    const pastReservation = (status = 'CONFIRMED') => ({
+      id: 'res-1',
+      courtId: 'court-1',
+      status,
+      startsAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      endsAt: new Date(Date.now() - 60 * 60 * 1000),
+    });
+
+    it('marca como CONCLUÍDA uma reserva confirmada que já começou', async () => {
+      prisma.reservation.findFirst.mockResolvedValue(pastReservation());
+      prisma.reservation.update.mockResolvedValue({ id: 'res-1' });
+
+      await service.updateStatus('court-1', 'owner-1', 'res-1', 'COMPLETED');
+
+      expect(prisma.reservation.update).toHaveBeenCalledWith({
+        where: { id: 'res-1' },
+        data: { status: 'COMPLETED' },
+      });
+    });
+
+    it('marca como NO_SHOW (falta) uma reserva confirmada que já começou', async () => {
+      prisma.reservation.findFirst.mockResolvedValue(pastReservation());
+      prisma.reservation.update.mockResolvedValue({ id: 'res-1' });
+
+      await service.updateStatus('court-1', 'owner-1', 'res-1', 'NO_SHOW');
+
+      expect(prisma.reservation.update).toHaveBeenCalledWith({
+        where: { id: 'res-1' },
+        data: { status: 'NO_SHOW' },
+      });
+    });
+
+    it.each(['COMPLETED', 'NO_SHOW'] as const)(
+      'recusa %s em reserva futura',
+      async (status) => {
+        prisma.reservation.findFirst.mockResolvedValue({
+          ...pastReservation(),
+          startsAt: nextSaturdayAt(14),
+          endsAt: nextSaturdayAt(15),
+        });
+
+        await expect(
+          service.updateStatus('court-1', 'owner-1', 'res-1', status),
+        ).rejects.toThrow(/já começou/);
+        expect(prisma.reservation.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(['CANCELLED', 'COMPLETED', 'NO_SHOW'])(
+      'recusa mudar o status de uma reserva %s',
+      async (current) => {
+        prisma.reservation.findFirst.mockResolvedValue(
+          pastReservation(current),
+        );
+
+        await expect(
+          service.updateStatus('court-1', 'owner-1', 'res-1', 'NO_SHOW'),
+        ).rejects.toThrow(BadRequestException);
+        expect(prisma.reservation.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it('não acha a reserva de outra quadra', async () => {
+      prisma.reservation.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.updateStatus('court-1', 'owner-1', 'res-x', 'NO_SHOW'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('respeita o isolamento por dono', async () => {
+      await expect(
+        service.updateStatus('court-1', 'outro-dono', 'res-1', 'NO_SHOW'),
+      ).rejects.toThrow(NotFoundException);
+      expect(prisma.reservation.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('bloqueio de manutenção', () => {
+    it('cria o bloqueio quando o período está livre', async () => {
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.maintenanceBlock.create.mockResolvedValue({ id: 'block-1' });
+
+      await service.createMaintenanceBlock('court-1', 'owner-1', {
+        startsAt: nextSaturdayAt(14).toISOString(),
+        endsAt: nextSaturdayAt(16).toISOString(),
+        reason: 'Troca da rede',
+      });
+
+      expect(prisma.maintenanceBlock.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          courtId: 'court-1',
+          reason: 'Troca da rede',
+        }),
+      });
+    });
+
+    it('recusa horário final igual ou anterior ao inicial', async () => {
+      await expect(
+        service.createMaintenanceBlock('court-1', 'owner-1', {
+          startsAt: nextSaturdayAt(15).toISOString(),
+          endsAt: nextSaturdayAt(14).toISOString(),
+        } as any),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.maintenanceBlock.create).not.toHaveBeenCalled();
+    });
+
+    it('recusa bloquear um período que tem reserva ativa', async () => {
+      prisma.reservation.findFirst.mockResolvedValue({ id: 'res-1' });
+
+      await expect(
+        service.createMaintenanceBlock('court-1', 'owner-1', {
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(16).toISOString(),
+        } as any),
+      ).rejects.toThrow(ConflictException);
+      expect(prisma.maintenanceBlock.create).not.toHaveBeenCalled();
+    });
+
+    it('respeita o isolamento por dono ao criar', async () => {
+      await expect(
+        service.createMaintenanceBlock('court-1', 'outro-dono', {
+          startsAt: nextSaturdayAt(14).toISOString(),
+          endsAt: nextSaturdayAt(16).toISOString(),
+        } as any),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('remove um bloqueio existente e recusa um inexistente', async () => {
+      prisma.maintenanceBlock.findFirst.mockResolvedValueOnce({ id: 'b1' });
+      prisma.maintenanceBlock.delete.mockResolvedValue({ id: 'b1' });
+      await service.removeMaintenanceBlock('court-1', 'owner-1', 'b1');
+      expect(prisma.maintenanceBlock.delete).toHaveBeenCalledWith({
+        where: { id: 'b1' },
+      });
+
+      prisma.maintenanceBlock.findFirst.mockResolvedValueOnce(null);
+      await expect(
+        service.removeMaintenanceBlock('court-1', 'owner-1', 'nao-existe'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 });

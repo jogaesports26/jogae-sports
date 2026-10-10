@@ -1,5 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+/** Telefone nos logs: só os 4 últimos dígitos (dado pessoal, LGPD). */
+export function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length > 4 ? `****${digits.slice(-4)}` : '****';
+}
+
 export interface NotificationResult {
   sent: boolean;
   devMessage: string;
@@ -17,7 +23,7 @@ export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
   send(phone: string, message: string): Promise<NotificationResult> {
-    this.logger.log(`[DEV] Notificação para ${phone}: ${message}`);
+    this.logger.log(`[DEV] Notificação para ${maskPhone(phone)}: ${message}`);
     return Promise.resolve({ sent: false, devMessage: message });
   }
 
