@@ -8,6 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { PlayerAuthService } from './player-auth.service';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -25,12 +26,14 @@ export class PlayerAuthController {
   constructor(private readonly playerAuthService: PlayerAuthService) {}
 
   @Post('request-otp')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   requestOtp(@Body() dto: RequestOtpDto) {
     return this.playerAuthService.requestOtp(dto.phone);
   }
 
   @Post('verify-otp')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.playerAuthService.verifyOtp(dto.phone, dto.code);

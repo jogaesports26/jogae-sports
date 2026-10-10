@@ -26,7 +26,7 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
     setIsLoading(true)
     try {
       const result = await requestOtp(phone)
-      setDevCode(result.devCode)
+      setDevCode(result.devCode ?? '')
       setStep('code')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível enviar o código')

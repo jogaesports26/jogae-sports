@@ -131,7 +131,7 @@ export async function fetchPublicAgenda(courtId: string, weekStart: string): Pro
   return response.json()
 }
 
-export async function requestOtp(phone: string): Promise<{ devCode: string }> {
+export async function requestOtp(phone: string): Promise<{ message: string; devCode?: string }> {
   const response = await fetch(`${API_URL}/player-auth/request-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
