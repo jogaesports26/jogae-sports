@@ -6,11 +6,19 @@ import {
   StaffPermission,
 } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
-const OWNER_PASSWORD = 'Seed@123';
-const STAFF_PASSWORD = 'Staff@123';
+// Sem senha conhecida no repositório: cada execução gera senhas aleatórias (mostradas UMA vez no fim),
+// a menos que você as defina em SEED_OWNER_PASSWORD / SEED_STAFF_PASSWORD. Nunca rode contra produção.
+function randomPassword(): string {
+  return randomBytes(12).toString('base64url');
+}
+const OWNER_PASSWORD_FROM_ENV = Boolean(process.env.SEED_OWNER_PASSWORD);
+const STAFF_PASSWORD_FROM_ENV = Boolean(process.env.SEED_STAFF_PASSWORD);
+const OWNER_PASSWORD = process.env.SEED_OWNER_PASSWORD ?? randomPassword();
+const STAFF_PASSWORD = process.env.SEED_STAFF_PASSWORD ?? randomPassword();
 
 const now = new Date();
 const currentMonth = now.getMonth();
@@ -626,6 +634,9 @@ async function seedEstablishment(spec: EstablishmentSeed, playersByPhone: Map<st
 }
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('O seed cria contas fictícias e apaga dados dessas contas: não rode com NODE_ENV=production.');
+  }
   console.log('Seeding jogadores...');
   const playersByPhone = await seedPlayers();
 
@@ -634,14 +645,17 @@ async function main() {
   for (const spec of ESTABLISHMENTS) {
     console.log(`Seeding estabelecimento: ${spec.slug}...`);
     const { owner, staff } = await seedEstablishment(spec, playersByPhone);
-    credentials.push(`- ${spec.slug} | dono: ${owner.email} / ${OWNER_PASSWORD}`);
+    credentials.push(`- ${spec.slug} | dono: ${owner.email}`);
     for (const s of staff) {
-      credentials.push(`    funcionário (${s.permission}): ${s.email} / ${STAFF_PASSWORD}`);
+      credentials.push(`    funcionário (${s.permission}): ${s.email}`);
     }
   }
 
   console.log('\n=== Contas de teste (estabelecimentos) ===');
   console.log(credentials.join('\n'));
+  console.log('--- Senhas (mostradas só agora; não ficam salvas em lugar nenhum) ---');
+  console.log(`dono:        ${OWNER_PASSWORD_FROM_ENV ? '(definida em SEED_OWNER_PASSWORD)' : OWNER_PASSWORD}`);
+  console.log(`funcionário: ${STAFF_PASSWORD_FROM_ENV ? '(definida em SEED_STAFF_PASSWORD)' : STAFF_PASSWORD}`);
   console.log('===========================================\n');
 }
 

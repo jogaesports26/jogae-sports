@@ -23,22 +23,18 @@ export function validateEnv(
 }
 
 /**
- * CORS_ORIGINS: lista separada por vírgulas. Sem a variável, mantém o comportamento
- * histórico (localhost + Vercel) para o Render/Vercel continuarem funcionando.
+ * CORS_ORIGINS: lista separada por vírgulas. Sem a variável, aceita só o localhost de
+ * desenvolvimento (o front de produção usa o mesmo domínio da API, via /api, sem CORS).
  */
 export function resolveCorsOrigins(
   value: string | undefined = process.env.CORS_ORIGINS,
-): Array<string | RegExp> {
+): string[] {
   const list = (value ?? '')
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
   if (list.length === 0) {
-    return [
-      'http://localhost:5173',
-      'https://jogae-sports-frontend.vercel.app',
-      /\.vercel\.app$/,
-    ];
+    return ['http://localhost:5173', 'http://127.0.0.1:5173'];
   }
   return list.filter((item) => item !== '*');
 }

@@ -1,5 +1,5 @@
 /**
- * Servidor do frontend para a VPS (substitui o Edge Middleware da Vercel).
+ * Servidor do frontend (roda na VPS dentro da imagem jogae-web).
  *
  * Entrega o `dist` do Vite e, nas rotas da lojinha (/:slug e /:slug/:courtId), reescreve o
  * <head> com título, Open Graph e tema do dono, igual a ../middleware.ts. Também serve
@@ -20,7 +20,7 @@ const TIMEOUT_MS = 2500
 const THEME_TTL_MS = 30_000
 const THEME_CACHE_MAX = 500
 
-// Manter em sync com RESERVED em ../middleware.ts, App.tsx e backend/src/common/reserved-slugs.ts.
+// Manter em sync com App.tsx e backend/src/common/reserved-slugs.ts.
 const RESERVED = new Set([
   'login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel',
   'minhas-reservas', 'termos', 'privacidade', 'api', 'assets', 'admin', 'health', 'healthz',

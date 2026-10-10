@@ -27,9 +27,12 @@ describe('validateEnv', () => {
 });
 
 describe('resolveCorsOrigins', () => {
-  it('sem variável mantém o comportamento atual (Vercel)', () => {
-    const origins = resolveCorsOrigins('');
-    expect(origins.some((o) => o instanceof RegExp)).toBe(true);
+  it('sem variável aceita só o localhost de desenvolvimento', () => {
+    expect(resolveCorsOrigins('')).toEqual([
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+    ]);
+    expect(resolveCorsOrigins(undefined)).toEqual(resolveCorsOrigins(''));
   });
 
   it('com variável usa só a lista e ignora coringa', () => {
