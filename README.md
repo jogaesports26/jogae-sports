@@ -94,3 +94,10 @@ Quando o projeto evoluir, migrar tudo para uma VPS própria.
 - Corpo JSON de até 10 MB (`main.ts`) existe porque as fotos de quadra chegam em base64. **Dívida técnica:** vetor de abuso e consumo de memória; a solução é enviar as fotos para um object storage com URL assinada.
 - **Não crie registro DNS `AAAA` (IPv6) para o domínio na VPS.** Clientes IPv6 chegam ao Caddy como `172.18.0.1` (proxy do Docker), então todos dividiriam o mesmo limite de requisições por IP e o ban/limite atingiria todo mundo junto. Use só registro `A` (IPv4).
 - Notificações ainda só gravam log (sem provedor de SMS/WhatsApp/e-mail).
+
+## Imagens Docker (GHCR)
+
+- `apps/backend/Dockerfile` (API) e `apps/frontend/Dockerfile` (web: `dist` do Vite + `server/server.ts`, que reescreve o `<head>` por lojinha como o middleware da Vercel). Contexto de build: a raiz do repositório. Sem `.env` nem segredos dentro das imagens (`.dockerignore`); toda configuração entra em tempo de execução.
+- A API roda `prisma migrate deploy` ao subir e responde `GET /health`. O web responde `GET /healthz`, chama a API em `API_INTERNAL_URL` (padrão `http://jogae-api:3000`) e é buildado com `VITE_API_URL=/api`.
+- Publicação: criar a tag `vX.Y.Z` dispara `.github/workflows/docker.yml`, que envia `ghcr.io/jogaesports26/jogae-sports-api:X.Y.Z` e `...-web:X.Y.Z` (sem `latest`). Em Pull Request o workflow só valida o build. Na primeira publicação, deixe o pacote **público** em *Package settings > Change visibility* para o servidor puxar sem token.
+- Teste local: `docker build -f apps/backend/Dockerfile -t jogae-api .` e `docker build -f apps/frontend/Dockerfile -t jogae-web .`.

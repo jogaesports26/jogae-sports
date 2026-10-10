@@ -16,7 +16,7 @@ export const config = {
   matcher: ['/((?!api/|assets/|.*\\..*).*)', '/:slug/manifest.webmanifest', '/:slug/icon.svg'],
 }
 
-const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas', 'termos', 'privacidade'])
+const RESERVED = new Set(['login', 'cadastro', 'esqueci-senha', 'redefinir-senha', 'painel', 'minhas-reservas', 'termos', 'privacidade', 'health', 'healthz'])
 // `process` não é tipado no runtime Edge da Vercel; lê pelo globalThis.
 const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
 const API_URL = env?.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
