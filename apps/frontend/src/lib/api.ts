@@ -1,4 +1,5 @@
-export const API_URL = import.meta.env.VITE_API_URL ?? 'https://jogae-sports-backend.onrender.com'
+// Em produção o front é servido no mesmo domínio da API (proxy em /api); em desenvolvimento, a API local.
+export const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '/api')
 
 export interface AuthUser {
   id: string

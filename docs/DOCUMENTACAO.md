@@ -50,14 +50,13 @@ Entregas obrigatórias semanais (às segundas-feiras, dia de aula da disciplina)
 - CSS puro (sem biblioteca de componentes/state manager) — tokens de design em `apps/frontend/src/index.css` e primitivos reutilizáveis (`.btn`, `.card`, `.pill`, `.modal`) em `apps/frontend/src/styles/primitives.css`
 
 **Banco de dados**
-- PostgreSQL, hospedado no [Supabase](https://supabase.com/)
+- PostgreSQL 16 (container Docker, um por ambiente)
 
 **Infraestrutura**
 - Monorepo com `npm workspaces` (`apps/backend`, `apps/frontend`)
-- Frontend hospedado na [Vercel](https://vercel.com/) (free tier)
-- Backend hospedado no [Render](https://render.com/) (free tier, via `render.yaml`)
-- Banco no Supabase (free tier)
-- Fase futura: migração para VPS própria quando o projeto crescer/monetizar
+- Tudo roda numa VPS própria com Docker Compose: `jogae-web` (front), `jogae-api` (NestJS) e `jogae-db` (Postgres, só na rede interna), atrás de um Caddy com HTTPS automático
+- Imagens `ghcr.io/jogaesports26/jogae-sports-api` e `-web`, publicadas pelo GitHub Actions a cada tag `vX.Y.Z` (versão fixa, sem `latest`)
+- Segredos (`.env`), dados e backups ficam só no servidor, fora do repositório
 
 ## 4. Arquitetura
 
@@ -66,22 +65,21 @@ flowchart LR
     subgraph Cliente
         A[Navegador do dono/jogador]
     end
-    subgraph Vercel
-        B[Frontend React/Vite]
-    end
-    subgraph Render
-        C[API NestJS]
-    end
-    subgraph Supabase
-        D[(PostgreSQL)]
+    subgraph VPS
+        P[Caddy HTTPS]
+        B[jogae-web: front React/Vite + servidor Node]
+        C[jogae-api: NestJS]
+        D[(jogae-db: PostgreSQL)]
     end
 
-    A -->|HTTPS| B
-    B -->|fetch REST + JWT| C
+    A -->|HTTPS| P
+    P -->|/| B
+    P -->|/api/*| C
+    B -->|tema e meta tags da lojinha| C
     C -->|Prisma| D
 ```
 
-O frontend é uma SPA que fala com o backend por uma API REST (JSON), autenticada por JWT guardado no `localStorage`. Não há SSR nem BFF — o React chama a API diretamente via helpers em `apps/frontend/src/lib/*.ts`.
+O frontend é uma SPA que fala com o backend por uma API REST (JSON), autenticada por JWT guardado no `localStorage`; o React chama a API (`/api`, mesmo domínio, sem CORS) via helpers em `apps/frontend/src/lib/*.ts`. Não há SSR: o servidor Node do front (`apps/frontend/server/server.ts`) só entrega o `dist` e reescreve o `<head>` das páginas `/:slug` (título, Open Graph, tema, manifest e ícone por lojinha) e libera o iframe do widget em `/:slug/embed`.
 
 **Papéis de usuário (roles) hoje:**
 - `COURT_OWNER` — dono do estabelecimento, acesso completo ao painel.
@@ -171,24 +169,25 @@ Frontend:
 npm run dev:frontend
 ```
 
-Frontend sobe em `http://localhost:5173`, backend em `http://localhost:3000` (configurável via `VITE_API_URL` no `.env.local` do frontend).
+Frontend sobe em `http://localhost:5173`, backend em `http://localhost:3000` (configurável via `VITE_API_URL` no `.env.local` do frontend). O Postgres local sobe com `docker compose -f docker-compose.dev.yml --env-file apps/backend/.env up -d`; passo a passo no [README](../README.md).
 
 ## 8. Ambientes e hospedagem
 
 | Ambiente | URL |
 |---|---|
-| Frontend (produção) | https://jogae-sports-frontend.vercel.app/ |
-| Backend/API (produção) | https://jogae-sports-backend.onrender.com |
-| Banco de dados | PostgreSQL gerenciado no Supabase |
+| Produção (front e API) | https://jogae.razielhub.cloud (front em `/`, API em `/api`) |
+| Banco de dados | PostgreSQL 16 no mesmo servidor, sem porta pública |
 
-A instância free do Render "dorme" após um período de inatividade — a primeira requisição após ficar ocioso pode levar dezenas de segundos.
+A VPS é de um servidor só: se ela cair, o sistema cai. Há backup diário local; a cópia fora do servidor é feita à mão pelo responsável da infraestrutura.
+
+_Histórico:_ nas primeiras sprints o projeto usou serviços gratuitos de nuvem (frontend, API e banco gerenciado), que foram desligados após a migração para a VPS.
 
 ## 9. Fluxo de trabalho da equipe
 
-- Cada integrante clona o repositório e roda localmente com seu próprio `.env`, apontando para o mesmo banco Supabase compartilhado.
+- Cada integrante clona o repositório e roda tudo localmente com seu próprio `.env` e o Postgres do `docker-compose.dev.yml` (sem banco compartilhado; os dados de demonstração vêm do `npm run seed`).
 - Trabalho sempre em branch (`git checkout -b feature/nome`), nunca direto em `main`.
 - Push da branch → Pull Request → revisão da equipe → merge em `main`.
-- Por uma particularidade do plano gratuito da Vercel (times Hobby bloqueiam deploy se o autor do commit de merge não for colaborador do projeto), o merge final de cada PR é feito pelo Raziel logado como a conta `jogaesports26`.
+- O deploy não depende de quem faz o merge: a publicação das imagens acontece quando alguém cria a tag `vX.Y.Z`, e o servidor só atualiza depois de backup e teste (feito pelo responsável da infraestrutura).
 - Planejamento e histórico de tarefas no Trello: https://trello.com/b/f2dEOaPL/jogae-sports
 
 ## 10. Roadmap

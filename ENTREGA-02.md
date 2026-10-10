@@ -3,7 +3,9 @@
 **Disciplina:** Programação Web
 **Data:** 28/09/2026
 **Repositório:** https://github.com/jogaesports26/jogae-sports
-**Sistema em produção:** https://jogae-sports-frontend.vercel.app/ (frontend) · https://jogae-sports-backend.onrender.com (API)
+**Sistema no ar:** https://jogae.razielhub.cloud (front em `/`, API em `/api`)
+
+> _Nota de histórico: esta entrega foi escrita quando o sistema rodava em serviços gratuitos de nuvem. Desde a migração, o sistema roda numa VPS própria em https://jogae.razielhub.cloud e as URLs antigas não valem mais._
 
 Este documento cobre, item a item, o checklist da 2ª entrega. Detalhes mais aprofundados estão em [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md); o checklist da entrega anterior está em [ENTREGA-01.md](ENTREGA-01.md).
 
@@ -15,14 +17,14 @@ Mínimo de 3 pedido pelo professor — os 6 requisitos definidos na Sprint 01 j�
 
 1. **Cadastro de usuários** — dono do estabelecimento (`POST /auth/register`), com recuperação de senha por token.
 2. **Login** — dono (`POST /auth/login`) e funcionário (`POST /staff-auth/login`) com JWT; jogador via telefone + código OTP (`/player-auth/*`), sem senha.
-3. **Banco de dados** — PostgreSQL (Supabase) via Prisma, 16 tabelas relacionadas (detalhe na seção 3).
+3. **Banco de dados** — PostgreSQL via Prisma, 16 tabelas relacionadas (detalhe na seção 3).
 4. **Integração com API externa** — busca de endereço por CEP via [ViaCEP](https://viacep.com.br/) (`GET /cep/:cep`, [apps/backend/src/cep/cep.service.ts](apps/backend/src/cep/cep.service.ts)), usada no cadastro/edição dos dados do estabelecimento.
 5. **Integração com IA Generativa** — chatbot do Portal do Cliente usa a API da Anthropic (Claude) para responder dúvidas do jogador sobre como reservar ([apps/backend/src/chat/chat.service.ts](apps/backend/src/chat/chat.service.ts)).
 6. **Chatbot inteligente** — widget de chat no Portal do Cliente (`ChatWidget.tsx`), com histórico de conversa enviado à IA a cada mensagem; degrada de forma controlada (mensagem padrão, sem erro 500) se a chave da API não estiver configurada no ambiente.
 
 ## 2. Integração Front-end, Back-end e Banco de Dados
 
-Fluxo ponta a ponta em produção: React (Vercel) → REST/JSON autenticado por JWT → NestJS (Render) → Prisma → PostgreSQL (Supabase). Sem mock de dados no front — toda tela do painel e do portal público lê e grava no banco real (ver seção 12 para evidência de persistência).
+Fluxo ponta a ponta em produção: React (`jogae-web`) → REST/JSON autenticado por JWT (`/api`) → NestJS (`jogae-api`) → Prisma → PostgreSQL (`jogae-db`), tudo na mesma VPS. Sem mock de dados no front — toda tela do painel e do portal público lê e grava no banco real (ver seção 12 para evidência de persistência).
 
 ## 3. Banco de dados — tabelas relacionadas
 
@@ -84,8 +86,7 @@ Quadro (https://trello.com/b/f2dEOaPL/jogae-sports) com listas `Backlog / Ideias
 
 Sistema em produção, sem dados mockados:
 
-- Frontend: https://jogae-sports-frontend.vercel.app/
-- Backend/API: https://jogae-sports-backend.onrender.com
-- Banco: PostgreSQL no Supabase, populado por `apps/backend/prisma/seed.ts` com 4 estabelecimentos fictícios (futebol, tênis, vôlei de praia, multiesportivo), quadras, reservas passadas/futuras, avaliações, cupons e equipamentos.
+- Sistema: https://jogae.razielhub.cloud (front em `/`, API em `/api`)
+- Banco: PostgreSQL no mesmo servidor, com uma arena fictícia de demonstração (Arena Demo Messejana: 2 quadras com regras de preço, reservas, cupom e equipamento). Localmente, `npm run seed` (`apps/backend/prisma/seed.ts`) cria 4 estabelecimentos fictícios (futebol, tênis, vôlei de praia, multiesportivo) com reservas, avaliações, cupons e equipamentos.
 
 Roteiro de demonstração sugerido: abrir a lojinha pública de um estabelecimento de demonstração → reservar um horário como jogador → logar como dono (conta de demonstração, ver [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md)) → ver a reserva aparecer na Agenda → editar/cancelar → confirmar que o dado persiste após recarregar a página (vem do banco, não de estado local).

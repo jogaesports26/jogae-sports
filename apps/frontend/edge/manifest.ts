@@ -3,7 +3,7 @@
  * Ficam na mesma origem do app (exigência da instalação). Funções puras, testáveis com node --test.
  */
 
-// Sem import de ./head: o bundler da Vercel não aceita extensão .ts, e o node --test não resolve import sem ela.
+// Módulo autônomo (sem import de ./head): fácil de testar com node --test e de reaproveitar no server/server.ts.
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 

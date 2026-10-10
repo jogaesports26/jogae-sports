@@ -1,6 +1,6 @@
 /**
  * Dados institucionais que aparecem na landing, no rodapé e nas páginas legais.
- * Vêm de variáveis de ambiente (Vercel) pra não publicar contato/CNPJ inventado:
+ * Vêm de variáveis de ambiente (VITE_*, definidas no build da imagem) pra não publicar contato/CNPJ inventado:
  * o que não estiver configurado simplesmente não aparece.
  *   VITE_CONTACT_EMAIL  e-mail de suporte/contato
  *   VITE_WHATSAPP       número com DDI+DDD, só dígitos (ex.: 5511999998888)

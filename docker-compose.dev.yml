@@ -1,0 +1,30 @@
+# Postgres SÓ para desenvolvimento local (sem depender de nenhum serviço de nuvem). Não é o compose de produção
+# (esse fica na VPS e só puxa as imagens do GHCR).
+#
+#   docker compose -f docker-compose.dev.yml --env-file apps/backend/.env up -d
+#
+# A senha vem de POSTGRES_PASSWORD no apps/backend/.env (copie de .env.example). O banco só
+# escuta em 127.0.0.1 e os dados ficam num volume nomeado (sobrevive a `docker compose down`).
+name: jogae-dev
+
+services:
+  db:
+    image: postgres:16.15-alpine
+    container_name: jogae-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jogae
+      POSTGRES_USER: jogae
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD em apps/backend/.env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - jogae-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jogae -d jogae"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  jogae-dev-data:

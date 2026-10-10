@@ -1,6 +1,6 @@
 /**
- * Reescrita do <head> do index.html pelo Edge Middleware (../middleware.ts).
- * Funções puras, sem dependência de runtime, pra rodar no Edge e nos testes (node --test).
+ * Reescrita do <head> do index.html pelo servidor do frontend (../server/server.ts).
+ * Funções puras, sem dependência de runtime, pra rodar no servidor e nos testes (node --test).
  */
 
 export interface HeadData {

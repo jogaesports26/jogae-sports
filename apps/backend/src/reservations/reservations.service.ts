@@ -931,6 +931,13 @@ export class ReservationsService {
       );
     }
 
+    // "Concluída" e "falta" só fazem sentido depois que o horário começou.
+    if (reservation.startsAt.getTime() > Date.now()) {
+      throw new BadRequestException(
+        'Só é possível marcar como concluída ou falta uma reserva que já começou',
+      );
+    }
+
     return this.prisma.reservation.update({
       where: { id: reservationId },
       data: { status },
