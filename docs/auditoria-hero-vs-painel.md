@@ -20,7 +20,7 @@
 
 ## Pendências que dependem de decisão ou dado seu
 
-1. **Contato e CNPJ**: definir `VITE_CONTACT_EMAIL`, `VITE_WHATSAPP` e `VITE_CNPJ` na Vercel. O rodapé e as páginas legais se adaptam ao que existir.
+1. **Contato e CNPJ**: definir `VITE_CONTACT_EMAIL`, `VITE_WHATSAPP` e `VITE_CNPJ` no `.env.local` em desenvolvimento ou, em produção, no build da imagem do front (precisa de `ARG`/`ENV` no `apps/frontend/Dockerfile`). O rodapé e as páginas legais se adaptam ao que existir.
 2. **Texto jurídico**: `/termos` e `/privacidade` são um texto-base fiel ao que o produto faz hoje; vale uma revisão jurídica antes de cobrar clientes.
 3. **Política de preço**: a seção "Quanto custa?" diz o que já era dito no FAQ (sem taxa por reserva, sem fidelidade, mensalidade fixa quando houver plano) e que hoje é grátis. Se os planos Básico/Intermediário/Âncora (card do backlog) forem definidos, trocar por tabela.
 4. **Prova social**: não há depoimento nem número de uso inventado. Os números reais ligam com `VITE_SHOW_STATS=true`; depoimentos entram em `content/testimonials.ts`.

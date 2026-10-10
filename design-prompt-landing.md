@@ -10,7 +10,7 @@ Jogaê Sports é um SaaS de gestão pra donos de quadras esportivas (modelo pare
 - CSS puro (sem Tailwind, sem styled-components) — arquivos `.css` por página/componente
 - Sem biblioteca de animação instalada ainda (pode sugerir Framer Motion, CSS puro, ou GSAP, mas diga explicitamente qual e por quê)
 - Ícones são SVGs inline feitos à mão (não usamos ícone-font nem lib de ícones)
-- Deploy: Vercel (frontend) + Render (backend NestJS) + Supabase (Postgres)
+- Deploy: VPS própria (Docker Compose + Caddy): front (Node + dist do Vite), API NestJS e Postgres
 
 ## Design system atual
 

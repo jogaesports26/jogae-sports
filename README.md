@@ -2,7 +2,7 @@
 
 Sistema SaaS de gestão para donos de quadras esportivas (agenda, reservas, CRM, portal público do jogador). Monorepo do projeto da disciplina de Programação Web.
 
-**Sistema em produção:** https://jogae-sports-frontend.vercel.app/ (frontend) · https://jogae-sports-backend.onrender.com (API)
+**Sistema no ar:** https://jogae.razielhub.cloud (front em `/`, API em `/api`), hospedado numa VPS própria.
 
 Documentação completa (arquitetura, modelo de dados, funcionalidades): [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md). Checklists de entrega da disciplina: [ENTREGA-01.md](ENTREGA-01.md), [ENTREGA-02.md](ENTREGA-02.md).
 
@@ -13,58 +13,65 @@ jogae-sports/
 ├── apps/
 │   ├── backend/    → NestJS + Prisma (PostgreSQL)
 │   └── frontend/   → React + Vite
-├── docs/           → documentação do projeto
-└── render.yaml      → config de deploy do backend
+├── docs/                    → documentação do projeto
+└── docker-compose.dev.yml   → Postgres para desenvolvimento local
 ```
 
 ## Rodando localmente
 
-Requer Node.js 20+ e uma instância PostgreSQL (local ou Supabase).
+Requer Node.js 20+ (o CI e as imagens usam 24) e Docker (só para o Postgres local; não precisa de conta em nenhum serviço de nuvem).
 
 Na raiz do projeto:
 
 ```bash
 npm install
+cp apps/backend/.env.example apps/backend/.env
+# edite apps/backend/.env: troque a senha (a MESMA em POSTGRES_PASSWORD, DATABASE_URL e DIRECT_URL) e o JWT_SECRET
+docker compose -f docker-compose.dev.yml --env-file apps/backend/.env up -d   # Postgres 16 em 127.0.0.1:5432
 ```
 
 Backend:
 ```bash
-cp apps/backend/.env.example apps/backend/.env
-# edite o .env com DATABASE_URL / DIRECT_URL (PostgreSQL) e JWT_SECRET
 cd apps/backend
 npx prisma generate
 npx prisma migrate dev
-npx prisma db seed   # opcional: popula estabelecimentos/quadras/reservas de demonstração
+npm run seed         # opcional: estabelecimentos/quadras/reservas FICTÍCIOS (ver "Seed" abaixo)
 cd ../..
 npm run dev:backend  # sobe em http://localhost:3000
 ```
 
 Frontend:
 ```bash
-npm run dev:frontend  # sobe em http://localhost:5173
+npm run dev:frontend  # sobe em http://localhost:5173 e fala com http://localhost:3000
 ```
 
-Se o backend não estiver em `http://localhost:3000`, configure `VITE_API_URL` em `apps/frontend/.env.local`.
+Em desenvolvimento o front usa `http://localhost:3000`; para outra API, configure `VITE_API_URL` em `apps/frontend/.env.local`. Para parar o banco: `docker compose -f docker-compose.dev.yml down` (os dados ficam no volume `jogae-dev-data`; `down -v` apaga tudo).
+
+**Seed (dados de demonstração).** `npm run seed` (em `apps/backend`) cria 4 estabelecimentos fictícios com donos, funcionários, quadras, reservas e avaliações. Não há senha conhecida no repositório: o seed gera senhas aleatórias e as mostra UMA vez no terminal ao final (anote). Para escolher as senhas, defina `SEED_OWNER_PASSWORD` e `SEED_STAFF_PASSWORD` antes de rodar. Ele recusa rodar com `NODE_ENV=production` e apaga/recria os dados das contas fictícias; nunca rode contra um banco real.
+
+Fluxo de jogador em desenvolvimento: sem provedor de SMS/WhatsApp, deixe `OTP_EXPOSE_DEV_CODE="true"` no `.env` local e o código aparece na tela de login.
 
 **Variáveis de ambiente do backend** (`apps/backend/.env`, ver `.env.example`):
 
 | Variável | Obrigatória | Uso |
 |---|---|---|
-| `DATABASE_URL` | sim | conexão de runtime com o Postgres (pooler transaction) |
-| `DIRECT_URL` | sim | conexão direta usada pelo Prisma Migrate |
+| `POSTGRES_PASSWORD` | só no dev local | senha do Postgres do `docker-compose.dev.yml` (use a mesma em `DATABASE_URL`/`DIRECT_URL`) |
+| `DATABASE_URL` | sim | conexão da API com o Postgres |
+| `DIRECT_URL` | sim | conexão usada pelo Prisma Migrate (a mesma URL, quando não há pooler) |
 | `JWT_SECRET` | sim | assinatura dos tokens JWT (login de dono/funcionário). A API não sobe sem ela; com menos de 32 caracteres só registra um aviso (gere com `openssl rand -hex 32`) |
-| `CORS_ORIGINS` | não | origens permitidas, separadas por vírgula (ex.: `https://jogae.razielhub.cloud,http://localhost:5173`). Sem a variável mantém o comportamento antigo (localhost + `*.vercel.app`); `*` é ignorado |
+| `CORS_ORIGINS` | não | origens permitidas, separadas por vírgula (ex.: `https://jogae.razielhub.cloud,http://localhost:5173`). Sem a variável só o `localhost:5173` de desenvolvimento é aceito (em produção o front usa o mesmo domínio, via `/api`); `*` é ignorado |
 | `OTP_EXPOSE_DEV_CODE` | não (default desligada) | `true` devolve o código OTP na resposta de `/player-auth/request-otp` (`devCode`). Existe porque ainda não há provedor de SMS/WhatsApp; use **só em ambiente de demonstração com dados fictícios**. **Deve estar desligada antes de qualquer cliente real**, senão qualquer pessoa entra como qualquer jogador sabendo o telefone |
-| `TRUST_PROXY` | não (default 1) | nº de proxies reversos confiáveis na frente da API (Caddy/Render = 1); necessário para o limite de requisições enxergar o IP real. Use `0` sem proxy |
+| `TRUST_PROXY` | não (default 1) | nº de proxies reversos confiáveis na frente da API (Caddy = 1); necessário para o limite de requisições enxergar o IP real. Use `0` sem proxy |
 | `CHAT_DAILY_LIMIT_PER_IP` / `CHAT_DAILY_LIMIT_GLOBAL` | não (30 / 500) | teto diário de mensagens do chat com IA por IP e no total (a API da Anthropic é paga por uso) |
 | `PORT` | não (default 3000) | porta da API |
+| `SEED_OWNER_PASSWORD` / `SEED_STAFF_PASSWORD` | não | senhas das contas do seed; sem elas o seed gera senhas aleatórias |
 | `ANTHROPIC_API_KEY` | não | habilita o chatbot com IA generativa do Portal do Cliente; sem ela, o chat responde com uma mensagem padrão |
 
-**Variáveis de ambiente do frontend** (Vercel ou `apps/frontend/.env.local`):
+**Variáveis de ambiente do frontend** (`apps/frontend/.env.local` em desenvolvimento). Na imagem de produção só `VITE_API_URL` é repassada hoje (`--build-arg`); para as demais (`VITE_CONTACT_EMAIL`, `VITE_WHATSAPP`, `VITE_CNPJ`, `VITE_SHOW_STATS`) é preciso acrescentar o `ARG`/`ENV` correspondente em `apps/frontend/Dockerfile`:
 
 | Variável | Obrigatória | Uso |
 |---|---|---|
-| `VITE_API_URL` | não (default: backend do Render) | URL da API; também lida pelo Edge Middleware (`apps/frontend/middleware.ts`) pra montar meta tags e tema da lojinha |
+| `VITE_API_URL` | não (default: `http://localhost:3000` em dev, `/api` no build) | URL da API usada pelo navegador. O servidor do front (`server/server.ts`) usa `API_INTERNAL_URL` (default `http://jogae-api:3000`) para montar meta tags e tema da lojinha |
 | `VITE_CONTACT_EMAIL` | não | e-mail de contato no rodapé da landing e nas páginas de termos/privacidade; sem ele o contato não aparece |
 | `VITE_WHATSAPP` | não | número com DDI+DDD só com dígitos (ex.: `5511999998888`); habilita o selo "Suporte no WhatsApp" e o botão de dúvida de preço |
 | `VITE_CNPJ` | não | CNPJ exibido no rodapé; sem ele a linha não aparece |
@@ -75,17 +82,15 @@ Se o backend não estiver em `http://localhost:3000`, configure `VITE_API_URL` e
 ## Stack
 
 - Back-end: Node.js + NestJS 11 + Prisma ORM
-- Banco de dados: PostgreSQL (Supabase)
+- Banco de dados: PostgreSQL 16
 - Front-end: React 19 (Vite + TypeScript)
 - Integrações: ViaCEP (busca de endereço), Claude API (chatbot de IA generativa)
 
 ## Hospedagem
 
-- Frontend: [Vercel](https://jogae-sports-frontend.vercel.app/) (free tier)
-- Backend: [Render](https://jogae-sports-backend.onrender.com) (free tier — a instância "dorme" após inatividade; a primeira requisição pode levar ~50s)
-- Banco: PostgreSQL no Supabase (free tier)
+O sistema roda numa VPS própria (Docker Compose atrás de um Caddy com HTTPS automático): https://jogae.razielhub.cloud. O repositório guarda o código e publica as imagens (`ghcr.io/jogaesports26/jogae-sports-api` e `-web`) por tag de versão; o `compose.yaml` de produção, os segredos e os backups ficam só no servidor, fora do repositório. Domínio próprio fica para antes da primeira venda.
 
-Quando o projeto evoluir, migrar tudo para uma VPS própria.
+_Histórico:_ nas primeiras sprints da disciplina o projeto rodou em serviços gratuitos de nuvem (frontend, API e banco gerenciado); foi migrado para a VPS por controle, custo previsível e ausência de "sono" da API. As URLs antigas não valem mais.
 
 ## Segurança e dívidas técnicas conhecidas
 
@@ -97,7 +102,7 @@ Quando o projeto evoluir, migrar tudo para uma VPS própria.
 
 ## Imagens Docker (GHCR)
 
-- `apps/backend/Dockerfile` (API) e `apps/frontend/Dockerfile` (web: `dist` do Vite + `server/server.ts`, que reescreve o `<head>` por lojinha como o middleware da Vercel). Contexto de build: a raiz do repositório. Sem `.env` nem segredos dentro das imagens (`.dockerignore`); toda configuração entra em tempo de execução.
+- `apps/backend/Dockerfile` (API) e `apps/frontend/Dockerfile` (web: `dist` do Vite + `server/server.ts`, que reescreve o `<head>` por lojinha fazendo o papel do antigo middleware de borda). Contexto de build: a raiz do repositório. Sem `.env` nem segredos dentro das imagens (`.dockerignore`); toda configuração entra em tempo de execução.
 - A API roda `prisma migrate deploy` ao subir e responde `GET /health`. O web responde `GET /healthz`, chama a API em `API_INTERNAL_URL` (padrão `http://jogae-api:3000`) e é buildado com `VITE_API_URL=/api`.
 - Publicação: criar a tag `vX.Y.Z` dispara `.github/workflows/docker.yml`, que envia `ghcr.io/jogaesports26/jogae-sports-api:X.Y.Z` e `...-web:X.Y.Z` (sem `latest`). Em Pull Request o workflow só valida o build. Na primeira publicação, deixe o pacote **público** em *Package settings > Change visibility* para o servidor puxar sem token.
 - Teste local: `docker build -f apps/backend/Dockerfile -t jogae-api .` e `docker build -f apps/frontend/Dockerfile -t jogae-web .`.

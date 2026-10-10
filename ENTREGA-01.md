@@ -3,7 +3,9 @@
 **Disciplina:** Programação Web
 **Data:** 14/09/2026
 **Repositório:** https://github.com/jogaesports26/jogae-sports
-**Sistema em produção:** https://jogae-sports-frontend.vercel.app/ (frontend) · https://jogae-sports-backend.onrender.com (API)
+**Sistema no ar:** https://jogae.razielhub.cloud (front em `/`, API em `/api`)
+
+> _Nota de histórico: esta entrega foi escrita quando o sistema rodava em serviços gratuitos de nuvem. Desde a migração, o sistema roda numa VPS própria em https://jogae.razielhub.cloud e as URLs antigas não valem mais._
 
 Este documento cobre, item a item, o checklist da 1ª entrega. Detalhes mais aprofundados (arquitetura, modelo de dados completo, roadmap) estão em [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md).
 
@@ -19,8 +21,8 @@ Repositório: [jogaesports26/jogae-sports](https://github.com/jogaesports26/joga
 |---|---|
 | Front-end | React 19 + Vite + TypeScript, `react-router-dom` para rotas, CSS puro (sem framework de UI) |
 | Back-end | NestJS 11 (Node.js), autenticação JWT própria (`@nestjs/jwt`) |
-| Banco de dados | PostgreSQL (hospedado no Supabase), acessado via Prisma ORM 6.9 |
-| Hospedagem | Frontend na Vercel · Backend no Render · Banco no Supabase (todos free tier nesta fase) |
+| Banco de dados | PostgreSQL 16, acessado via Prisma ORM 6.9 |
+| Hospedagem | VPS própria com Docker Compose (front, API e banco) atrás de um Caddy com HTTPS |
 
 Monorepo com `npm workspaces` (`apps/backend`, `apps/frontend`).
 
@@ -38,7 +40,7 @@ jogae-sports/
 │           ├── components/  → layout/painel/portal
 │           └── lib/         → chamadas de API e utilitários
 ├── docs/            → documentação do projeto
-├── render.yaml      → config de deploy do backend
+├── docker-compose.dev.yml → Postgres para desenvolvimento local
 └── package.json     → scripts do monorepo
 ```
 
@@ -159,20 +161,19 @@ erDiagram
 
 O sistema já está em produção, então em vez de wireframes estáticos usamos o próprio produto rodando como protótipo. Telas principais (mínimo de 3 pedido pelo professor):
 
-1. **Landing page** — apresentação do produto para o dono de quadra: https://jogae-sports-frontend.vercel.app/
-2. **Login / Cadastro do dono** (com alternância "Sou dono" / "Sou funcionário"): https://jogae-sports-frontend.vercel.app/login e https://jogae-sports-frontend.vercel.app/cadastro
-3. **Lojinha pública de um estabelecimento** (portal do jogador, dados de demonstração): https://jogae-sports-frontend.vercel.app/arena-vitoria
-4. **Painel do dono** (agenda, relatórios, clientes etc.) — requer login; usar a conta de demonstração `contato@arenavitoria.test` / `Seed@123` (ver [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md) para as demais contas de teste).
+1. **Landing page** — apresentação do produto para o dono de quadra: https://jogae.razielhub.cloud/
+2. **Login / Cadastro do dono** (com alternância "Sou dono" / "Sou funcionário"): https://jogae.razielhub.cloud/login e https://jogae.razielhub.cloud/cadastro
+3. **Lojinha pública de um estabelecimento** (portal do jogador, dados de demonstração): https://jogae.razielhub.cloud/arena-demo
+4. **Painel do dono** (agenda, relatórios, clientes etc.) — requer login; pedir ao responsável as credenciais da conta de demonstração (não ficam no repositório; o `npm run seed` gera contas locais com senha aleatória, ver [README](README.md)).
 
-> Para anexar prints estáticos ao PDF/slides da entrega, é só tirar screenshot dessas URLs — o sistema já está com dados de demonstração carregados (4 estabelecimentos fictícios).
+> Para anexar prints estáticos ao PDF/slides da entrega, é só tirar screenshot dessas URLs — o sistema já está com dados de demonstração carregados (uma arena fictícia).
 
 ## 8. Sistema com estrutura inicial funcionando
 
 Confirmado — não é só a estrutura inicial, o sistema está em produção com navegação completa entre landing page, autenticação, painel do dono (mais de 15 telas) e portal público do jogador:
 
-- Frontend: https://jogae-sports-frontend.vercel.app/ (Vercel)
-- Backend/API: https://jogae-sports-backend.onrender.com (Render — instância free "dorme" após inatividade, primeira requisição pode levar ~50s)
-- Banco: PostgreSQL no Supabase, com dados de demonstração (4 estabelecimentos, quadras, reservas, avaliações)
+- Sistema: https://jogae.razielhub.cloud (front em `/`, API em `/api`), numa VPS própria
+- Banco: PostgreSQL no mesmo servidor, com dados de demonstração (uma arena fictícia com quadras, reservas, cupom e equipamento)
 
 ## 9. Evidência de participação da equipe
 
@@ -186,7 +187,7 @@ Confirmado — não é só a estrutura inicial, o sistema está em produção co
 Além de cumprir o checklist acadêmico, vale registrar o que essa entrega representa para o **Jogaê Sports como produto/negócio** (o projeto foi desenhado desde o início para ser um SaaS real, não só um exercício de disciplina):
 
 - **Cobertura de MVP muito além do mínimo pedido**: uma "Entrega 01" típica normalmente entrega só o esqueleto do sistema. Aqui já existem ~13 requisitos funcionais completos e testados (agenda, reservas, pagamentos calculados, CRM, cupons, equipamentos, equipe com permissão, relatórios, portal público) — ou seja, o produto já tem o núcleo de um MVP comercializável, não apenas uma prova de conceito.
-- **Risco técnico já reduzido**: as três decisões mais caras de reverter depois — escolha de stack, modelo de dados e hospedagem — já estão validadas em produção real (não em ambiente local), incluindo o pipeline de deploy (Vercel + Render + Supabase) funcionando de ponta a ponta.
+- **Risco técnico já reduzido**: as três decisões mais caras de reverter depois — escolha de stack, modelo de dados e hospedagem — já estão validadas em produção real (não em ambiente local), incluindo o pipeline de deploy (imagens Docker publicadas pelo GitHub Actions e servidor próprio) funcionando de ponta a ponta.
 - **Validação de mercado antecipada**: a pesquisa de concorrentes (ver [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md)) mostrou que concorrentes no modelo marketplace (Agendei, Minha Quadra, WebQuadras) estão com aparência de abandonados, enquanto o único concorrente com tração real (SAQES, 2000+ estabelecimentos) usa o mesmo modelo SaaS escolhido aqui — a entrega já nasce alinhada com o que comprovadamente funciona nesse mercado.
 - **Dado de demonstração pronto para vender a ideia**: os 4 estabelecimentos fictícios com dados realistas (reservas passadas/futuras, avaliações, cupons) permitem demonstrar o produto para um dono de quadra real hoje, sem esperar a entrega final da disciplina.
 
