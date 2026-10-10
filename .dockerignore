@@ -14,3 +14,13 @@ apps/frontend/e2e
 !README.md
 ENTREGA-*.md
 .claude
+
+# Produção na mesma pasta: nunca entra numa imagem
+data
+backup.sh
+deploy.sh
+publicar.sh
+compose.yaml
+.versoes
+.publicar.lock
+PROMPT-SESSAO.md

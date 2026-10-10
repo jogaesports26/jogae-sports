@@ -88,7 +88,7 @@ Fluxo de jogador em desenvolvimento: sem provedor de SMS/WhatsApp, deixe `OTP_EX
 
 ## Hospedagem
 
-O sistema roda numa VPS própria (Docker Compose atrás de um Caddy com HTTPS automático): https://jogae.razielhub.cloud. O repositório guarda o código e publica as imagens (`ghcr.io/jogaesports26/jogae-sports-api` e `-web`) por tag de versão; o `compose.yaml` de produção, os segredos e os backups ficam só no servidor, fora do repositório. Domínio próprio fica para antes da primeira venda.
+O sistema roda numa VPS própria (Docker Compose atrás de um Caddy com HTTPS automático): https://jogae.razielhub.cloud. Nesta fase (sem clientes) o código e a produção ficam na mesma pasta do servidor (`/srv/apps/jogae`) e a publicação é local: `./publicar.sh` roda os testes, builda as imagens, faz backup do banco, sobe, valida e volta sozinho para a versão anterior se algo falhar. Segredos (`.env`), dados e backups ficam só no servidor e fora do git. Um ambiente de desenvolvimento separado fica para quando o sistema estiver completo e padronizado. Domínio próprio fica para antes da primeira venda.
 
 _Histórico:_ nas primeiras sprints da disciplina o projeto rodou em serviços gratuitos de nuvem (frontend, API e banco gerenciado); foi migrado para a VPS por controle, custo previsível e ausência de "sono" da API. As URLs antigas não valem mais.
 
@@ -100,9 +100,9 @@ _Histórico:_ nas primeiras sprints da disciplina o projeto rodou em serviços g
 - **Não crie registro DNS `AAAA` (IPv6) para o domínio na VPS.** Clientes IPv6 chegam ao Caddy como `172.18.0.1` (proxy do Docker), então todos dividiriam o mesmo limite de requisições por IP e o ban/limite atingiria todo mundo junto. Use só registro `A` (IPv4).
 - Notificações ainda só gravam log (sem provedor de SMS/WhatsApp/e-mail).
 
-## Imagens Docker (GHCR)
+## Imagens Docker
 
 - `apps/backend/Dockerfile` (API) e `apps/frontend/Dockerfile` (web: `dist` do Vite + `server/server.ts`, que reescreve o `<head>` por lojinha fazendo o papel do antigo middleware de borda). Contexto de build: a raiz do repositório. Sem `.env` nem segredos dentro das imagens (`.dockerignore`); toda configuração entra em tempo de execução.
 - A API roda `prisma migrate deploy` ao subir e responde `GET /health`. O web responde `GET /healthz`, chama a API em `API_INTERNAL_URL` (padrão `http://jogae-api:3000`) e é buildado com `VITE_API_URL=/api`.
-- Publicação: criar a tag `vX.Y.Z` dispara `.github/workflows/docker.yml`, que envia `ghcr.io/jogaesports26/jogae-sports-api:X.Y.Z` e `...-web:X.Y.Z` (sem `latest`). Em Pull Request o workflow só valida o build. Na primeira publicação, deixe o pacote **público** em *Package settings > Change visibility* para o servidor puxar sem token.
-- Teste local: `docker build -f apps/backend/Dockerfile -t jogae-api .` e `docker build -f apps/frontend/Dockerfile -t jogae-web .`.
+- Publicação em produção: `./publicar.sh` (imagens locais `jogae-api:<data>-<commit>` e `jogae-web:...`). O workflow `.github/workflows/docker.yml` ainda publica imagens no GHCR em tags `vX.Y.Z`, mas a produção não as usa mais.
+- Teste local das imagens: `docker build -f apps/backend/Dockerfile -t jogae-api:teste .` e `docker build -f apps/frontend/Dockerfile -t jogae-web:teste .`.
