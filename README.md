@@ -52,7 +52,11 @@ Se o backend não estiver em `http://localhost:3000`, configure `VITE_API_URL` e
 |---|---|---|
 | `DATABASE_URL` | sim | conexão de runtime com o Postgres (pooler transaction) |
 | `DIRECT_URL` | sim | conexão direta usada pelo Prisma Migrate |
-| `JWT_SECRET` | sim | assinatura dos tokens JWT (login de dono/funcionário) |
+| `JWT_SECRET` | sim | assinatura dos tokens JWT (login de dono/funcionário). A API não sobe sem ela; com menos de 32 caracteres só registra um aviso (gere com `openssl rand -hex 32`) |
+| `CORS_ORIGINS` | não | origens permitidas, separadas por vírgula (ex.: `https://jogae.razielhub.cloud,http://localhost:5173`). Sem a variável mantém o comportamento antigo (localhost + `*.vercel.app`); `*` é ignorado |
+| `OTP_EXPOSE_DEV_CODE` | não (default desligada) | `true` devolve o código OTP na resposta de `/player-auth/request-otp` (`devCode`). Existe porque ainda não há provedor de SMS/WhatsApp; use **só em ambiente de demonstração com dados fictícios**. **Deve estar desligada antes de qualquer cliente real**, senão qualquer pessoa entra como qualquer jogador sabendo o telefone |
+| `TRUST_PROXY` | não (default 1) | nº de proxies reversos confiáveis na frente da API (Caddy/Render = 1); necessário para o limite de requisições enxergar o IP real. Use `0` sem proxy |
+| `CHAT_DAILY_LIMIT_PER_IP` / `CHAT_DAILY_LIMIT_GLOBAL` | não (30 / 500) | teto diário de mensagens do chat com IA por IP e no total (a API da Anthropic é paga por uso) |
 | `PORT` | não (default 3000) | porta da API |
 | `ANTHROPIC_API_KEY` | não | habilita o chatbot com IA generativa do Portal do Cliente; sem ela, o chat responde com uma mensagem padrão |
 
@@ -82,3 +86,11 @@ Se o backend não estiver em `http://localhost:3000`, configure `VITE_API_URL` e
 - Banco: PostgreSQL no Supabase (free tier)
 
 Quando o projeto evoluir, migrar tudo para uma VPS própria.
+
+## Segurança e dívidas técnicas conhecidas
+
+- Limite de requisições (`@nestjs/throttler`): 120/min por IP no geral; mais apertado em login, cadastro, recuperação de senha, OTP e chat. `GET /health` (sem banco) fica fora do limite.
+- OTP: código gerado com `crypto.randomInt`, expira em 5 min, no máximo 3 pedidos e 5 tentativas erradas por telefone a cada 10 min. Esses contadores por telefone ficam **em memória** (instância única); com mais de uma réplica, mover para Redis ou tabela.
+- Corpo JSON de até 10 MB (`main.ts`) existe porque as fotos de quadra chegam em base64. **Dívida técnica:** vetor de abuso e consumo de memória; a solução é enviar as fotos para um object storage com URL assinada.
+- **Não crie registro DNS `AAAA` (IPv6) para o domínio na VPS.** Clientes IPv6 chegam ao Caddy como `172.18.0.1` (proxy do Docker), então todos dividiriam o mesmo limite de requisições por IP e o ban/limite atingiria todo mundo junto. Use só registro `A` (IPv4).
+- Notificações ainda só gravam log (sem provedor de SMS/WhatsApp/e-mail).

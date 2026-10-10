@@ -1,11 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import Anthropic from '@anthropic-ai/sdk';
 import { SendMessageDto } from './dto/send-message.dto';
+import { AttemptLimiter } from '../common/rate-limit/attempt-limiter';
 
 // Trocar por 'claude-haiku-4-5' se o custo por mensagem for uma preocupação —
 // é um chatbot de suporte simples, não precisa do modelo mais capaz pra isso.
 const MODEL = 'claude-opus-5';
 const MAX_HISTORY_MESSAGES = 20;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function readLimit(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? '', 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 const SYSTEM_PROMPT = `Você é o assistente virtual do Jogaê Sports, um sistema de reserva de quadras esportivas.
 
@@ -20,13 +27,22 @@ Responda em português do Brasil, em poucas frases, tom direto e simpático. Se 
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private readonly client: Anthropic | null;
+  // A API da Anthropic é paga por uso e o endpoint é público: teto diário por IP e global.
+  private readonly perIpDaily = new AttemptLimiter(
+    readLimit('CHAT_DAILY_LIMIT_PER_IP', 30),
+    DAY_MS,
+  );
+  private readonly globalDaily = new AttemptLimiter(
+    readLimit('CHAT_DAILY_LIMIT_GLOBAL', 500),
+    DAY_MS,
+  );
 
   constructor() {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     this.client = apiKey ? new Anthropic({ apiKey }) : null;
   }
 
-  async sendMessage(dto: SendMessageDto) {
+  async sendMessage(dto: SendMessageDto, ip = 'unknown') {
     if (!this.client) {
       // Sem ANTHROPIC_API_KEY configurada ainda (ver card "Integração com IA
       // Generativa + Chatbot Inteligente" do Trello) — degrada de forma
@@ -36,6 +52,13 @@ export class ChatService {
           'O assistente virtual ainda não foi configurado nesse ambiente. Fale direto com o estabelecimento pelo telefone de contato da quadra.',
         configured: false,
       };
+    }
+
+    if (!this.perIpDaily.hit(ip) || !this.globalDaily.hit('global')) {
+      throw new HttpException(
+        'Limite diário do assistente atingido. Fale direto com o estabelecimento ou tente amanhã.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const history = (dto.history ?? []).slice(-MAX_HISTORY_MESSAGES);
