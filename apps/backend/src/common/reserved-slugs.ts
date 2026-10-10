@@ -15,4 +15,6 @@ export const RESERVED_SLUGS = new Set([
   'api',
   'assets',
   'admin',
+  'health',
+  'healthz',
 ]);

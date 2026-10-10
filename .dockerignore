@@ -1,0 +1,16 @@
+# Nada de segredos nem de lixo de build dentro das imagens.
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.github
+**/node_modules
+**/dist
+**/coverage
+**/playwright-report
+**/test-results
+apps/frontend/e2e
+*.md
+!README.md
+ENTREGA-*.md
+.claude
