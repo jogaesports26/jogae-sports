@@ -1,63 +1,162 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { formatCurrency } from '../../lib/money'
 import './Savings.css'
 
-// Semanas por mês (52/12). Os demais valores são só pontos de partida: a pessoa troca pelos números dela.
+// Semanas por mês (52/12). Os demais valores são só pontos de partida: a pessoa move os controles pro número dela.
 const WEEKS_PER_MONTH = 4.33
 
-function toNumber(value: string) {
-  const parsed = Number(value.replace(',', '.'))
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/** Anima de um número até o próximo (ease-out). O loop para sozinho quando chega. */
+function useAnimatedNumber(target: number, durationMs = 600) {
+  const reduced = prefersReducedMotion()
+  const [value, setValue] = useState(0)
+  const fromRef = useRef(0)
+
+  useEffect(() => {
+    if (reduced) return
+    const from = fromRef.current
+    if (from === target) return
+    const start = performance.now()
+    let frame = 0
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs)
+      const next = from + (target - from) * (1 - Math.pow(1 - t, 3))
+      fromRef.current = next
+      setValue(next)
+      if (t < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [target, durationMs, reduced])
+
+  return reduced ? target : value
+}
+
+interface SliderProps {
+  label: string
+  value: number
+  min: number
+  max: number
+  step?: number
+  format: (value: number) => string
+  onChange: (value: number) => void
+}
+
+function Slider({ label, value, min, max, step = 1, format, onChange }: SliderProps) {
+  return (
+    <label className="savings__slider">
+      <span className="savings__slider-head">
+        <span>{label}</span>
+        <output>{format(value)}</output>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-valuetext={format(value)}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+    </label>
+  )
 }
 
 export default function Savings() {
-  const [bookingsPerWeek, setBookingsPerWeek] = useState('40')
-  const [minutesPerBooking, setMinutesPerBooking] = useState('6')
-  const [noShowPercent, setNoShowPercent] = useState('8')
-  const [averagePrice, setAveragePrice] = useState('100')
+  const [bookingsPerWeek, setBookingsPerWeek] = useState(40)
+  const [minutesPerBooking, setMinutesPerBooking] = useState(6)
+  const [noShowPercent, setNoShowPercent] = useState(8)
+  const [averagePrice, setAveragePrice] = useState(100)
 
-  const bookings = toNumber(bookingsPerWeek) * WEEKS_PER_MONTH
-  const hoursOnChat = (bookings * toNumber(minutesPerBooking)) / 60
-  const lostRevenue = bookings * (Math.min(toNumber(noShowPercent), 100) / 100) * toNumber(averagePrice)
+  // Os números só começam a contar quando a seção entra na tela.
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const [seen, setSeen] = useState(false)
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSeen(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const bookings = bookingsPerWeek * WEEKS_PER_MONTH
+  const hoursOnChat = (bookings * minutesPerBooking) / 60
+  const lostRevenue = bookings * (noShowPercent / 100) * averagePrice
+
+  const shownHours = useAnimatedNumber(seen ? hoursOnChat : 0)
+  const shownRevenue = useAnimatedNumber(seen ? lostRevenue : 0)
 
   return (
-    <section className="savings" aria-labelledby="savings-title">
-      <h3 id="savings-title">Faça a conta com os seus números</h3>
-      <p className="savings__intro">
-        É uma estimativa pra você enxergar o tamanho do problema hoje, com o que você mesmo informar. Não é promessa de
-        resultado.
-      </p>
-
-      <div className="savings__grid">
-        <form className="savings__inputs" onSubmit={(event) => event.preventDefault()}>
-          <label className="field field--sm">
-            <span>Reservas por semana</span>
-            <input className="input" inputMode="numeric" value={bookingsPerWeek} onChange={(event) => setBookingsPerWeek(event.target.value)} />
-          </label>
-          <label className="field field--sm">
-            <span>Minutos no WhatsApp por reserva</span>
-            <input className="input" inputMode="numeric" value={minutesPerBooking} onChange={(event) => setMinutesPerBooking(event.target.value)} />
-          </label>
-          <label className="field field--sm">
-            <span>Faltas sem aviso (%)</span>
-            <input className="input" inputMode="numeric" value={noShowPercent} onChange={(event) => setNoShowPercent(event.target.value)} />
-          </label>
-          <label className="field field--sm">
-            <span>Valor médio da reserva (R$)</span>
-            <input className="input" inputMode="decimal" value={averagePrice} onChange={(event) => setAveragePrice(event.target.value)} />
-          </label>
-        </form>
-
-        <div className="savings__result" aria-live="polite">
+    <section className="savings" aria-labelledby="savings-title" ref={sectionRef}>
+      <div className="savings__inner">
+        <div className="savings__intro">
+          <h2 id="savings-title">Faça a conta com os seus números</h2>
           <p>
-            <strong>{hoursOnChat.toFixed(1).replace('.', ',')} h por mês</strong>
-            <span>só confirmando horário por mensagem</span>
+            É uma estimativa pra você enxergar o tamanho do problema hoje, com o que você mesmo informar. Não é promessa
+            de resultado.
           </p>
-          <p>
-            <strong>{formatCurrency(lostRevenue)} por mês</strong>
-            <span>em horários que ficam vazios por falta sem aviso</span>
-          </p>
-          <small>Com reserva online, o cliente agenda sozinho a qualquer hora e você enxerga a grade em tempo real.</small>
+        </div>
+
+        <div className="savings__grid">
+          <form className="savings__inputs" onSubmit={(event) => event.preventDefault()}>
+            <Slider
+              label="Reservas por semana"
+              value={bookingsPerWeek}
+              min={5}
+              max={300}
+              onChange={setBookingsPerWeek}
+              format={(v) => String(v)}
+            />
+            <Slider
+              label="Minutos no WhatsApp por reserva"
+              value={minutesPerBooking}
+              min={1}
+              max={20}
+              onChange={setMinutesPerBooking}
+              format={(v) => `${v} min`}
+            />
+            <Slider
+              label="Faltas sem aviso"
+              value={noShowPercent}
+              min={0}
+              max={30}
+              onChange={setNoShowPercent}
+              format={(v) => `${v}%`}
+            />
+            <Slider
+              label="Valor médio da reserva"
+              value={averagePrice}
+              min={30}
+              max={300}
+              step={5}
+              onChange={setAveragePrice}
+              format={(v) => formatCurrency(v)}
+            />
+          </form>
+
+          <div className="savings__result" aria-live="polite">
+            <p>
+              <strong>{shownHours.toFixed(1).replace('.', ',')} h</strong>
+              <span>por mês só confirmando horário por mensagem</span>
+            </p>
+            <p>
+              <strong>{formatCurrency(shownRevenue)}</strong>
+              <span>por mês em horários que ficam vazios por falta sem aviso</span>
+            </p>
+            <small>
+              Com reserva online, o cliente agenda sozinho a qualquer hora e você enxerga a grade em tempo real.
+            </small>
+          </div>
         </div>
       </div>
     </section>

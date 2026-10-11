@@ -1,5 +1,4 @@
 import { useScrollReveal } from '../../hooks/useScrollReveal'
-import Savings from './Savings'
 import './Comparison.css'
 
 const MANUAL_ITEMS = [
@@ -26,8 +25,8 @@ export default function Comparison() {
         Veja o que muda no seu dia a dia quando você para de gerenciar tudo manualmente.
       </p>
 
-      <div className="comparison__grid reveal-stagger" ref={gridRef}>
-        <div className="comparison__column comparison__column--manual">
+      <div className="comparison__grid" ref={gridRef}>
+        <div className="comparison__column comparison__column--manual reveal-left">
           <h3>Controle manual / WhatsApp</h3>
           <ul>
             {MANUAL_ITEMS.map((item) => (
@@ -41,7 +40,7 @@ export default function Comparison() {
           </ul>
         </div>
 
-        <div className="comparison__column comparison__column--jogae">
+        <div className="comparison__column comparison__column--jogae reveal-right">
           <h3>Com Jogaê Sports</h3>
           <ul>
             {JOGAE_ITEMS.map((item) => (
@@ -56,7 +55,6 @@ export default function Comparison() {
         </div>
       </div>
 
-      <Savings />
     </section>
   )
 }

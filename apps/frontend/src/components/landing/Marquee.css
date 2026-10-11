@@ -1,0 +1,69 @@
+/* Faixa lima com as modalidades em loop, entre o hero e "Como funciona" */
+.marquee {
+  overflow: hidden;
+  background: var(--brand-action);
+  color: var(--on-action);
+  padding: 22px 0;
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 38s linear infinite;
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 56px;
+  margin: 0;
+  padding: 0 28px;
+  list-style: none;
+}
+
+.marquee__group li {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.marquee__icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Sem movimento: lista parada, quebrando linha, sem a cópia duplicada */
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+    width: auto;
+    justify-content: center;
+  }
+
+  .marquee__group {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 12px;
+  }
+
+  .marquee__group[aria-hidden='true'] {
+    display: none;
+  }
+}

@@ -1,11 +1,13 @@
 .faq {
   padding: 7vw 6vw 9vw;
-  background: var(--color-section-tint, var(--color-background));
+  background: var(--color-background);
   text-align: center;
 }
 
 .faq h2 {
-  font-size: 34px;
+  font-size: clamp(30px, 3.6vw, 48px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   margin-bottom: 40px;
 }
 
@@ -20,8 +22,8 @@
 
 .faq__item {
   border: var(--border-subtle);
-  border-radius: var(--radius-sm, 8px);
-  background: var(--color-surface);
+  border-radius: 20px;
+  background: var(--color-white);
 }
 
 .faq__item h3 {

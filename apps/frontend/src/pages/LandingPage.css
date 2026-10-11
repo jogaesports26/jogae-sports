@@ -15,15 +15,13 @@
   color: var(--color-dark);
 }
 
-/* Headings em Deep Black nas seções de fundo claro — hero e CTA banner
-   definem branco explicitamente por cima (fundo colorido). */
+/* Headings em Deep Black nas seções de fundo claro. Seções com fundo colorido (hero, comparação, calculadora,
+   preço, CTA) definem a cor do próprio título. */
 .landing__features h2,
 .how-it-works h2,
-.comparison h2,
 .faq h2,
-.landing__feature-card h3,
-.how-it-works__card h3,
-.comparison__column h3 {
+.bento__card h3,
+.how-it-works__card h3 {
   color: var(--color-dark);
 }
 
@@ -72,7 +70,7 @@
 }
 
 .landing__nav-login {
-  opacity: 0.65;
+  font-weight: 600;
 }
 
 .landing__nav-cta {
@@ -138,94 +136,123 @@
   }
 }
 
-/* Features */
+/* Features: bento assimétrico */
 
 .landing__features {
-  padding: 7vw 6vw;
+  padding: 8vw 6vw;
   text-align: center;
-  background: var(--color-section-tint);
-}
-
-.landing__features-soon {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 32px auto 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-text-secondary);
-}
-
-.landing__features-soon-tag {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
+  background: var(--brand-50);
 }
 
 .landing__features h2 {
-  font-size: 34px;
-  max-width: 640px;
-  margin: 0 auto 12px;
+  font-size: clamp(30px, 3.6vw, 48px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  max-width: 20ch;
+  margin: 0 auto 16px;
+  text-wrap: balance;
 }
 
 .landing__features-subtitle {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.6;
+  color: var(--color-text-secondary);
   max-width: 520px;
-  margin: 0 auto 48px;
-  font-size: 16px;
+  margin: 0 auto 56px;
+  font-size: 17px;
 }
 
-/* Flex em vez de grid pra centralizar a última linha quando o número de cards não fecha a fileira. */
-.landing__features-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 28px;
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
   text-align: left;
 }
 
-.landing__feature-card {
-  flex: 0 1 calc((100% - 56px) / 3);
-  background: var(--color-surface);
-  border: none;
-  border-radius: var(--radius-card);
-  padding: 28px;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+.bento__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 36px;
+  border-radius: 28px;
+  background: var(--color-white);
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.landing__feature-card:hover {
+.bento__card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-soft-lg);
+  border-color: color-mix(in srgb, var(--brand-primary) 50%, transparent);
+}
+
+.bento__card--agenda {
+  grid-column: 1 / 4;
+  grid-row: 1 / 3;
+  background: var(--color-dark-navy);
+  color: var(--color-white);
+}
+.bento__card--revenue {
+  grid-column: 4 / 7;
+}
+.bento__card--live {
+  grid-column: 4 / 7;
+}
+.bento__card--sports {
+  grid-column: 1 / 4;
+}
+.bento__card--panel {
+  grid-column: 4 / 7;
+}
+
+.bento__card h3 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  color: var(--color-dark);
+}
+
+.bento__card p {
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 44ch;
+}
+
+.bento__card--agenda h3 {
+  color: var(--color-white);
+}
+.bento__card--agenda p {
+  color: color-mix(in srgb, var(--color-white) 75%, transparent);
 }
 
 .landing__feature-icon {
   position: relative;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 16px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: 20px;
   background: var(--color-dark-navy);
   overflow: hidden;
 }
 
-/* Linhas de quadra ao fundo do azulejo: assinatura visual de esporte, sem ilustração de template */
+.bento__card--agenda .landing__feature-icon {
+  background: color-mix(in srgb, var(--color-white) 12%, transparent);
+}
+
+/* Linhas de quadra ao fundo do azulejo: assinatura visual de esporte */
 .landing__feature-icon::before {
   content: '';
   position: absolute;
-  inset: 6px;
+  inset: 7px;
   border: 1.5px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
-  border-radius: 8px;
+  border-radius: 10px;
   background: linear-gradient(
     to right,
     transparent calc(50% - 0.75px),
@@ -236,75 +263,201 @@
 
 .landing__feature-icon svg {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
-.landing__feature-card h3 {
-  font-family: var(--font-heading);
-  font-size: 19px;
-  margin-bottom: 8px;
+/* Mini agenda (card grande): horários ocupados "pipocam" em sequência quando o bento aparece */
+.agenda-mini {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 36px;
 }
 
-.landing__feature-card p {
-  font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.65;
-  font-size: 14px;
-  line-height: 1.5;
+.agenda-mini__row {
+  display: grid;
+  grid-template-columns: 34px repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: center;
+}
+
+.agenda-mini__row--head b {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: color-mix(in srgb, var(--color-white) 65%, transparent);
+}
+
+.agenda-mini__hour {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--color-white) 55%, transparent);
+}
+
+.agenda-mini__slot {
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px dashed color-mix(in srgb, var(--color-white) 22%, transparent);
+}
+
+.agenda-mini__slot--busy {
+  border-color: transparent;
+  background: var(--brand-action);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
+  transition-delay: calc(var(--i) * 110ms + 350ms);
+}
+
+.bento.is-visible .agenda-mini__slot--busy {
+  opacity: 1;
+  transform: none;
+}
+
+/* Barras do faturamento crescem em sequência */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 96px;
+  margin-top: 24px;
+}
+
+.bars span {
+  flex: 1;
+  height: var(--h);
+  border-radius: 8px 8px 4px 4px;
+  background: color-mix(in srgb, var(--brand-primary) 22%, transparent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: calc(var(--i) * 80ms + 400ms);
+}
+
+.bars span:last-child {
+  background: var(--brand-primary);
+}
+
+.bento.is-visible .bars span {
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing__feature-card {
-    transition: none;
+  .bento__card,
+  .agenda-mini__slot--busy,
+  .bars span {
+    transition: none !important;
+  }
+
+  .agenda-mini__slot--busy {
+    opacity: 1;
+    transform: none;
+  }
+
+  .bars span {
+    transform: none;
   }
 }
 
-/* CTA banner */
+/* CTA final: azul da marca com linhas de quadra que se traçam ao chegar */
 
 .landing__cta {
-  background: var(--color-dark-navy, var(--color-primary));
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--brand-primary) 0%, var(--brand-dark) 100%);
   text-align: center;
-  padding: 6vw;
+  padding: 9vw 6vw;
+}
+
+.landing__cta-court {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 170%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  color: color-mix(in srgb, var(--on-brand) 18%, transparent);
+  pointer-events: none;
+}
+
+.landing__cta-court line,
+.landing__cta-court circle,
+.landing__cta-court path {
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.landing__cta h2,
+.landing__cta p,
+.landing__cta .landing__button {
+  position: relative;
 }
 
 .landing__cta h2 {
-  color: var(--color-white);
-  font-size: 30px;
-  margin-bottom: 12px;
+  color: var(--on-brand);
+  font-size: clamp(32px, 4.4vw, 60px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  text-wrap: balance;
 }
 
 .landing__cta p {
   font-family: var(--font-body);
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 28px;
+  font-size: 18px;
+  color: color-mix(in srgb, var(--on-brand) 82%, transparent);
+  margin-bottom: 32px;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing__cta-court line,
+    .landing__cta-court circle,
+    .landing__cta-court path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: cta-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 55%;
+    }
+  }
+}
+
+@keyframes cta-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* Footer */
 
 .landing__footer {
-  padding: 48px 6vw 24px;
+  padding: 56px 6vw 28px;
   background: var(--color-surface-dark, var(--color-dark-navy));
   font-family: var(--font-body);
   font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
-  border-top: 2px solid var(--color-accent-green, var(--color-accent));
 }
 
+/* Flex em vez de grid com auto-fit: a marca ocupa o dobro e as colunas de links dividem o resto numa linha só */
 .landing__footer-columns {
-  display: grid;
-  grid-template-columns: 2fr repeat(auto-fit, minmax(120px, 1fr));
-  gap: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px 48px;
   padding-bottom: 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.landing__footer-brand {
+  flex: 2 1 280px;
 }
 
 .landing__footer-brand strong {
   display: block;
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: 20px;
   color: var(--color-white);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .landing__footer-brand p {
@@ -314,16 +467,15 @@
 }
 
 .landing__footer-col {
+  flex: 1 1 150px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .landing__footer-col span {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: var(--color-accent-green);
 }
 
@@ -343,8 +495,17 @@
 }
 
 @media (max-width: 900px) {
-  .landing__feature-card {
-    flex-basis: calc((100% - 28px) / 2);
+  .bento {
+    grid-template-columns: 1fr;
+  }
+
+  .bento__card--agenda,
+  .bento__card--revenue,
+  .bento__card--live,
+  .bento__card--sports,
+  .bento__card--panel {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 
@@ -370,15 +531,7 @@
     font-size: 13px;
   }
 
-  .landing__feature-card {
-    flex-basis: 100%;
-  }
-
-  .landing__footer-columns {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .landing__footer-brand {
-    grid-column: 1 / -1;
+  .bento__card {
+    padding: 28px 24px;
   }
 }

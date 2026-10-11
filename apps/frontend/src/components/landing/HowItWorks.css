@@ -1,38 +1,56 @@
 .how-it-works {
-  padding: 7vw 6vw;
+  padding: 8vw 6vw;
   text-align: center;
-  background: var(--color-background);
+  background: var(--color-white);
 }
 
 .how-it-works h2 {
-  font-size: 34px;
+  font-size: clamp(30px, 3.6vw, 48px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   margin-bottom: 12px;
 }
 
 .how-it-works__subtitle {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.6;
+  color: var(--color-text-secondary);
   max-width: 480px;
-  margin: 0 auto 48px;
-  font-size: 16px;
+  margin: 0 auto 56px;
+  font-size: 17px;
 }
 
 .how-it-works__grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 64px;
   text-align: left;
+}
+
+/* Linha tracejada que liga os passos e se desenha conforme a seção entra na tela */
+.how-it-works__grid::before {
+  content: '';
+  position: absolute;
+  top: 88px;
+  left: 12%;
+  right: 12%;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--brand-primary) 0 10px,
+    transparent 10px 20px
+  );
+  opacity: 0.55;
+  transform-origin: left center;
 }
 
 .how-it-works__card {
   position: relative;
-  background: var(--color-surface);
-  border: none;
-  border-radius: var(--radius-card, 10px);
-  padding: 32px 28px;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 1;
+  background: color-mix(in srgb, var(--brand-50) 65%, var(--color-white));
+  border-radius: 28px;
+  padding: 36px 32px 40px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .how-it-works__card:hover {
@@ -40,29 +58,46 @@
   box-shadow: var(--shadow-soft-lg);
 }
 
+/* Número grande só no contorno: é uma sequência de verdade (1, 2, 3) */
 .how-it-works__number {
-  display: inline-block;
+  display: block;
   font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-dark);
-  background: var(--color-accent);
-  padding: 4px 12px;
-  border-radius: var(--radius-pill, 999px);
-  margin-bottom: 16px;
+  font-size: 88px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--brand-primary);
+  margin-bottom: 20px;
 }
 
 .how-it-works__card h3 {
-  font-size: 19px;
-  margin-bottom: 8px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
 }
 
 .how-it-works__card p {
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.65;
-  font-size: 14px;
-  line-height: 1.5;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .how-it-works__grid::before {
+      animation: how-line linear both;
+      animation-timeline: view();
+      animation-range: entry 25% cover 45%;
+    }
+  }
+}
+
+@keyframes how-line {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -74,5 +109,10 @@
 @media (max-width: 900px) {
   .how-it-works__grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .how-it-works__grid::before {
+    display: none;
   }
 }
