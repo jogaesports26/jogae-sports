@@ -94,8 +94,6 @@ derivada no backend. O painel do dono continua claro.
 - Escala fluida com `clamp()` nos títulos grandes. Linhas de texto corrido com no máximo 46 a 65 caracteres.
 - Texto que precisa ser lido: **mínimo 13px**; em cards e FAQ, 15 a 16px.
 - Título só em sentence case. Nada de caixa alta nem de uma palavra isolada em outra cor dentro do título.
-- Observação: a página importa a fonte **Syne**, mas ela só entra como alternativa no `--font-heading`. Se não for
-  usada em lugar nenhum, vale tirar do `@import` para ganhar bytes.
 
 ## Layout
 

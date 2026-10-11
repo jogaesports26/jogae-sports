@@ -68,7 +68,7 @@
   /* Gradiente-assinatura, reservado pro CTA de maior hierarquia */
   --gradient-brand: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-action) 100%);
 
-  --font-heading: 'Inter Tight', 'Syne', sans-serif;
+  --font-heading: 'Inter Tight', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 
   /* Raio por hierarquia — container de página > card > elemento interno */
