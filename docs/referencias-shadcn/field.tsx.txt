@@ -1,0 +1,83 @@
+// Referência enviada pelo dono em 2026-10-11 (shadcn/ui, componente Field, exemplo de formulário de pagamento, MIT).
+// NÃO é compilado: fica como .txt de propósito.
+// O que o exemplo mostra: FieldSet + FieldLegend + FieldDescription (cada bloco do formulário tem título e uma frase explicando),
+// Field com rótulo em cima e texto de ajuda embaixo, grade de 3 campos curtos, Select (Base UI), Checkbox em linha com o rótulo
+// (Field orientation="horizontal"), FieldSeparator entre blocos, Textarea e rodapé com botão principal + botão de contorno.
+// Dependências do original: componentes button, checkbox, field, input, select e textarea do shadcn, e Tailwind.
+// A lista de meses/anos (months, years) e o exemplo de cartão de crédito são só ilustração.
+
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+
+export function FieldDemo() {
+  return (
+    <div className="w-full max-w-md">
+      <form>
+        <FieldGroup>
+          <FieldSet>
+            <FieldLegend>Payment Method</FieldLegend>
+            <FieldDescription>All transactions are secure and encrypted</FieldDescription>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="card-name">Name on Card</FieldLabel>
+                <Input id="card-name" placeholder="Evil Rabbit" required />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="card-number">Card Number</FieldLabel>
+                <Input id="card-number" placeholder="1234 5678 9012 3456" required />
+                <FieldDescription>Enter your 16-digit card number</FieldDescription>
+              </Field>
+              <div className="grid grid-cols-3 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="exp-month">Month</FieldLabel>
+                  <Select items={months}>
+                    <SelectTrigger id="exp-month"><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectGroup>{months.map((item) => (<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectGroup></SelectContent>
+                  </Select>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="exp-year">Year</FieldLabel>
+                  <Select items={years}>
+                    <SelectTrigger id="exp-year"><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectGroup>{years.map((item) => (<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectGroup></SelectContent>
+                  </Select>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="cvv">CVV</FieldLabel>
+                  <Input id="cvv" placeholder="123" required />
+                </Field>
+              </div>
+            </FieldGroup>
+          </FieldSet>
+          <FieldSeparator />
+          <FieldSet>
+            <FieldLegend>Billing Address</FieldLegend>
+            <FieldDescription>The billing address associated with your payment method</FieldDescription>
+            <FieldGroup>
+              <Field orientation="horizontal">
+                <Checkbox id="same-as-shipping" defaultChecked />
+                <FieldLabel htmlFor="same-as-shipping" className="font-normal">Same as shipping address</FieldLabel>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+          <FieldSet>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="comments">Comments</FieldLabel>
+                <Textarea id="comments" placeholder="Add any additional comments" className="resize-none" />
+              </Field>
+            </FieldGroup>
+          </FieldSet>
+          <Field orientation="horizontal">
+            <Button type="submit">Submit</Button>
+            <Button variant="outline" type="button">Cancel</Button>
+          </Field>
+        </FieldGroup>
+      </form>
+    </div>
+  )
+}

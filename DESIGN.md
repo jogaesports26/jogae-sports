@@ -104,6 +104,12 @@ derivada no backend. O painel do dono continua claro.
 - Raio por hierarquia: **painel (40) > card (20 a 28) > elemento interno (10 a 16)**. Nunca o mesmo raio em tudo.
 - Em telas até 640px tudo vira uma coluna; sem rolagem horizontal (verificado em 375, 768 e 1280px).
 
+## Gestão (painel do dono)
+
+- **Casca:** barra lateral e página no mesmo fundo (`--color-sidebar`), o conteúdo num painel arredondado com borda fina (`--color-background`) e os cartões um degrau acima (`--color-surface`). Três degraus de azul-navy, sem sombra.
+- **Menu:** 5 áreas em 2 grupos, "Dia a dia" (Hoje, Quadras, Clientes) e "Negócio" (Financeiro, Configurar). Item ativo em azul, selo com a contagem de reservas de hoje, recolhe para ícones (botão e Ctrl+B), vira gaveta no celular. Telas que moram dentro de uma área (Avaliações, Equipe, Cupons, Equipamentos) aparecem como abas no topo do conteúdo.
+- **Grade do dia (assinatura do produto):** quadras em linhas, horas em colunas, linha de "agora". Aqui a lima também aparece nos blocos de reserva, porque é dado e é o traço do Jogaê (o mesmo da mini-agenda da landing). Fora disso, a lima continua só no botão principal. Horas já passadas ficam apagadas; no celular a grade rola sozinha até o "agora".
+
 ## Forma e elevação
 
 Cantos grandes e sombras suaves e difusas (`--shadow-soft-sm`, `--shadow-soft`, `--shadow-soft-lg`). Sem borda

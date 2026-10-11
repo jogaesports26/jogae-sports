@@ -1,0 +1,13 @@
+/* Referência enviada pelo dono em 2026-10-11 (Kinetics, kinetics.colorion.co, efeito de toast com mola). NÃO é compilado: fica como .txt de propósito.
+   O toast fica fora da tela (abaixo, menor e transparente) e entra com um leve "quique" (a curva passa de 1, então ultrapassa e volta).
+   A versão em CSS é a que serve para o Jogaê (CSS puro). */
+.toast {
+  transform: translate(-50%, 140%) scale(0.9);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.18, 1.25, 0.4, 1),
+              opacity 0.3s;
+}
+.toast.show {
+  transform: translate(-50%, 0) scale(1);
+  opacity: 1;
+}

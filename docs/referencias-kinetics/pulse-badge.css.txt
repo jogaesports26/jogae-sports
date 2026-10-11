@@ -1,0 +1,15 @@
+/* Referência enviada pelo dono em 2026-10-11 (Kinetics, kinetics.colorion.co, selo que pulsa). NÃO é compilado: fica como .txt de propósito.
+   Um anel (pseudo-elemento) do mesmo tamanho do selo cresce de 1x a 2,6x e some enquanto fica transparente, a cada 1,8 s, para sempre.
+   Só usa transform e opacity. */
+.badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #ff8a00;
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse {
+  0%        { transform: scale(1);   opacity: 0.7; }
+  70%, 100% { transform: scale(2.6); opacity: 0; }
+}

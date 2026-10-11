@@ -1,0 +1,14 @@
+/* Referência enviada pelo dono em 2026-10-11 (Kinetics, kinetics.colorion.co, medidor de força). NÃO é compilado: fica como .txt de propósito.
+   Medidor de 4 segmentos finos (o exemplo é de força de senha): cada segmento "enche" da esquerda para a direita com um leve quique.
+   O JS só troca o atributo data-score (1 a 4) no contêiner; o CSS acende os primeiros N segmentos.
+   (--card-2 é uma variável de cor do site de origem; no Jogaê seria um token do tema.) */
+.meter span {
+  flex: 1; height: 5px; border-radius: 3px;
+  background: var(--card-2);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.meter[data-score="1"] span:nth-child(-n+1),
+.meter[data-score="2"] span:nth-child(-n+2),
+.meter[data-score="3"] span:nth-child(-n+3),
+.meter[data-score="4"] span { transform: scaleX(1); }

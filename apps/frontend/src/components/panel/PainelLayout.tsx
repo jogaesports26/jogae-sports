@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useNavigate, useOutletContext } from 'react-router-dom'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ReactElement } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import type { AuthUser } from '../../lib/api'
 import { clearSession } from '../../lib/api'
+import { fetchTodayReservations } from '../../lib/reservations'
 import './PainelLayout.css'
 import './panel-kit.css'
 
@@ -21,15 +23,6 @@ function IconOverview() {
       <rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
       <rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
       <rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  )
-}
-
-function IconAgenda() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
@@ -61,53 +54,6 @@ function IconCustomers() {
   )
 }
 
-function IconTeam() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="17" cy="9" r="2.4" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M2.5 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M14.5 14.3c2.6.3 4.5 2.6 4.5 5.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IconCoupon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M3 9.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.2a1.6 1.6 0 0 0 0 2.6v1.2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1.2a1.6 1.6 0 0 0 0-2.6V9.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path d="M9.5 7.5v9" stroke="currentColor" strokeWidth="1.8" strokeDasharray="1.6 1.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IconEquipment() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="7" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="17" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M10.2 12h3.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IconReviews() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9 2.6-5.3Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function IconSettings() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -122,22 +68,108 @@ function IconSettings() {
   )
 }
 
-const NAV_ITEMS = [
-  { to: '/painel', label: 'Visão geral', Icon: IconOverview, end: true, ownerOnly: false },
-  { to: '/painel/agenda', label: 'Agenda', Icon: IconAgenda, end: false, ownerOnly: false },
-  { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, end: false, ownerOnly: false },
-  { to: '/painel/relatorios', label: 'Relatórios', Icon: IconReports, end: false, ownerOnly: true },
-  { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, end: false, ownerOnly: true },
-  { to: '/painel/equipe', label: 'Equipe', Icon: IconTeam, end: false, ownerOnly: true },
-  { to: '/painel/cupons', label: 'Cupons', Icon: IconCoupon, end: false, ownerOnly: true },
-  { to: '/painel/equipamentos', label: 'Equipamentos', Icon: IconEquipment, end: false, ownerOnly: true },
-  { to: '/painel/avaliacoes', label: 'Avaliações', Icon: IconReviews, end: false, ownerOnly: true },
-  { to: '/painel/configuracoes', label: 'Configurações', Icon: IconSettings, end: false, ownerOnly: true },
+function IconMenu() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconCollapse() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M9.5 4.5v15" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  )
+}
+
+function IconLogout() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H9M14 8l4 4-4 4M18 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+interface NavItem {
+  to: string
+  label: string
+  Icon: () => ReactElement
+  /** Caminhos que também deixam este item ativo (telas que moram dentro da área). */
+  also?: string[]
+  ownerOnly: boolean
+  end?: boolean
+}
+
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Dia a dia',
+    items: [
+      { to: '/painel', label: 'Hoje', Icon: IconOverview, end: true, ownerOnly: false },
+      { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, ownerOnly: false },
+      { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, also: ['/painel/avaliacoes'], ownerOnly: true },
+    ],
+  },
+  {
+    label: 'Negócio',
+    items: [
+      { to: '/painel/relatorios', label: 'Financeiro', Icon: IconReports, ownerOnly: true },
+      {
+        to: '/painel/configuracoes',
+        label: 'Configurar',
+        Icon: IconSettings,
+        also: ['/painel/equipe', '/painel/cupons', '/painel/equipamentos'],
+        ownerOnly: true,
+      },
+    ],
+  },
 ]
+
+/** Abas das telas que moram dentro de uma área (aparecem no topo do conteúdo). */
+const AREA_TABS: { prefixes: string[]; tabs: { to: string; label: string }[] }[] = [
+  {
+    prefixes: ['/painel/clientes', '/painel/avaliacoes'],
+    tabs: [
+      { to: '/painel/clientes', label: 'Clientes' },
+      { to: '/painel/avaliacoes', label: 'Avaliações' },
+    ],
+  },
+  {
+    prefixes: ['/painel/configuracoes', '/painel/equipe', '/painel/cupons', '/painel/equipamentos'],
+    tabs: [
+      { to: '/painel/configuracoes', label: 'Arena e lojinha' },
+      { to: '/painel/equipe', label: 'Equipe' },
+      { to: '/painel/cupons', label: 'Cupons' },
+      { to: '/painel/equipamentos', label: 'Equipamentos' },
+    ],
+  },
+]
+
+const COLLAPSED_KEY = 'jogae_painel_collapsed'
+
+function isItemActive(pathname: string, item: NavItem) {
+  if (item.end) return pathname === item.to
+  return [item.to, ...(item.also ?? [])].some((path) => pathname === path || pathname.startsWith(`${path}/`))
+}
+
+function readCollapsed() {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 export default function PainelLayout() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [collapsed, setCollapsed] = useState(readCollapsed)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [todayCount, setTodayCount] = useState<number | null>(null)
+  const drawerRef = useRef<HTMLDialogElement | null>(null)
 
   useEffect(() => {
     const raw = localStorage.getItem('jogae_user')
@@ -151,6 +183,61 @@ export default function PainelLayout() {
     setUser(JSON.parse(raw))
   }, [navigate])
 
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((current) => {
+      const next = !current
+      try {
+        localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0')
+      } catch {
+        // sem armazenamento: o estado só vale nesta visita
+      }
+      return next
+    })
+  }, [])
+
+  // Ctrl+B (ou Cmd+B) recolhe e abre a barra lateral, fora de campos de texto.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'b') return
+      const target = event.target as HTMLElement | null
+      if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return
+      event.preventDefault()
+      toggleCollapsed()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [toggleCollapsed])
+
+  // Gaveta do celular: o <dialog> nativo já cuida do foco, do Esc e do fundo.
+  useEffect(() => {
+    const dialog = drawerRef.current
+    if (!dialog) return
+    if (drawerOpen && !dialog.open) dialog.showModal()
+    if (!drawerOpen && dialog.open) dialog.close()
+  }, [drawerOpen])
+
+  // Selo do menu: quantas reservas de hoje ainda vão acontecer.
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    async function loadCount() {
+      try {
+        const reservations = await fetchTodayReservations()
+        if (cancelled) return
+        const now = Date.now()
+        setTodayCount(reservations.filter((r) => r.status === 'CONFIRMED' && new Date(r.endsAt).getTime() > now).length)
+      } catch {
+        // o selo é um extra: se falhar, simplesmente não aparece
+      }
+    }
+    loadCount()
+    const id = setInterval(loadCount, 120_000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [user, pathname])
+
   function handleLogout() {
     clearSession()
     navigate('/')
@@ -162,45 +249,138 @@ export default function PainelLayout() {
 
   if (!user) return null
 
-  const navItems = NAV_ITEMS.filter((item) => !item.ownerOnly || user.role !== 'STAFF')
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.ownerOnly || user.role !== 'STAFF'),
+  })).filter((group) => group.items.length > 0)
+
+  const areaTabs = AREA_TABS.find((area) => area.prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)))
+
+  const renderNav = (collapsedMode: boolean) => (
+    <nav className="painel__nav" aria-label="Principal">
+      {groups.map((group) => (
+        <div className="painel__group" key={group.label}>
+          <p className="painel__group-label">{group.label}</p>
+          {group.items.map((item) => {
+            const active = isItemActive(pathname, item)
+            const badge = item.to === '/painel' && todayCount ? todayCount : null
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                title={collapsedMode ? item.label : undefined}
+                aria-label={collapsedMode ? item.label : undefined}
+                aria-current={active ? 'page' : undefined}
+                onClick={() => setDrawerOpen(false)}
+                className={`painel__nav-link ${active ? 'painel__nav-link--active' : ''}`}
+              >
+                <item.Icon />
+                <span className="painel__nav-text">{item.label}</span>
+                {badge !== null && (
+                  <span className="painel__badge" aria-label={`${badge} reservas hoje`}>
+                    {badge}
+                  </span>
+                )}
+              </NavLink>
+            )
+          })}
+        </div>
+      ))}
+    </nav>
+  )
+
+  const userBlock = (
+    <div className="painel__user">
+      <span className="painel__avatar" aria-hidden="true">
+        {user.name.trim().charAt(0).toUpperCase()}
+      </span>
+      <span className="painel__user-text">
+        <strong>{user.name}</strong>
+        <span>{user.role === 'STAFF' ? 'Funcionário' : 'Gestor'}</span>
+      </span>
+    </div>
+  )
 
   return (
-    <div className="painel">
+    <div className={`painel${collapsed ? ' painel--collapsed' : ''}`}>
       <aside className="painel__sidebar">
         <span className="painel__brand">
           Jogaê <small>Gestão</small>
         </span>
-
-        <nav className="painel__nav">
-          {navItems.map(({ to, label, Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) => `painel__nav-link ${isActive ? 'painel__nav-link--active' : ''}`}
-            >
-              <Icon />
-              <span>{label}</span>
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="painel__user">
-          <span className="painel__avatar" aria-hidden="true">
-            {user.name.trim().charAt(0).toUpperCase()}
-          </span>
-          <span className="painel__user-text">
-            <strong>{user.name}</strong>
-            <span>{user.role === 'STAFF' ? 'Funcionário' : 'Gestor'}</span>
-          </span>
-        </div>
-        <button className="painel__logout" onClick={handleLogout}>
-          Sair
+        {renderNav(collapsed)}
+        {userBlock}
+        <button className="painel__logout" onClick={handleLogout} title={collapsed ? 'Sair' : undefined} aria-label="Sair">
+          <IconLogout />
+          <span className="painel__nav-text">Sair</span>
         </button>
       </aside>
 
+      <dialog
+        ref={drawerRef}
+        className="painel__drawer"
+        aria-label="Menu"
+        onClose={() => setDrawerOpen(false)}
+        onClick={(event) => {
+          if (event.target === drawerRef.current) setDrawerOpen(false)
+        }}
+      >
+        <div className="painel__drawer-inner">
+          <span className="painel__brand">
+            Jogaê <small>Gestão</small>
+          </span>
+          {renderNav(false)}
+          {userBlock}
+          <button className="painel__logout" onClick={handleLogout}>
+            <IconLogout />
+            <span className="painel__nav-text">Sair</span>
+          </button>
+        </div>
+      </dialog>
+
       <div className="painel__main">
-        <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />
+        <div className="painel__topbar">
+          <button
+            type="button"
+            className="painel__icon-button painel__icon-button--desktop"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? 'Abrir o menu lateral' : 'Recolher o menu lateral'}
+            aria-pressed={collapsed}
+            title="Recolher ou abrir o menu (Ctrl+B)"
+          >
+            <IconCollapse />
+          </button>
+          <button
+            type="button"
+            className="painel__icon-button painel__icon-button--mobile"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Abrir o menu"
+          >
+            <IconMenu />
+          </button>
+          <span className="painel__topbar-brand">Jogaê</span>
+        </div>
+
+        <div className="painel__content">
+          {areaTabs && (
+            <nav className="segmented painel__area-tabs" aria-label="Seções da área">
+              {areaTabs.tabs.map((tab) => {
+                const active = pathname === tab.to || pathname.startsWith(`${tab.to}/`)
+                return (
+                  <NavLink
+                    key={tab.to}
+                    to={tab.to}
+                    aria-current={active ? 'page' : undefined}
+                    className={`segmented__item${active ? ' segmented__item--active' : ''}`}
+                  >
+                    {tab.label}
+                  </NavLink>
+                )
+              })}
+            </nav>
+          )}
+          <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />
+        </div>
       </div>
     </div>
   )

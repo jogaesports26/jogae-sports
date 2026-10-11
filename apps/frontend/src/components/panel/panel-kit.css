@@ -254,3 +254,51 @@
     display: block;
   }
 }
+
+/* Cartão da grade do dia */
+.day-grid-card__head {
+  flex-wrap: wrap;
+}
+
+.day-grid-card__day {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* Só a primeira letra em maiúscula ("domingo, 11 de outubro" → "Domingo, 11 de outubro") */
+.day-grid-card__day::first-letter {
+  text-transform: uppercase;
+}
+
+.day-grid-card__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-grid-card__date {
+  width: auto;
+}
+
+.day-grid-card__skeleton {
+  height: 220px;
+  margin: 20px;
+  border-radius: 12px;
+}
+
+.day-grid-card__message {
+  margin: 0;
+  padding: 20px;
+}
+
+.day-grid-card__message--error {
+  color: var(--color-negative-text);
+}
+
+.reservation-modal__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}

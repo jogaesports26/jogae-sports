@@ -222,17 +222,15 @@
 
 @media (max-width: 700px) {
   .kpi-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .kpi {
-    border-left: 0;
-    border-top: var(--border-subtle);
-    padding: 18px 20px;
+    padding: 16px;
   }
 
-  .kpi:first-child {
-    border-top: 0;
+  .kpi__value {
+    font-size: 24px;
   }
 
   .kpi-strip__goal {

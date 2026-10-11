@@ -1,0 +1,10 @@
+/* Referência enviada pelo dono em 2026-10-11 (Kinetics, kinetics.colorion.co, "pílula deslizante"). NÃO é compilado: fica como .txt de propósito.
+   Um fundo (a pílula) que DESLIZA até o botão ativo quando a pessoa clica, em vez de aparecer de uma vez no botão novo.
+   Curva ease-in-out simétrica (acelera e freia), 0,4 s. O JS posiciona a pílula com offsetLeft e offsetWidth do botão ativo. */
+.pill {
+  position: absolute;
+  transition: left 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+              width 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* JS sets pill.style.left/width to the active
+   button's offsetLeft/offsetWidth on click */

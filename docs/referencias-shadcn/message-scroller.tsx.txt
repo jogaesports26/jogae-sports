@@ -1,0 +1,67 @@
+// Referência enviada pelo dono em 2026-10-11 (shadcn/ui, componente MessageScroller, exemplo "chat completo", MIT).
+// NÃO é compilado: fica como .txt de propósito. A conversa de demonstração (createChat/.user/.assistant, 4 trocas sobre scroll de chat)
+// e o `useChat` (Vercel AI SDK) servem só para simular respostas em streaming; foram resumidos aqui.
+//
+// O que o exemplo ensina (o que importa para o Jogaê):
+//  - Cartão de chat: cabeçalho (título + frase + botão "Reset" com dica), corpo rolável, rodapé com a caixa de mensagem.
+//  - MessageScroller: rola sozinho para a resposta nova SÓ se a pessoa já está no fim; se ela subiu para reler, não puxa de volta.
+//  - scrollAnchor no turno do usuário: a nova pergunta fica perto do topo, com um pedaço da resposta anterior visível.
+//  - MessageScrollerButton: botão "ir para a mensagem mais nova" que aparece quando há conteúdo não visto.
+//  - Acessibilidade: o conteúdo tem role="log" e aria-relevant="additions" (leitor de tela anuncia o que chega); aria-busy enquanto responde;
+//    o botão de rolagem é um <button> de verdade, com rótulo só para leitor de tela, e sai da ordem do Tab quando já está no fim.
+//  - Estado vazio (Empty): ícone + título + frase convidando a começar.
+//  - Caixa de mensagem (InputGroup): campo + botão "+" (menu com anexar/ações) + botão de enviar redondo com seta para cima.
+// Dependências do original: @ai-sdk/react, lucide-react e os componentes button, card, dropdown-menu, empty, input-group,
+// message-scroller e tooltip do shadcn, mais Tailwind.
+
+"use client"
+
+export function MessageScrollerDemo() {
+  const { messages, sendMessage, status, setMessages } = useChat({ messages: initialMessages, transport })
+  const isBusy = status === "submitted" || status === "streaming"
+
+  return (
+    <MessageScrollerProvider>
+      <Card className="mx-auto h-140 w-full max-w-sm gap-0">
+        <CardHeader className="gap-1 border-b">
+          <CardTitle>New Chat</CardTitle>
+          <CardDescription>How can I help you today?</CardDescription>
+          <CardAction>{/* Tooltip + Button variant="outline" size="icon" aria-label="Reset conversation" (RotateCwIcon) */}</CardAction>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-hidden p-0">
+          {messages.length === 0 ? (
+            <Empty className="h-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon"><MessageCircleDashedIcon /></EmptyMedia>
+                <EmptyTitle>Morning, shadcn!</EmptyTitle>
+                <EmptyDescription>What are we working on today? Press send to start a new conversation</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <MessageScroller>
+              <MessageScrollerViewport>
+                <MessageScrollerContent aria-busy={isBusy} className="p-(--card-spacing)">
+                  {messages.map((message) => (<MessageAnimated key={message.id} message={message} scrollAnchor={message.role === "user"} />))}
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
+              <MessageScrollerButton />
+            </MessageScroller>
+          )}
+        </CardContent>
+        <CardFooter className="flex-col gap-2">
+          <form onSubmit={...} className="w-full">
+            <InputGroup>
+              {/* campo de texto */}
+              <InputGroupAddon align="block-end" className="pt-1">
+                {/* DropdownMenu com o botão "+" (Add Photos & Files, Create Image, Deep Research, Web Search) */}
+                <InputGroupButton type="submit" variant="default" size="icon-sm" disabled={!nextMessage || isBusy} className="ml-auto">
+                  <ArrowUpIcon /><span className="sr-only">Send</span>
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </form>
+        </CardFooter>
+      </Card>
+    </MessageScrollerProvider>
+  )
+}

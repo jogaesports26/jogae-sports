@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { IconGift, IconSleep } from '../components/panel/KpiIcons'
+import DayGridCard from '../components/panel/DayGridCard'
 import PageHeader from '../components/panel/PageHeader'
 import { SessionExpiredError } from '../lib/api'
 import { fetchTodayReservations } from '../lib/reservations'
@@ -101,6 +102,10 @@ export default function OverviewPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const nowTime = Date.now()
+  const upcoming = (reservations ?? []).filter(
+    (reservation) => reservation.status === 'CONFIRMED' && new Date(reservation.endsAt).getTime() > nowTime,
+  )
   const totalHoje = reservations?.length ?? 0
   const faturamentoHoje =
     reservations?.reduce((sum, r) => sum + Number(r.priceSnapshot), 0) ?? 0
@@ -123,9 +128,6 @@ export default function OverviewPage() {
       ? (monthReport.totalRevenue - previousReport.totalRevenue) / previousReport.totalRevenue
       : null
 
-  const singleCourt = courts?.length === 1 ? courts[0] : null
-  const agendaLink = singleCourt ? `/painel/quadras/${singleCourt.id}/agenda` : '/painel/quadras'
-
   const goalProgress =
     monthlyGoal && monthlyGoal > 0 && monthReport ? Math.min(monthReport.totalRevenue / monthlyGoal, 1) : null
 
@@ -136,19 +138,14 @@ export default function OverviewPage() {
   return (
     <div className="overview-page">
       <PageHeader
-        title={`Olá, ${user.name.split(' ')[0]}!`}
-        subtitle="Aqui está o resumo da sua arena."
+        title="Hoje"
+        subtitle={`Olá, ${user.name.split(' ')[0]}. Aqui está a sua arena agora.`}
         actions={
-          <>
-            {user.role !== 'STAFF' && (
-              <Link to="/painel/relatorios" className="btn btn--outline btn--sm">
-                Relatórios
-              </Link>
-            )}
-            <Link to={agendaLink} className="btn btn--primary btn--sm">
-              {singleCourt ? 'Abrir agenda' : 'Ver quadras e agendas'}
+          user.role !== 'STAFF' && (
+            <Link to="/painel/relatorios" className="btn btn--outline btn--sm">
+              Ver financeiro
             </Link>
-          </>
+          )
         }
       />
 
@@ -224,23 +221,25 @@ export default function OverviewPage() {
         )}
       </section>
 
+      <DayGridCard />
+
       <div className="overview-page__columns">
         <section className="panel-card">
           <div className="panel-card__head">
-            <h2>Reservas de hoje</h2>
+            <h2>Próximas reservas de hoje</h2>
           </div>
 
           {error && <p className="overview-page__error">{error}</p>}
           {!error && reservations === null && <p className="overview-page__loading">Carregando...</p>}
 
-          {reservations !== null && reservations.length === 0 && (
+          {reservations !== null && upcoming.length === 0 && (
             <div className="empty-state">
-              <p>Nenhuma reserva pra hoje ainda.</p>
+              <p>{reservations.length === 0 ? 'Nenhuma reserva pra hoje ainda.' : 'Não há mais reservas a caminho hoje.'}</p>
               <Link to="/painel/quadras">Ver suas quadras</Link>
             </div>
           )}
 
-          {reservations !== null && reservations.length > 0 && (
+          {reservations !== null && upcoming.length > 0 && (
             <div className="table-scroll">
               <table className="data-table">
                 <thead>
@@ -254,7 +253,7 @@ export default function OverviewPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {reservations.map((reservation) => (
+                  {upcoming.map((reservation) => (
                     <tr key={reservation.id}>
                       <td className="time">
                         {formatTime(reservation.startsAt)}–{formatTime(reservation.endsAt)}

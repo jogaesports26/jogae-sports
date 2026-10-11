@@ -1,7 +1,12 @@
+/*
+ * Casca da gestão. Três degraus de azul-navy: a página e a barra lateral (--color-sidebar) < o painel de conteúdo
+ * (--color-background) < os cartões (--color-surface). O conteúdo fica num painel arredondado com borda fina
+ * (variante "inset"), a barra lateral não tem fundo próprio nem sombra.
+ */
 .painel {
   min-height: 100svh;
   display: flex;
-  background: var(--color-background);
+  background: var(--color-sidebar);
   color: var(--color-dark);
 }
 
@@ -9,28 +14,32 @@
   position: sticky;
   top: 0;
   align-self: flex-start;
-  width: 232px;
+  width: 240px;
   height: 100svh;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: var(--color-sidebar);
-  border-right: var(--border-subtle);
-  padding: 24px 14px 20px;
+  padding: 20px 12px 16px;
+  overflow-x: hidden;
   overflow-y: auto;
+  transition: width 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.painel--collapsed .painel__sidebar {
+  width: 68px;
 }
 
 .painel__brand {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 0 10px;
-  margin-bottom: 28px;
+  padding: 2px 10px 18px;
   font-family: var(--font-heading);
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--color-dark);
+  white-space: nowrap;
 }
 
 /* Ponto lima da marca, o mesmo do logo da landing */
@@ -57,27 +66,45 @@
 .painel__nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 18px;
   flex: 1;
+}
+
+.painel__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.painel__group-label {
+  margin: 0;
+  padding: 0 10px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .painel__nav-link {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  min-height: 40px;
+  padding: 9px 10px;
   border-radius: 10px;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text-secondary);
   text-decoration: none;
+  white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.painel__nav-link svg {
-  width: 19px;
-  height: 19px;
+.painel__nav-link svg,
+.painel__logout svg {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -86,7 +113,7 @@
   color: var(--color-dark);
 }
 
-/* Item ativo = azul da marca (a lima fica só para o botão principal) */
+/* Item ativo = azul da marca (a lima fica para o botão principal) */
 .painel__nav-link--active,
 .painel__nav-link--active:hover {
   background: var(--brand-primary);
@@ -94,12 +121,31 @@
   font-weight: 600;
 }
 
+.painel__badge {
+  margin-left: auto;
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.painel__nav-link--active .painel__badge {
+  background: color-mix(in srgb, var(--on-brand) 22%, transparent);
+  color: var(--on-brand);
+}
+
 .painel__user {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 16px;
-  padding: 12px 10px 4px;
+  margin-top: 12px;
+  padding: 12px 8px 4px;
   border-top: var(--border-subtle);
 }
 
@@ -138,15 +184,18 @@
 }
 
 .painel__logout {
-  margin-top: 8px;
-  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  min-height: 40px;
+  padding: 9px 10px;
   border: 0;
   border-radius: 10px;
   background: transparent;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
-  text-align: left;
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -157,67 +206,182 @@
   color: var(--color-dark);
 }
 
+/* Barra recolhida: só os ícones */
+.painel--collapsed .painel__brand small,
+.painel--collapsed .painel__group-label,
+.painel--collapsed .painel__nav-text,
+.painel--collapsed .painel__badge,
+.painel--collapsed .painel__user-text {
+  display: none;
+}
+
+.painel--collapsed .painel__brand {
+  padding-inline: 4px;
+  justify-content: center;
+  font-size: 0;
+}
+
+.painel--collapsed .painel__brand::after {
+  margin-left: 0;
+  width: 10px;
+  height: 10px;
+}
+
+.painel--collapsed .painel__nav-link,
+.painel--collapsed .painel__logout {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.painel--collapsed .painel__user {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+/* Painel de conteúdo */
 .painel__main {
   flex: 1;
   min-width: 0;
-  padding: 40px clamp(20px, 3.4vw, 52px) 64px;
+  display: flex;
+  flex-direction: column;
+  margin: 8px 8px 8px 0;
+  background: var(--color-background);
+  border: var(--border-subtle);
+  border-radius: 16px;
 }
 
-.painel__main > * {
+.painel__topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: var(--border-subtle);
+}
+
+.painel__icon-button {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.painel__icon-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.painel__icon-button:hover {
+  background: var(--color-surface);
+  color: var(--color-dark);
+}
+
+.painel__icon-button--mobile,
+.painel__topbar-brand {
+  display: none;
+}
+
+.painel__content {
+  flex: 1;
+  min-width: 0;
+  padding: 28px clamp(20px, 3vw, 44px) 64px;
+}
+
+.painel__content > * {
   max-width: 1200px;
 }
 
+.painel__area-tabs {
+  margin-bottom: 28px;
+}
+
+/* Gaveta do celular */
+.painel__drawer {
+  width: min(300px, 86vw);
+  max-width: none;
+  height: 100svh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-right: var(--border-subtle);
+  background: var(--color-sidebar);
+  color: var(--color-dark);
+}
+
+.painel__drawer::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.painel__drawer-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 12px 16px;
+  overflow-y: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .painel__sidebar,
   .painel__nav-link,
-  .painel__logout {
+  .painel__logout,
+  .painel__icon-button {
     transition: none;
   }
 }
 
-/* Telas estreitas: a barra vira uma coluna só de ícones */
 @media (max-width: 860px) {
   .painel__sidebar {
-    width: 64px;
-    align-items: center;
-    padding: 16px 8px;
-  }
-
-  .painel__brand,
-  .painel__user-text {
     display: none;
-  }
-
-  .painel__nav {
-    align-items: center;
-    width: 100%;
-    gap: 6px;
-  }
-
-  .painel__nav-link {
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-  }
-
-  .painel__nav-link span {
-    display: none;
-  }
-
-  .painel__user {
-    border-top: 0;
-    padding: 8px 0 0;
-  }
-
-  .painel__logout {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    font-size: 12px;
-    text-align: center;
   }
 
   .painel__main {
-    padding: 24px 16px 48px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--color-background);
+  }
+
+  .painel__topbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--color-background);
+  }
+
+  .painel__icon-button--desktop {
+    display: none;
+  }
+
+  .painel__icon-button--mobile,
+  .painel__topbar-brand {
+    display: inline-flex;
+  }
+
+  .painel__topbar-brand {
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .painel__topbar-brand::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand-action);
+  }
+
+  .painel__content {
+    padding: 20px 16px 56px;
   }
 }

@@ -1,0 +1,92 @@
+// Referência enviada pelo dono em 2026-10-11 (shadcn/ui, charts/bar, MIT). NÃO é compilado: fica como .txt de propósito.
+// Três variações do mesmo gráfico. Dependências: recharts, lucide-react (TrendingUp) e os componentes shadcn card e chart.
+// Os três usam os mesmos 6 meses de exemplo (January a June 2024), definidos em cada arquivo original:
+//   [{ month: "January", desktop: 186 }, { February: 305 }, { March: 237 }, { April: 73 }, { May: 209 }, { June: 214 }]
+//   (a versão "Multiple" acrescenta mobile: 80, 200, 120, 190, 130, 140)
+
+// ===== 1) Bar Chart (vertical, uma série) =====
+"use client"
+import { TrendingUp } from "lucide-react"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+
+const chartConfig = { desktop: { label: "Desktop", color: "var(--chart-1)" } } satisfies ChartConfig
+
+export function ChartBarDefault() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Bar Chart</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid vertical={false} />
+            <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="flex gap-2 leading-none font-medium">Trending up by 5.2% this month <TrendingUp className="h-4 w-4" /></div>
+        <div className="leading-none text-muted-foreground">Showing total visitors for the last 6 months</div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+// ===== 2) Bar Chart - Horizontal (ranking) =====
+// imports: BarChart, Bar, XAxis, YAxis (sem CartesianGrid)
+export function ChartBarHorizontal() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Bar Chart - Horizontal</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: -20 }}>
+            <XAxis type="number" dataKey="desktop" hide />
+            <YAxis dataKey="month" type="category" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={5} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter /* igual ao 1 */ />
+    </Card>
+  )
+}
+
+// ===== 3) Bar Chart - Multiple (duas séries lado a lado) =====
+const chartConfigMultiple = {
+  desktop: { label: "Desktop", color: "var(--chart-1)" },
+  mobile: { label: "Mobile", color: "var(--chart-2)" },
+} satisfies ChartConfig
+
+export function ChartBarMultiple() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Bar Chart - Multiple</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfigMultiple}>
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid vertical={false} />
+            <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter /* igual ao 1 */ />
+    </Card>
+  )
+}

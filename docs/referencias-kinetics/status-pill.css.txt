@@ -1,0 +1,12 @@
+/* Referência enviada pelo dono em 2026-10-11 (Kinetics, kinetics.colorion.co, pílula de estado). NÃO é compilado: fica como .txt de propósito.
+   Uma pílula que muda de estado com transição suave de cor (0,35 s): parada, carregando (texto azul + ícone girando) e sucesso (fundo verde).
+   O JS troca o atributo data-state. O ícone girando é só CSS (um círculo com a borda de cima mais forte). */
+.pill { transition: background 0.35s, border-color 0.35s, color 0.35s; }
+.pill[data-state="loading"] { color: #5B8DEF; }
+.pill[data-state="loading"] .icon::before {
+  content: ''; width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid rgba(91,141,239,0.3); border-top-color: #5B8DEF;
+  animation: spin 0.7s linear infinite;
+}
+.pill[data-state="success"] { background: #4CD08A; color: #0E0E10; }
+@keyframes spin { to { transform: rotate(1turn); } }

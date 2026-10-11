@@ -1,0 +1,38 @@
+// Referência enviada pelo dono em 2026-10-11 (shadcn/ui, componente Table, MIT). NÃO é compilado: fica como .txt de propósito.
+// Tabela com legenda (TableCaption), cabeçalho, linhas, última coluna alinhada à direita (valores) e rodapé com o total (TableFooter).
+// Os dados do exemplo eram 7 faturas { invoice: "INV001", paymentStatus: "Paid" | "Pending" | "Unpaid", totalAmount: "$250.00", paymentMethod }.
+// Dependências do original: table do shadcn e Tailwind (é só HTML semântico estilizado).
+
+import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+export function TableDemo() {
+  return (
+    <Table>
+      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[100px]">Invoice</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Method</TableHead>
+          <TableHead className="text-right">Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {invoices.map((invoice) => (
+          <TableRow key={invoice.invoice}>
+            <TableCell className="font-medium">{invoice.invoice}</TableCell>
+            <TableCell>{invoice.paymentStatus}</TableCell>
+            <TableCell>{invoice.paymentMethod}</TableCell>
+            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell className="text-right">$2,500.00</TableCell>
+        </TableRow>
+      </TableFooter>
+    </Table>
+  )
+}

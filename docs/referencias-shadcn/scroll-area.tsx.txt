@@ -1,0 +1,25 @@
+// Referência enviada pelo dono em 2026-10-11 (shadcn/ui, componente Scroll Area + Separator, MIT). NÃO é compilado: fica como .txt de propósito.
+// Área com altura fixa e rolagem, com barra de rolagem fina e discreta no lugar da barra padrão do navegador; Separator é a linha fina entre itens.
+// Dependências do original: scroll-area e separator do shadcn (Radix) e Tailwind.
+
+import * as React from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+
+const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`)
+
+export function ScrollAreaDemo() {
+  return (
+    <ScrollArea className="h-72 w-48 rounded-md border">
+      <div className="p-4">
+        <h4 className="mb-4 text-sm leading-none font-medium">Tags</h4>
+        {tags.map((tag) => (
+          <React.Fragment key={tag}>
+            <div className="text-sm">{tag}</div>
+            <Separator className="my-2" />
+          </React.Fragment>
+        ))}
+      </div>
+    </ScrollArea>
+  )
+}

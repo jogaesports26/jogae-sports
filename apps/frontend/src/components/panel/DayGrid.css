@@ -1,0 +1,259 @@
+/* Grade do dia (tela Hoje): quadras em linhas, horas em colunas, linha de "agora".
+   Reservado = lima (é o traço do produto, o mesmo da mini-agenda da landing); livre = tracejado; manutenção = âmbar. */
+.day-grid {
+  --label-w: 132px;
+  --cell-h: 40px;
+}
+
+.day-grid__scroll {
+  overflow-x: auto;
+  padding: 0 20px 4px;
+}
+
+.day-grid__inner {
+  position: relative;
+  min-width: calc(var(--label-w) + var(--cols) * 58px);
+  padding-top: 22px;
+}
+
+.day-grid__row {
+  display: grid;
+  grid-template-columns: var(--label-w) minmax(0, 1fr);
+  align-items: center;
+  margin-top: 8px;
+}
+
+.day-grid__row--head {
+  margin-top: 0;
+}
+
+.day-grid__label,
+.day-grid__row--head > span:first-child {
+  position: sticky;
+  left: 20px; /* o mesmo respiro lateral do contêiner: o nome da quadra fica à vista ao rolar */
+  z-index: 3;
+  background: var(--color-surface);
+}
+
+.day-grid__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  align-self: stretch;
+  justify-content: center;
+  padding-right: 12px;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+
+.day-grid__label strong {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-grid__label small {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.day-grid__label:hover strong {
+  color: var(--brand-text);
+}
+
+.day-grid__cells {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: 4px;
+}
+
+.day-grid__hour {
+  padding-left: 2px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.day-grid__hour.is-now {
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+.day-grid__slot,
+.day-grid__off,
+.day-grid__block {
+  height: var(--cell-h);
+  border-radius: 8px;
+}
+
+.day-grid__slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--color-dark) 16%, transparent);
+  background: transparent;
+  font-size: 16px;
+  line-height: 1;
+  color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.day-grid__slot:hover,
+.day-grid__slot:focus-visible {
+  border-style: solid;
+  border-color: var(--brand-text);
+  background: var(--color-info-bg);
+  color: var(--brand-text);
+}
+
+.day-grid__slot--past {
+  cursor: default;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+}
+
+.day-grid__off {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--color-dark) 5%, transparent) 5px 10px
+  );
+}
+
+.day-grid__block {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+button.day-grid__block {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+button.day-grid__block:hover {
+  filter: brightness(1.08);
+}
+
+.day-grid__block--confirmed {
+  background: var(--brand-action);
+  color: var(--on-action);
+}
+
+.day-grid__block--completed {
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+}
+
+.day-grid__block--no_show {
+  background: var(--color-negative-bg);
+  color: var(--color-negative-text);
+}
+
+.day-grid__block--blocked {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+/* Linha de "agora" */
+.day-grid__now {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px solid var(--brand-text);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.day-grid__now span {
+  position: absolute;
+  top: -22px;
+  left: 0;
+  transform: translateX(-50%);
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--brand-text);
+  color: var(--color-background);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-grid__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 8px 0 0;
+  padding: 12px 20px 0;
+  list-style: none;
+  border-top: var(--border-subtle);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.day-grid__legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day-grid__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.day-grid__swatch--reserved {
+  background: var(--brand-action);
+}
+
+.day-grid__swatch--free {
+  border: 1px dashed var(--color-text-muted);
+}
+
+.day-grid__swatch--blocked {
+  background: var(--color-warning-text);
+}
+
+.day-grid__swatch--done {
+  background: var(--color-positive-text);
+}
+
+/* Celular: nome da quadra mais estreito, para sobrar espaço aos horários */
+@media (max-width: 640px) {
+  .day-grid {
+    --label-w: 92px;
+  }
+
+  .day-grid__label small {
+    display: none;
+  }
+
+  .day-grid__label strong {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-grid__slot,
+  button.day-grid__block {
+    transition: none;
+  }
+}
