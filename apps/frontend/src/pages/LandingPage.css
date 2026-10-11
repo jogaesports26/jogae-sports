@@ -10,7 +10,7 @@
   /* Fundo alternado entre seções claras consecutivas, pra os respiros não virarem um buraco branco. */
   --color-section-tint: var(--color-background);
 
-  overflow-x: hidden;
+  overflow-x: clip; /* clip (não hidden) pra não quebrar o menu sticky */
   background: var(--color-background);
   color: var(--color-dark);
 }
@@ -28,19 +28,33 @@
 }
 
 .landing__nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 6vw;
-  background: var(--color-background);
-  border-bottom: var(--border-subtle);
+  padding: 16px clamp(20px, 4vw, 56px);
+  background: color-mix(in srgb, var(--color-background) 94%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .landing__logo {
   font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--color-dark);
+}
+
+.landing__logo::after {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: var(--brand-action);
 }
 
 .landing__nav-links {

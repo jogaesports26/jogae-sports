@@ -74,6 +74,7 @@
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-card: 20px;
+  --radius-panel: 40px; /* painel grande da landing (hero) */
   --radius-pill: 9999px;
 
   /* Sombra suave e difusa. --shadow-neo mantém o nome por compatibilidade. */

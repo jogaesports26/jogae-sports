@@ -1,88 +1,94 @@
+/*
+ * Hero: painel azul da marca, inset e com cantos grandes, sobre a página clara.
+ * O celular passa da borda de baixo do painel (--hero-overhang) e, na rolagem,
+ * as telas andam em velocidades diferentes (parallax por scroll timeline, só
+ * transform/translate; sem JS e desligado em prefers-reduced-motion).
+ */
 .hero {
+  --hero-overhang: 88px;
+  --hero-pad-y: clamp(40px, 6vw, 88px);
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(160deg, var(--brand-primary) 0%, var(--brand-dark) 100%);
-  padding: 7vw 6vw;
+  margin: 8px clamp(12px, 2.5vw, 36px) 0;
+  padding: var(--hero-pad-y) clamp(24px, 5vw, 72px) calc(var(--hero-pad-y) + var(--hero-overhang));
   display: grid;
-  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-items: center;
-  gap: 4vw;
+  gap: clamp(28px, 4vw, 64px);
 }
 
-.hero__icons {
+.hero__panel {
   position: absolute;
-  inset: 0;
+  inset: 0 0 var(--hero-overhang) 0;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(160deg, var(--brand-primary) 0%, var(--brand-dark) 100%);
+  overflow: hidden;
   pointer-events: none;
 }
 
-.hero__icon {
+.hero__court {
   position: absolute;
-  opacity: 0.12;
+  top: 50%;
+  right: -10%;
+  height: 130%;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  color: color-mix(in srgb, var(--on-brand) 14%, transparent);
 }
 
-.hero__icon--1 {
-  width: 90px;
-  top: -6%;
-  left: -4%;
-}
-.hero__icon--2 {
-  width: 70px;
-  top: 8%;
-  left: 88%;
-}
-.hero__icon--3 {
-  width: 60px;
-  top: 70%;
-  left: 4%;
-}
-.hero__icon--4 {
-  width: 44px;
-  top: 20%;
-  left: 6%;
-}
-.hero__icon--5 {
-  width: 54px;
-  top: 78%;
-  left: 90%;
-}
-.hero__icon--6 {
-  width: 48px;
-  top: 4%;
-  left: 46%;
+.hero__court line,
+.hero__court circle,
+.hero__court path {
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
 }
 
 .hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   text-align: left;
 }
 
 .hero__content h1 {
-  color: var(--color-white);
-  font-size: 46px;
-  line-height: 1.15;
-  margin-bottom: 4px;
+  color: var(--on-brand);
+  font-size: clamp(38px, 5.2vw, 76px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  max-width: 13ch;
+  text-wrap: balance;
+  margin: 0;
 }
 
 .hero__subtitle {
   font-family: var(--font-body);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 18px;
+  color: color-mix(in srgb, var(--on-brand) 85%, transparent);
+  font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1.6;
-  max-width: 480px;
-  margin: 0 0 36px;
+  max-width: 42ch;
+  margin: 24px 0 32px;
 }
 
 .hero__actions {
   display: flex;
-  gap: 16px;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.hero .landing__button--ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero .landing__button--ghost svg {
+  width: 16px;
+  height: 16px;
 }
 
 .hero__proof {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
   gap: 10px 24px;
   list-style: none;
   margin: 28px 0 0;
@@ -95,163 +101,56 @@
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  color: color-mix(in srgb, var(--on-brand) 82%, transparent);
 }
 
 .hero__proof li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 6px;
+  top: 0.45em;
   width: 8px;
   height: 8px;
-  background: var(--color-accent);
-}
-
-.hero__mockup-wrap {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 560px;
-  justify-self: end;
-}
-
-.hero__badge {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-white);
-  color: var(--color-dark);
-  border-radius: var(--radius-md, 16px);
-  padding: 10px 16px;
-  box-shadow: var(--shadow-soft-lg);
-  font-family: var(--font-body);
-  text-align: left;
-}
-
-.hero__badge strong {
-  display: block;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.hero__badge small {
-  display: block;
-  font-size: 12px;
-  opacity: 0.6;
-  line-height: 1.3;
-}
-
-.hero__badge-dot {
-  width: 10px;
-  height: 10px;
   border-radius: 50%;
-  background: var(--color-accent);
-  flex-shrink: 0;
+  background: var(--brand-action);
 }
 
-.hero__badge-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background: var(--color-info-bg);
-  color: var(--color-primary);
-  flex-shrink: 0;
+/* Seta desenhada à mão: vai do título ao botão e se traça sozinha ao carregar */
+.hero__arrow {
+  position: absolute;
+  top: 38%;
+  right: -2px;
+  height: 46%;
+  aspect-ratio: 170 / 240;
+  overflow: visible;
+  pointer-events: none;
 }
 
-.hero__badge-icon svg {
-  width: 18px;
-  height: 18px;
+.hero__arrow path {
+  stroke: var(--brand-action);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hero-draw 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
 }
 
-.hero__badge-icon--positive {
-  background: var(--color-positive-bg);
-  color: var(--color-positive-text);
+.hero__arrow .hero__arrow-head {
+  animation-duration: 0.3s;
+  animation-delay: 1.45s;
 }
 
-.hero__badge--booking {
-  bottom: 14%;
-  left: -4%;
-}
-
-@media (max-width: 960px) {
-  .hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .hero__content {
-    text-align: center;
-  }
-
-  .hero__subtitle {
-    margin-inline: auto;
-  }
-
-  .hero__actions,
-  .hero__proof {
-    justify-content: center;
-  }
-
-  .hero__mockup-wrap {
-    justify-self: center;
-    margin-top: 6vw;
-  }
-}
-
-@media (max-width: 640px) {
-  .hero__content h1 {
-    font-size: 30px;
-  }
-
-  .hero__subtitle {
-    font-size: 15px;
-  }
-
-  .hero__actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .hero__icon {
-    display: none;
-  }
-
-  .hero__badge {
-    padding: 8px 12px;
-  }
-
-  .hero__badge strong {
-    font-size: 12px;
-  }
-
-  .hero__badge small {
-    font-size: 10px;
-  }
-
-  .hero__badge--booking {
-    display: none;
-  }
-}
-
-/* Telas reais do produto: navegador (painel) + celular (reserva) sobrepostos */
-
-.hero__shots {
+/* Telas reais do produto: navegador (painel) + celular (reserva) + selo */
+.hero__stage {
   position: relative;
+  z-index: 2;
   margin: 0;
-  padding-bottom: 36px;
-}
-
-.hero__shots figcaption {
-  margin-top: 14px;
-  font-size: 12px;
-  color: color-mix(in srgb, var(--on-brand) 70%, transparent);
-  text-align: left;
-  width: 66%;
+  width: 100%;
+  max-width: 600px;
+  justify-self: end;
+  align-self: end; /* base do palco = base da área útil do painel; o celular sai pela borda */
+  animation: hero-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
 }
 
 .hero__browser {
@@ -287,12 +186,188 @@
 .hero__phone {
   position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: calc(-1 * (var(--hero-pad-y) + 56px));
   width: 30%;
   min-width: 112px;
   border: 5px solid var(--color-dark-navy);
-  border-radius: 22px;
+  border-radius: 24px;
   overflow: hidden;
   background: var(--color-dark-navy);
   box-shadow: var(--shadow-soft-lg);
+}
+
+.hero__badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-white);
+  color: var(--color-dark);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  box-shadow: var(--shadow-soft-lg);
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.hero__badge strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.hero__badge small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.6;
+  line-height: 1.3;
+}
+
+.hero__badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--color-info-bg);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.hero__badge-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hero__badge-icon--positive {
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+}
+
+.hero__badge--booking {
+  top: 18%;
+  left: -7%;
+}
+
+.hero__stage figcaption {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 0;
+  width: 60%;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--on-brand) 70%, transparent);
+}
+
+/* Entrada ao carregar (um momento só) */
+.hero__content h1,
+.hero__subtitle,
+.hero__actions,
+.hero__proof {
+  animation: hero-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hero__subtitle {
+  animation-delay: 0.08s;
+}
+.hero__actions {
+  animation-delay: 0.16s;
+}
+.hero__proof {
+  animation-delay: 0.24s;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Parallax na rolagem: cada tela anda numa velocidade (propriedade `translate`, no compositor) */
+@keyframes hero-drift {
+  to {
+    translate: 0 var(--drift);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero [data-drift] {
+      animation: hero-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+    }
+    .hero [data-drift='slow'] {
+      --drift: 28px;
+    }
+    .hero [data-drift='mid'] {
+      --drift: -36px;
+    }
+    .hero [data-drift='fast'] {
+      --drift: -72px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__content h1,
+  .hero__subtitle,
+  .hero__actions,
+  .hero__proof,
+  .hero__stage {
+    animation: none;
+  }
+
+  .hero__arrow path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__arrow {
+    display: none;
+  }
+
+  .hero__stage {
+    justify-self: start;
+    max-width: 520px;
+  }
+
+  .hero__court {
+    right: -40%;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    --hero-overhang: 72px;
+    --hero-pad-y: 56px;
+    margin-inline: 8px;
+    padding-inline: 20px;
+  }
+
+  .hero__panel {
+    border-radius: 28px;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .hero__badge--booking {
+    display: none;
+  }
 }
