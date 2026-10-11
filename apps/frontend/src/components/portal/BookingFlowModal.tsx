@@ -375,7 +375,7 @@ export default function BookingFlowModal({
                 className="btn btn--outline btn--full"
                 href={buildGoogleCalendarUrl({
                   title: courtName,
-                  details: `Reserva no Jogaê Sports — ${courtName}`,
+                  details: `Reserva no Jogaê — ${courtName}`,
                   startsAt: toISOAt(dayDate, startMinute),
                   endsAt: toISOAt(dayDate, endMinute),
                 })}

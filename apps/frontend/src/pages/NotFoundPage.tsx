@@ -3,7 +3,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './NotFoundPage.css'
 
 export default function NotFoundPage() {
-  useDocumentTitle('Página não encontrada · Jogaê Sports')
+  useDocumentTitle('Página não encontrada · Jogaê')
 
   return (
     <main className="not-found">

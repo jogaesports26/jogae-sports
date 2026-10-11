@@ -87,7 +87,7 @@ async function storeAsset(slug: string, file: 'manifest.webmanifest' | 'icon.svg
     if (theme.status === 404) return NOT_FOUND
     if (!theme.data) return undefined
     const store = theme.data
-    const name = store.name ?? 'Jogaê Sports'
+    const name = store.name ?? 'Jogaê'
     const cache = 'public, max-age=300'
     if (file === 'icon.svg') {
       const svg = monogramSvg(name, store.cssVars['--brand-primary'], store.cssVars['--on-brand'])
@@ -112,7 +112,7 @@ async function storePage(url: URL, slug: string, second: string | undefined, she
     }
     if (!theme.data) return undefined
     const store = theme.data
-    const storeName = store.name ?? 'Jogaê Sports'
+    const storeName = store.name ?? 'Jogaê'
     let title = `${storeName} · Reserve sua quadra`
     let description = truncate(
       store.description ?? `Veja os horários livres e reserve sua quadra em ${storeName}, direto pelo celular.`,

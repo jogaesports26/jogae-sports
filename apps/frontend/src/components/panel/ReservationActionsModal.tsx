@@ -123,8 +123,8 @@ export default function ReservationActionsModal({
                 href={buildGoogleCalendarUrl({
                   title: reservation.guestName ? `${courtName} — ${reservation.guestName}` : courtName,
                   details: reservation.guestPhone
-                    ? `Reserva no Jogaê Sports. Telefone: ${reservation.guestPhone}`
-                    : 'Reserva no Jogaê Sports.',
+                    ? `Reserva no Jogaê. Telefone: ${reservation.guestPhone}`
+                    : 'Reserva no Jogaê.',
                   startsAt: reservation.startsAt,
                   endsAt: reservation.endsAt,
                 })}

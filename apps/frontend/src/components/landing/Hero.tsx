@@ -74,7 +74,7 @@ export default function Hero() {
             src="/landing/painel.jpg"
             width={1360}
             height={860}
-            alt="Painel do Jogaê Sports com faturamento do mês, ocupação e as reservas de hoje"
+            alt="Painel do Jogaê com faturamento do mês, ocupação e as reservas de hoje"
             fetchPriority="high"
           />
         </div>

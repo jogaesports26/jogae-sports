@@ -49,7 +49,7 @@ function toDatetimeLocalValue(date: Date): string {
 }
 
 export default function PlayerReservationsPage() {
-  useDocumentTitle('Minhas reservas · Jogaê Sports')
+  useDocumentTitle('Minhas reservas · Jogaê')
   const player = getPlayerUser()
   const lastSlug = (() => {
     try {
@@ -265,7 +265,7 @@ export default function PlayerReservationsPage() {
                           role="menuitem"
                           href={buildGoogleCalendarUrl({
                             title: reservation.court.name,
-                            details: `Reserva no Jogaê Sports — ${reservation.court.name}`,
+                            details: `Reserva no Jogaê — ${reservation.court.name}`,
                             startsAt: reservation.startsAt,
                             endsAt: reservation.endsAt,
                           })}

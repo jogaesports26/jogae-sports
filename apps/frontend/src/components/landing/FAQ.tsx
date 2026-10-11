@@ -6,7 +6,7 @@ const FAQ_ITEMS = [
   {
     question: 'Preciso pagar taxa por reserva realizada?',
     answer:
-      'Não. A mensalidade do Jogaê Sports é fixa, sem taxa por reserva ou por transação processada no sistema.',
+      'Não. A mensalidade do Jogaê é fixa, sem taxa por reserva ou por transação processada no sistema.',
   },
   {
     question: 'Consigo reservar horários fixos para alunos e mensalistas?',
@@ -16,7 +16,7 @@ const FAQ_ITEMS = [
   {
     question: 'O sistema funciona direto no celular sem precisar instalar aplicativo?',
     answer:
-      'Sim, o Jogaê Sports funciona 100% pelo navegador, tanto pra você quanto pros seus clientes — sem app pra baixar.',
+      'Sim, o Jogaê funciona 100% pelo navegador, tanto pra você quanto pros seus clientes — sem app pra baixar.',
   },
   {
     question: 'Posso gerenciar mais de uma quadra ou esporte no mesmo painel?',

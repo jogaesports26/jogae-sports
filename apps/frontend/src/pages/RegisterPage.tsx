@@ -89,7 +89,7 @@ export default function RegisterPage() {
       headline="Comece a gerenciar sua quadra hoje"
       subtitle="Crie sua conta e organize agenda, reservas e pagamentos em um só lugar."
     >
-      <div className="auth__brand">Jogaê Sports - Gestão</div>
+      <div className="auth__brand">Jogaê - Gestão</div>
 
       <h1>Criar conta</h1>
       <p className="auth__subtitle">Cadastro do responsável pelo estabelecimento</p>

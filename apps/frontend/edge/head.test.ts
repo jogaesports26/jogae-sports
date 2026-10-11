@@ -4,7 +4,7 @@ import { cssVarsToStyle, escapeHtml, renderHead, truncate } from './head.ts'
 
 const SHELL = `<!doctype html>
 <html><head>
-  <title>Jogaê Sports · Reserva de quadras</title>
+  <title>Jogaê · Reserva de quadras</title>
   <meta name="description" content="padrão" />
   <meta name="theme-color" content="#013ff6" />
   <meta property="og:title" content="padrão" />

@@ -12,7 +12,7 @@ const POINTS = [
 const SOON = ['Pagamento online com Pix na hora da reserva', 'Assistente inteligente pra ajudar o jogador a reservar sozinho']
 
 export default function Pricing() {
-  const whatsapp = whatsappLink('Oi! Quero tirar uma dúvida sobre preço do Jogaê Sports.')
+  const whatsapp = whatsappLink('Oi! Quero tirar uma dúvida sobre preço do Jogaê.')
   const contactHref = whatsapp ?? (SITE.contactEmail ? `mailto:${SITE.contactEmail}` : null)
 
   return (

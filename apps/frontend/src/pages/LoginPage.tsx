@@ -79,7 +79,7 @@ export default function LoginPage() {
       headline="Gestão completa pra sua quadra"
       subtitle="Agenda online, controle de reservas, pagamentos e muito mais. Tudo em um só lugar."
     >
-      <div className="auth__brand">Jogaê Sports - Gestão</div>
+      <div className="auth__brand">Jogaê - Gestão</div>
 
       <h1>Bem-vindo de volta</h1>
       <p className="auth__subtitle">

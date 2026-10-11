@@ -24,7 +24,7 @@ export default function EmbedLayout() {
         <Outlet context={{ basePath: `/${slug}/embed` }} />
       </div>
       <a href={`/${slug}`} target="_blank" rel="noreferrer" className="embed-layout__footer">
-        Feito com Jogaê Sports
+        Feito com Jogaê
       </a>
     </div>
   )

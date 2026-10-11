@@ -58,7 +58,7 @@ export default function ChatWidget({ open, onOpenChange, tabbed = false, hideTog
       {isOpen && (
         <div className="chat-widget__panel">
           <div className="chat-widget__header">
-            <span>Assistente Jogaê Sports</span>
+            <span>Assistente Jogaê</span>
             <button onClick={() => setIsOpen(false)} aria-label="Fechar">
               ×
             </button>

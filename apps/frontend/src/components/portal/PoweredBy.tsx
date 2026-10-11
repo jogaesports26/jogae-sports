@@ -5,7 +5,7 @@ import './PoweredBy.css'
 export default function PoweredBy({ className = '' }: { className?: string }) {
   return (
     <p className={`powered-by ${className}`.trim()}>
-      Feito com <Link to="/">Jogaê Sports</Link>
+      Feito com <Link to="/">Jogaê</Link>
     </p>
   )
 }

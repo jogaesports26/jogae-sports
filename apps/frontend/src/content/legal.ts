@@ -19,13 +19,13 @@ const contact = SITE.contactEmail
 export const TERMS: LegalDocument = {
   title: 'Termos de uso',
   intro:
-    'Estes termos explicam como funciona o Jogaê Sports, plataforma de agenda e reservas online para quadras esportivas. Ao criar uma conta ou fazer uma reserva, você concorda com eles.',
+    'Estes termos explicam como funciona o Jogaê, plataforma de agenda e reservas online para quadras esportivas. Ao criar uma conta ou fazer uma reserva, você concorda com eles.',
   sections: [
     {
-      title: '1. O que é o Jogaê Sports',
+      title: '1. O que é o Jogaê',
       paragraphs: [
-        'O Jogaê Sports oferece ao dono de um estabelecimento um painel para gerir quadras, horários, preços e reservas, e uma página pública (a "lojinha") em que jogadores escolhem um horário e reservam.',
-        'O Jogaê Sports é a ferramenta. Quem oferece a quadra, define preços, regras e atende o jogador é o estabelecimento.',
+        'O Jogaê oferece ao dono de um estabelecimento um painel para gerir quadras, horários, preços e reservas, e uma página pública (a "lojinha") em que jogadores escolhem um horário e reservam.',
+        'O Jogaê é a ferramenta. Quem oferece a quadra, define preços, regras e atende o jogador é o estabelecimento.',
       ],
     },
     {
@@ -39,7 +39,7 @@ export const TERMS: LegalDocument = {
       title: '3. Reservas e pagamentos',
       paragraphs: [
         'A reserva feita pela lojinha é um acordo entre o jogador e o estabelecimento. O preço exibido é o definido pelo estabelecimento para aquele horário.',
-        'No momento, o Jogaê Sports não processa pagamentos: a cobrança é combinada diretamente entre jogador e estabelecimento. Quando o pagamento online for lançado, estes termos serão atualizados antes.',
+        'No momento, o Jogaê não processa pagamentos: a cobrança é combinada diretamente entre jogador e estabelecimento. Quando o pagamento online for lançado, estes termos serão atualizados antes.',
         'A lojinha informa a regra de cancelamento (até 2 horas antes do horário). Casos fora dessa regra devem ser tratados com o estabelecimento.',
       ],
     },
@@ -78,7 +78,7 @@ export const TERMS: LegalDocument = {
 export const PRIVACY: LegalDocument = {
   title: 'Política de privacidade',
   intro:
-    'Aqui explicamos quais dados o Jogaê Sports coleta, por quê, com quem compartilha e quais são os seus direitos, conforme a Lei Geral de Proteção de Dados (LGPD).',
+    'Aqui explicamos quais dados o Jogaê coleta, por quê, com quem compartilha e quais são os seus direitos, conforme a Lei Geral de Proteção de Dados (LGPD).',
   sections: [
     {
       title: '1. Quais dados coletamos',

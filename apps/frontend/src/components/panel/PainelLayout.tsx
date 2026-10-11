@@ -166,7 +166,7 @@ export default function PainelLayout() {
   return (
     <div className="painel">
       <aside className="painel__sidebar">
-        <span className="painel__brand">Jogaê Sports</span>
+        <span className="painel__brand">Jogaê</span>
 
         <nav className="painel__nav">
           {navItems.map(({ to, label, Icon, end }) => (

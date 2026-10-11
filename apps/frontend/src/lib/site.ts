@@ -10,7 +10,7 @@
 const env = import.meta.env
 
 export const SITE = {
-  name: 'Jogaê Sports',
+  name: 'Jogaê',
   contactEmail: (env.VITE_CONTACT_EMAIL as string | undefined) || null,
   whatsapp: ((env.VITE_WHATSAPP as string | undefined) || '').replace(/\D/g, '') || null,
   cnpj: (env.VITE_CNPJ as string | undefined) || null,
@@ -18,5 +18,5 @@ export const SITE = {
   legalUpdatedAt: '05/10/2026',
 }
 
-export const whatsappLink = (message = 'Oi! Quero conhecer o Jogaê Sports.') =>
+export const whatsappLink = (message = 'Oi! Quero conhecer o Jogaê.') =>
   SITE.whatsapp ? `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(message)}` : null

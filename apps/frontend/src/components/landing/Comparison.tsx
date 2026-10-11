@@ -20,7 +20,7 @@ export default function Comparison() {
 
   return (
     <section className="comparison">
-      <h2>Planilha e WhatsApp vs. Jogaê Sports</h2>
+      <h2>Planilha e WhatsApp vs. Jogaê</h2>
       <p className="comparison__subtitle">
         Veja o que muda no seu dia a dia quando você para de gerenciar tudo manualmente.
       </p>
@@ -41,7 +41,7 @@ export default function Comparison() {
         </div>
 
         <div className="comparison__column comparison__column--jogae reveal-right">
-          <h3>Com Jogaê Sports</h3>
+          <h3>Com Jogaê</h3>
           <ul>
             {JOGAE_ITEMS.map((item) => (
               <li key={item}>

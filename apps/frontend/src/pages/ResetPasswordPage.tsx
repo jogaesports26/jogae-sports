@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthLayout headline="Link inválido" subtitle="Esse link de redefinição não é válido.">
-        <div className="auth__brand">Jogaê Sports - Gestão</div>
+        <div className="auth__brand">Jogaê - Gestão</div>
         <h1>Link inválido</h1>
         <p className="auth__subtitle">
           Peça um novo link em <Link to="/esqueci-senha">Esqueci minha senha</Link>.
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout headline="Quase lá" subtitle="Escolha uma nova senha pra voltar a gerenciar sua quadra.">
-      <div className="auth__brand">Jogaê Sports - Gestão</div>
+      <div className="auth__brand">Jogaê - Gestão</div>
 
       <h1>Redefinir senha</h1>
       <p className="auth__subtitle">Escolha uma nova senha pra sua conta.</p>

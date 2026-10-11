@@ -116,7 +116,7 @@ function Features() {
     <section className="landing__features" id="funcionalidades">
       <h2>Tudo que você precisa pra administrar sua quadra</h2>
       <p className="landing__features-subtitle">
-        O Jogaê Sports reúne as ferramentas essenciais pra você parar de perder tempo com
+        O Jogaê reúne as ferramentas essenciais pra você parar de perder tempo com
         planilha e WhatsApp.
       </p>
 
@@ -174,7 +174,7 @@ export default function LandingPage() {
   return (
     <div className="landing">
       <header className="landing__nav">
-        <span className="landing__logo">Jogaê Sports</span>
+        <span className="landing__logo">Jogaê</span>
         <nav className="landing__nav-links">
           <a href="#funcionalidades">Funcionalidades</a>
           <Link to="/login" className="landing__nav-login">
@@ -212,7 +212,7 @@ export default function LandingPage() {
       <footer className="landing__footer">
         <div className="landing__footer-columns">
           <div className="landing__footer-brand">
-            <strong>Jogaê Sports</strong>
+            <strong>Jogaê</strong>
             <p>Agenda, reservas online e financeiro da sua quadra num só painel.</p>
           </div>
           <nav className="landing__footer-col" aria-label="Produto">
@@ -246,7 +246,7 @@ export default function LandingPage() {
           )}
         </div>
         <p className="landing__footer-bottom">
-          © 2026 Jogaê Sports. Todos os direitos reservados.
+          © 2026 Jogaê. Todos os direitos reservados.
           {SITE.cnpj && ` · CNPJ ${SITE.cnpj}`}
         </p>
       </footer>

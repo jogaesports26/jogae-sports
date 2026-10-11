@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
       headline="Esqueceu sua senha?"
       subtitle="Sem problema. A gente te ajuda a voltar pro seu painel em poucos passos."
     >
-      <div className="auth__brand">Jogaê Sports - Gestão</div>
+      <div className="auth__brand">Jogaê - Gestão</div>
 
       <h1>Esqueci minha senha</h1>
       <p className="auth__subtitle">Digite seu e-mail e enviaremos um link pra redefinir sua senha.</p>

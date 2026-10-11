@@ -6,13 +6,13 @@ import './LegalPage.css'
 
 export default function LegalPage({ kind }: { kind: 'termos' | 'privacidade' }) {
   const doc = kind === 'termos' ? TERMS : PRIVACY
-  useDocumentTitle(`${doc.title} · Jogaê Sports`)
+  useDocumentTitle(`${doc.title} · Jogaê`)
 
   return (
     <div className="legal">
       <header className="legal__nav">
         <Link to="/" className="legal__logo">
-          Jogaê Sports
+          Jogaê
         </Link>
         <nav aria-label="Documentos">
           <Link to="/termos" aria-current={kind === 'termos' ? 'page' : undefined}>

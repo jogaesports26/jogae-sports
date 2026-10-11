@@ -57,10 +57,10 @@ export default function PortalLayout() {
                 {(storeName ?? 'J').trim().charAt(0).toUpperCase()}
               </span>
             )}
-            <span className="portal__logo-name">{storeName ?? 'Jogaê Sports'}</span>
+            <span className="portal__logo-name">{storeName ?? 'Jogaê'}</span>
           </Link>
         ) : (
-          <span className="portal__logo">Jogaê Sports</span>
+          <span className="portal__logo">Jogaê</span>
         )}
         <nav className="portal__nav-links">
           {!showTabs && (
