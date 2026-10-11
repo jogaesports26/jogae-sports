@@ -8,7 +8,7 @@ import Pricing from '../components/landing/Pricing'
 import SocialProof from '../components/landing/SocialProof'
 import Marquee from '../components/landing/Marquee'
 import Savings from '../components/landing/Savings'
-import { CalendarIcon, SoccerBall, Stopwatch, Trophy, Whistle } from './SportIcons'
+import { Basketball, CalendarIcon, SoccerBall, Stopwatch, TennisBall, Trophy, Volleyball, Whistle } from './SportIcons'
 import { SITE, whatsappLink } from '../lib/site'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import './LandingPage.css'
@@ -19,6 +19,7 @@ const AGENDA_ROWS = [
   { hour: '20h', slots: [false, true, true] },
   { hour: '21h', slots: [true, false, false] },
   { hour: '22h', slots: [false, true, false] },
+  { hour: '23h', slots: [true, false, true] },
 ]
 
 const REVENUE_BARS = [38, 52, 44, 68, 60, 82, 74]
@@ -61,6 +62,53 @@ function RevenueVisual() {
   )
 }
 
+/** Selo "reservado agora" que pulsa, com um horário livre ao lado. */
+function LiveVisual() {
+  return (
+    <div className="live-mini" aria-hidden="true">
+      <div className="live-mini__row">
+        <span className="live-mini__dot" />
+        <b>Reservado agora</b>
+        <small>Quadra 2 · 20h</small>
+      </div>
+      <div className="live-mini__row live-mini__row--idle">
+        <span className="live-mini__dot live-mini__dot--idle" />
+        <b>Horário livre</b>
+        <small>Quadra 1 · 21h</small>
+      </div>
+    </div>
+  )
+}
+
+/** Modalidades como círculos navy (o traço dos ícones é lima). */
+function SportsVisual() {
+  return (
+    <div className="sports-mini" aria-hidden="true">
+      {[SoccerBall, Volleyball, TennisBall, Basketball].map((Icon, i) => (
+        <span key={i}>
+          <Icon />
+        </span>
+      ))}
+    </div>
+  )
+}
+
+/** Barras de ocupação e meta do mês, só a ideia do painel (sem valores). */
+function PanelVisual() {
+  return (
+    <div className="panel-mini" aria-hidden="true">
+      <div>
+        <span>Ocupação do mês</span>
+        <i style={{ '--w': '72%' } as CSSProperties} />
+      </div>
+      <div>
+        <span>Meta do mês</span>
+        <i style={{ '--w': '54%' } as CSSProperties} />
+      </div>
+    </div>
+  )
+}
+
 function Features() {
   const gridRef = useScrollReveal<HTMLDivElement>()
 
@@ -97,6 +145,7 @@ function Features() {
           </div>
           <h3>Reservas em tempo real</h3>
           <p>Jogadores reservam direto pelo sistema, sem trocar mensagem pra confirmar horário.</p>
+          <LiveVisual />
         </article>
 
         <article className="bento__card bento__card--sports">
@@ -105,6 +154,7 @@ function Features() {
           </div>
           <h3>Múltiplos esportes</h3>
           <p>Futebol, vôlei, tênis, beach tennis e mais — cadastre quantas quadras precisar.</p>
+          <SportsVisual />
         </article>
 
         <article className="bento__card bento__card--panel">
@@ -113,6 +163,7 @@ function Features() {
           </div>
           <h3>Painel de gestão simples</h3>
           <p>Veja reservas, ocupação e relatórios sem complicação, direto do painel do dono.</p>
+          <PanelVisual />
         </article>
       </div>
     </section>

@@ -2,12 +2,12 @@
 .pricing {
   padding: 8vw 6vw;
   text-align: center;
-  background: var(--brand-action);
-  color: var(--on-action);
+  background: var(--color-soft);
+  color: var(--color-dark);
 }
 
 .pricing h2 {
-  color: var(--on-action);
+  color: var(--color-dark);
   font-size: clamp(30px, 3.6vw, 48px);
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -18,7 +18,7 @@
   font-family: var(--font-body);
   font-size: 17px;
   margin: 0 auto 48px;
-  opacity: 0.8;
+  color: var(--color-text-secondary);
 }
 
 .pricing__cards {
@@ -36,6 +36,7 @@
   color: var(--color-dark);
   border-radius: 32px;
   padding: 44px 40px;
+  border: 3px solid var(--brand-action);
   box-shadow: var(--shadow-soft-lg);
 }
 
@@ -110,9 +111,9 @@
 .pricing__card--soon {
   align-self: start;
   background: transparent;
-  color: var(--on-action);
+  color: var(--color-text-secondary);
   box-shadow: none;
-  border: 2px dashed color-mix(in srgb, var(--on-action) 45%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--color-dark) 25%, transparent);
 }
 
 .pricing__tag--soon {
@@ -122,13 +123,13 @@
 }
 
 .pricing__card--soon li {
-  opacity: 0.85;
+  opacity: 1;
 }
 
 .pricing__card--soon li::before {
   content: '';
   background: transparent;
-  border: 2px dashed color-mix(in srgb, var(--on-action) 55%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--color-dark) 35%, transparent);
   width: 20px;
   height: 20px;
 }

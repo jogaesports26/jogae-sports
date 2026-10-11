@@ -115,13 +115,13 @@
 }
 
 .landing__button--ghost {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.18);
   color: var(--color-white);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
 }
 
 .landing__button--ghost:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -295,7 +295,7 @@
 }
 
 .agenda-mini__slot {
-  height: 44px;
+  height: 52px;
   border-radius: 12px;
   border: 1.5px dashed color-mix(in srgb, var(--color-white) 22%, transparent);
 }
@@ -312,6 +312,141 @@
 .bento.is-visible .agenda-mini__slot--busy {
   opacity: 1;
   transform: none;
+}
+
+/* Cards secundários: um mini visual em cada um */
+.live-mini,
+.panel-mini {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.live-mini__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+  font-size: 14px;
+}
+
+.live-mini__row b {
+  font-weight: 600;
+}
+
+.live-mini__row small {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.live-mini__row--idle {
+  background: var(--color-soft);
+  color: var(--color-text-secondary);
+}
+
+.live-mini__dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-positive);
+}
+
+.live-mini__dot--idle {
+  background: var(--color-text-muted);
+}
+
+/* Anel que se expande e some: só transform e opacity */
+.live-mini__dot:not(.live-mini__dot--idle)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-positive);
+  animation: live-pulse 1.8s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+.sports-mini {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.sports-mini span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-dark-navy);
+}
+
+.sports-mini svg {
+  width: 32px;
+  height: 32px;
+}
+
+.panel-mini div {
+  display: grid;
+  gap: 6px;
+}
+
+.panel-mini span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.panel-mini i {
+  display: block;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--brand-primary) 14%, transparent);
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-mini i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: var(--w);
+  border-radius: inherit;
+  background: var(--brand-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s;
+}
+
+.bento.is-visible .panel-mini i::after {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-mini__dot::after {
+    animation: none;
+  }
+
+  .panel-mini i::after {
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Barras do faturamento crescem em sequência */

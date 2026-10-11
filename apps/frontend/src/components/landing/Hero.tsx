@@ -1,8 +1,19 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SITE } from '../../lib/site'
 import './Hero.css'
 
+const BOOKINGS = ['Quadra 1 · hoje, 19h', 'Quadra 2 · hoje, 20h', 'Quadra 3 · amanhã, 18h']
+
 export default function Hero() {
+  // O selo troca de reserva a cada poucos segundos (parado em prefers-reduced-motion).
+  const [booking, setBooking] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => setBooking((n) => (n + 1) % BOOKINGS.length), 3400)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <section className="hero">
       <div className="hero__panel" aria-hidden="true">
@@ -80,14 +91,14 @@ export default function Hero() {
         </div>
 
         <div className="hero__badge hero__badge--booking" data-drift="mid">
-          <span className="hero__badge-icon hero__badge-icon--positive" aria-hidden="true">
+          <span key={booking} className="hero__badge-icon hero__badge-icon--positive hero__badge-icon--pop" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
           <span>
             <strong>Reserva feita pelo link</strong>
-            <small>sem mensagem no WhatsApp</small>
+            <small key={booking} className="hero__badge-slot">{BOOKINGS[booking]}</small>
           </span>
         </div>
 

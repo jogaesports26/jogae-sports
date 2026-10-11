@@ -36,6 +36,7 @@
   --color-white: #ffffff;
   --color-surface: #ffffff; /* fundo de cards/modais; vira escuro no modo escuro */
   --color-background: #f4f5fa;
+  --color-soft: #f4f5fa; /* cinza claro fixo (a landing sobrescreve --color-background para branco) */
   --color-skeleton: #e9ebf3;
   --color-text-secondary: #5b6472;
   --color-text-muted: #8b94a3;

@@ -245,6 +245,27 @@
   color: var(--color-positive-text);
 }
 
+.hero__badge-icon--pop {
+  animation: hero-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.hero__badge-slot {
+  animation: hero-slot 0.45s ease both;
+}
+
+@keyframes hero-pop {
+  from {
+    transform: scale(0.6);
+  }
+}
+
+@keyframes hero-slot {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 .hero__badge--booking {
   top: 18%;
   left: -7%;
@@ -327,6 +348,11 @@
   .hero__arrow path {
     animation: none;
     stroke-dashoffset: 0;
+  }
+
+  .hero__badge-icon--pop,
+  .hero__badge-slot {
+    animation: none;
   }
 }
 

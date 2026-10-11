@@ -21,7 +21,9 @@ export default function Marquee() {
           <ul className="marquee__group" key={copy} aria-hidden={copy === 1}>
             {SPORTS.map(({ name, Icon }) => (
               <li key={name}>
-                <Icon className="marquee__icon" />
+                <span className="marquee__icon" aria-hidden="true">
+                  <Icon />
+                </span>
                 {name}
               </li>
             ))}
