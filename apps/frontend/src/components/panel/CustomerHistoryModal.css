@@ -12,7 +12,7 @@
 
 .customer-modal {
   position: relative;
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-lg);
   padding: 32px;

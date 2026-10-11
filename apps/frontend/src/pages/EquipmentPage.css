@@ -77,7 +77,7 @@
   gap: 8px;
   padding: 16px;
   border-radius: var(--radius-md);
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft-sm);
 }
 

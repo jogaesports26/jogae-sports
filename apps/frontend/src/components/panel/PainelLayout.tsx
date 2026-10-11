@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, useOutletContext } from 'react-router-dom
 import type { AuthUser } from '../../lib/api'
 import { clearSession } from '../../lib/api'
 import './PainelLayout.css'
+import './panel-kit.css'
 
 export interface PainelContext {
   user: AuthUser
@@ -166,7 +167,9 @@ export default function PainelLayout() {
   return (
     <div className="painel">
       <aside className="painel__sidebar">
-        <span className="painel__brand">Jogaê</span>
+        <span className="painel__brand">
+          Jogaê <small>Gestão</small>
+        </span>
 
         <nav className="painel__nav">
           {navItems.map(({ to, label, Icon, end }) => (
@@ -182,6 +185,15 @@ export default function PainelLayout() {
           ))}
         </nav>
 
+        <div className="painel__user">
+          <span className="painel__avatar" aria-hidden="true">
+            {user.name.trim().charAt(0).toUpperCase()}
+          </span>
+          <span className="painel__user-text">
+            <strong>{user.name}</strong>
+            <span>{user.role === 'STAFF' ? 'Funcionário' : 'Gestor'}</span>
+          </span>
+        </div>
         <button className="painel__logout" onClick={handleLogout}>
           Sair
         </button>

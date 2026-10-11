@@ -37,6 +37,8 @@
   --color-surface: #ffffff; /* fundo de cards/modais; vira escuro no modo escuro */
   --color-background: #f4f5fa;
   --color-soft: #f4f5fa; /* cinza claro fixo (a landing sobrescreve --color-background para branco) */
+  --color-surface-raised: #f4f5fa; /* superfície um nível acima do card (campos, hover de linha) */
+  --color-sidebar: #ffffff; /* barra lateral do painel */
   --color-skeleton: #e9ebf3;
   --color-text-secondary: #5b6472;
   --color-text-muted: #8b94a3;
@@ -118,4 +120,40 @@
   --shadow-soft-sm: 0 4px 12px -4px rgba(0, 0, 0, 0.5);
   --shadow-soft: 0 12px 24px -8px rgba(0, 0, 0, 0.55);
   --shadow-soft-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+/*
+ * Painel do dono ("Jogaê Gestão"): tema escuro azul-navy. Só neutros e semântica mudam; a marca (--brand-*) fica.
+ * Regras: fundo < card < superfície elevada (cada degrau um pouco mais claro); a lima fica SÓ no botão principal;
+ * o item ativo do menu e a seleção são azul (--brand-primary). Contrastes conferidos (AA): texto 14,1:1,
+ * secundário 7,4:1, mudo 5,5:1, azul-texto 7,0:1 sobre o card.
+ */
+.painel {
+  color-scheme: dark;
+  --color-background: #061626;
+  --color-surface: #0c2036;
+  --color-surface-raised: #12304f;
+  --color-sidebar: #030f1b;
+  --color-dark: #e8eef7;
+  --color-text-secondary: #9db0c8;
+  --color-text-muted: #8497b1;
+  --color-border: rgba(255, 255, 255, 0.09);
+  --color-skeleton: #153250;
+
+  --brand-text: #8aa6ff;
+  --brand-50: #14305a;
+  --color-info-bg: #14305a;
+  --color-info-text: #9db8ff;
+  --color-positive-bg: #123a2a;
+  --color-positive-text: #7fdc9f;
+  --color-negative-bg: #3d1a24;
+  --color-negative-text: #ff9aa7;
+  --color-warning-bg: #3b2c12;
+  --color-warning-text: #f5c36b;
+  --color-rating: #f5c542;
+  --color-focus: #ffffff;
+
+  --shadow-soft-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-soft-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
 }

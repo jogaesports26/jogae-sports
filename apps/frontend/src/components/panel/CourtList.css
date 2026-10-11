@@ -33,7 +33,7 @@
 .court-list__empty {
   text-align: center;
   padding: 60px 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
@@ -53,7 +53,7 @@
 }
 
 .court-card {
-  background: var(--color-white);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);

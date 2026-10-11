@@ -1,0 +1,256 @@
+/*
+ * Peças padrão do painel (tema escuro, ver .painel em styles/tokens.css).
+ * Toda tela usa as mesmas: PageHeader, .panel-card, .data-table, .empty-state, .segmented.
+ * Nada de cor fixa aqui: só tokens.
+ */
+
+/* Foco do teclado: anel branco colado + anel de marca por fora, visível no fundo escuro */
+.painel :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--brand-text);
+}
+
+.painel input[type='date'],
+.painel input[type='datetime-local'],
+.painel select {
+  color-scheme: dark;
+}
+
+.painel input[type='date']::-webkit-calendar-picker-indicator,
+.painel input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239db0c8' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+
+/* Campos em baixo-relevo: mais escuros que o card em que estão */
+.painel .input {
+  background: var(--color-background);
+}
+
+.painel .input:focus {
+  border-color: var(--brand-text);
+  box-shadow: 0 0 0 3px var(--color-info-bg);
+}
+
+/* Cartões: planos, com borda fina em vez de sombra */
+.painel .card,
+.panel-card {
+  background: var(--color-surface);
+  border: var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.panel-card {
+  overflow: hidden;
+}
+
+.panel-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: var(--border-subtle);
+}
+
+.panel-card__head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
+}
+
+/* Cabeçalho de página */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 32px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  max-width: 62ch;
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Tabela de dados: padrão para listas com várias colunas (clientes, reservas, relatórios) */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: var(--border-subtle);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 14px 20px;
+  border-bottom: var(--border-subtle);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-surface-raised) 45%, transparent);
+}
+
+.data-table .time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+
+/* Quadra aparece como linha de apoio no celular, onde a coluna some */
+.data-table .data-table__sub {
+  display: none;
+}
+
+.data-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.data-table a {
+  color: var(--color-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.data-table a:hover {
+  color: var(--brand-text);
+}
+
+.data-table small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* Estado vazio: diz o que fazer em seguida */
+.empty-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.empty-state p {
+  margin: 0 0 12px;
+}
+
+.empty-state a {
+  color: var(--brand-text);
+  font-weight: 600;
+}
+
+/* Filtro em segmentos: padrão único para abas de filtro e períodos */
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--color-background);
+  border: var(--border-subtle);
+}
+
+.segmented__item {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.segmented__item:hover {
+  color: var(--color-dark);
+}
+
+.segmented__item--active,
+.segmented__item--active:hover {
+  background: var(--brand-primary);
+  color: var(--on-brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmented__item {
+    transition: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .data-table th,
+  .data-table td {
+    padding: 12px 10px;
+  }
+
+  .data-table th:first-child,
+  .data-table td:first-child {
+    padding-left: 16px;
+  }
+
+  .data-table th:last-child,
+  .data-table td:last-child {
+    padding-right: 16px;
+  }
+
+  .data-table .time {
+    font-size: 13px;
+    white-space: normal;
+    width: 76px;
+  }
+
+  .data-table .pill {
+    font-size: 11px;
+    padding: 3px 9px;
+  }
+
+  .data-table .col-hide-sm {
+    display: none;
+  }
+
+  .data-table .data-table__sub {
+    display: block;
+  }
+}

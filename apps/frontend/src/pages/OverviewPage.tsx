@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
-import { IconCalendar, IconCourtOccupancy, IconGift, IconSleep, IconWallet } from '../components/panel/KpiIcons'
+import { IconGift, IconSleep } from '../components/panel/KpiIcons'
+import PageHeader from '../components/panel/PageHeader'
 import { SessionExpiredError } from '../lib/api'
 import { fetchTodayReservations } from '../lib/reservations'
 import type { TodayReservation } from '../lib/reservations'
@@ -16,11 +17,11 @@ import { toDateInputValue } from '../lib/weekGrid'
 import { formatCurrency } from '../lib/money'
 import './OverviewPage.css'
 
-const STATUS_LABELS: Record<TodayReservation['status'], string> = {
-  CONFIRMED: 'Confirmada',
-  CANCELLED: 'Cancelada',
-  COMPLETED: 'Concluída',
-  NO_SHOW: 'Não compareceu',
+const STATUS: Record<TodayReservation['status'], { label: string; pill: string }> = {
+  CONFIRMED: { label: 'Confirmada', pill: 'pill--positive' },
+  CANCELLED: { label: 'Cancelada', pill: 'pill--negative' },
+  COMPLETED: { label: 'Concluída', pill: 'pill--info' },
+  NO_SHOW: { label: 'Não compareceu', pill: 'pill--warning' },
 }
 
 function formatTime(iso: string) {
@@ -134,26 +135,28 @@ export default function OverviewPage() {
 
   return (
     <div className="overview-page">
-      <div className="overview-page__header">
-        <div>
-          <h1>Olá, {user.name.split(' ')[0]}!</h1>
-          <p className="overview-page__subtitle">Aqui está o resumo da sua arena.</p>
-        </div>
-        <div className="overview-page__shortcuts">
-          <Link to={agendaLink} className="btn btn--primary btn--sm">
-            {singleCourt ? 'Abrir agenda' : 'Ver quadras e agendas'}
-          </Link>
-          {user.role !== 'STAFF' && (
-            <Link to="/painel/relatorios" className="btn btn--outline btn--sm">
-              Relatórios
+      <PageHeader
+        title={`Olá, ${user.name.split(' ')[0]}!`}
+        subtitle="Aqui está o resumo da sua arena."
+        actions={
+          <>
+            {user.role !== 'STAFF' && (
+              <Link to="/painel/relatorios" className="btn btn--outline btn--sm">
+                Relatórios
+              </Link>
+            )}
+            <Link to={agendaLink} className="btn btn--primary btn--sm">
+              {singleCourt ? 'Abrir agenda' : 'Ver quadras e agendas'}
             </Link>
-          )}
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {showChecklist && steps && (
-        <div className="overview-page__checklist card">
-          <h2>Primeiros passos</h2>
+        <section className="overview-page__checklist panel-card">
+          <div className="panel-card__head">
+            <h2>Primeiros passos</h2>
+          </div>
           <div className="overview-page__checklist-items">
             {steps.map((step) => (
               <Link
@@ -168,140 +171,138 @@ export default function OverviewPage() {
               </Link>
             ))}
           </div>
-        </div>
-      )}
-
-      {monthReport && (
-        <section className="overview-page__hero card">
-          <div className="overview-page__hero-main">
-            <span className="kpi-label">Faturamento do mês</span>
-            <div className="overview-page__hero-value">
-              <strong>{formatCurrency(monthReport.totalRevenue)}</strong>
-              {revenueTrend !== null && (
-                <span className={`pill ${revenueTrend >= 0 ? 'pill--positive' : 'pill--negative'}`}>
-                  {revenueTrend >= 0 ? '▲' : '▼'} {Math.abs(Math.round(revenueTrend * 100))}%
-                </span>
-              )}
-            </div>
-            <small className="overview-page__hero-note">
-              {revenueTrend !== null
-                ? 'em relação ao mesmo período do mês passado'
-                : 'sem faturamento no mesmo período do mês passado pra comparar'}
-            </small>
-
-            {goalProgress !== null && monthlyGoal && (
-              <Link to="/painel/configuracoes?aba=metas" className="overview-page__goal">
-                <div className="overview-page__goal-header">
-                  <span>Meta do mês</span>
-                  <span>
-                    {Math.round(goalProgress * 100)}% de {formatCurrency(monthlyGoal)}
-                  </span>
-                </div>
-                <div className="overview-page__goal-bar">
-                  <div className="overview-page__goal-bar-fill" style={{ width: `${Math.round(goalProgress * 100)}%` }} />
-                </div>
-              </Link>
-            )}
-          </div>
-
-          <div className="overview-page__hero-side">
-            <span className="overview-page__stat-icon">
-              <IconCourtOccupancy />
-            </span>
-            <span className="kpi-label">Ocupação do mês</span>
-            <strong>{Math.round(monthReport.occupancyRate * 100)}%</strong>
-          </div>
         </section>
       )}
 
+      <section className="kpi-strip panel-card" aria-label="Indicadores">
+        {monthReport && (
+          <>
+            <div className="kpi">
+              <span className="kpi__label">Faturamento do mês</span>
+              <strong className="kpi__value">{formatCurrency(monthReport.totalRevenue)}</strong>
+              <span className="kpi__note">
+                {revenueTrend !== null ? (
+                  <>
+                    <span className={`pill ${revenueTrend >= 0 ? 'pill--positive' : 'pill--negative'}`}>
+                      {revenueTrend >= 0 ? '▲' : '▼'} {Math.abs(Math.round(revenueTrend * 100))}%
+                    </span>{' '}
+                    sobre o mesmo período do mês passado
+                  </>
+                ) : (
+                  'sem faturamento no mesmo período do mês passado pra comparar'
+                )}
+              </span>
+            </div>
+            <div className="kpi">
+              <span className="kpi__label">Ocupação do mês</span>
+              <strong className="kpi__value">{Math.round(monthReport.occupancyRate * 100)}%</strong>
+              <span className="kpi__note">dos horários com preço definido</span>
+            </div>
+          </>
+        )}
+        <div className="kpi">
+          <span className="kpi__label">Reservas hoje</span>
+          <strong className="kpi__value">{totalHoje}</strong>
+          <span className="kpi__note">{totalHoje === 1 ? 'reserva marcada' : 'reservas marcadas'}</span>
+        </div>
+        <div className="kpi">
+          <span className="kpi__label">Previsto pra hoje</span>
+          <strong className="kpi__value">{formatCurrency(faturamentoHoje)}</strong>
+          <span className="kpi__note">se todas as reservas se confirmarem</span>
+        </div>
+
+        {goalProgress !== null && monthlyGoal && (
+          <Link to="/painel/configuracoes?aba=metas" className="kpi-strip__goal">
+            <span>Meta do mês</span>
+            <span className="kpi-strip__goal-bar" role="progressbar" aria-valuenow={Math.round(goalProgress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso da meta do mês">
+              <span style={{ width: `${Math.round(goalProgress * 100)}%` }} />
+            </span>
+            <span>
+              {Math.round(goalProgress * 100)}% de {formatCurrency(monthlyGoal)}
+            </span>
+          </Link>
+        )}
+      </section>
+
       <div className="overview-page__columns">
-        <div className="overview-page__today">
-          <div className="overview-page__stats">
-            <div className="overview-page__stat">
-              <span className="overview-page__stat-icon">
-                <IconCalendar />
-              </span>
-              <span className="overview-page__stat-body">
-                <span>Reservas hoje</span>
-                <strong>{totalHoje}</strong>
-              </span>
-            </div>
-            <div className="overview-page__stat">
-              <span className="overview-page__stat-icon">
-                <IconWallet />
-              </span>
-              <span className="overview-page__stat-body">
-                <span>Previsto pra hoje</span>
-                <strong>{formatCurrency(faturamentoHoje)}</strong>
-              </span>
-            </div>
+        <section className="panel-card">
+          <div className="panel-card__head">
+            <h2>Reservas de hoje</h2>
           </div>
 
-        <div className="overview-page__section">
-          <h2>Reservas de hoje</h2>
-
           {error && <p className="overview-page__error">{error}</p>}
-
           {!error && reservations === null && <p className="overview-page__loading">Carregando...</p>}
 
           {reservations !== null && reservations.length === 0 && (
-            <div className="overview-page__empty">
+            <div className="empty-state">
               <p>Nenhuma reserva pra hoje ainda.</p>
-              <Link to="/painel/quadras" className="overview-page__cta">
-                Ver suas quadras
-              </Link>
+              <Link to="/painel/quadras">Ver suas quadras</Link>
             </div>
           )}
 
           {reservations !== null && reservations.length > 0 && (
-            <div className="overview-page__list">
-              {reservations.map((reservation) => (
-                <Link
-                  key={reservation.id}
-                  to={`/painel/quadras/${reservation.court.id}/agenda`}
-                  className="overview-page__item"
-                >
-                  <span className="overview-page__item-time">
-                    {formatTime(reservation.startsAt)}–{formatTime(reservation.endsAt)}
-                  </span>
-                  <span className="overview-page__item-info">
-                    <strong>{reservation.guestName}</strong>
-                    <small>{reservation.court.name}</small>
-                  </span>
-                  <span className={`overview-page__item-status overview-page__item-status--${reservation.status.toLowerCase()}`}>
-                    {STATUS_LABELS[reservation.status]}
-                  </span>
-                </Link>
-              ))}
+            <div className="table-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Horário</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col" className="col-hide-sm">
+                      Quadra
+                    </th>
+                    <th scope="col">Situação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reservations.map((reservation) => (
+                    <tr key={reservation.id}>
+                      <td className="time">
+                        {formatTime(reservation.startsAt)}–{formatTime(reservation.endsAt)}
+                      </td>
+                      <td>
+                        <Link to={`/painel/quadras/${reservation.court.id}/agenda`}>{reservation.guestName}</Link>
+                        <small className="data-table__sub">{reservation.court.name}</small>
+                      </td>
+                      <td className="col-hide-sm">{reservation.court.name}</td>
+                      <td>
+                        <span className={`pill ${STATUS[reservation.status].pill}`}>{STATUS[reservation.status].label}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-        </div>
-        </div>
+        </section>
 
         {(birthdaysCount > 0 || inactiveCount > 0) && (
-          <aside className="overview-page__attention card">
-            <h2>Pra ficar de olho</h2>
-            {birthdaysCount > 0 && (
-              <Link to="/painel/clientes?filtro=birthdays" className="overview-page__attention-item">
-                <span className="overview-page__alert-icon overview-page__alert-icon--warning">
-                  <IconGift />
-                </span>
-                <span>
-                  <strong>{birthdaysCount}</strong>{' '}
-                  {birthdaysCount === 1 ? 'aniversariante esse mês' : 'aniversariantes esse mês'}
-                </span>
-              </Link>
-            )}
-            {inactiveCount > 0 && (
-              <Link to="/painel/clientes?filtro=inactive" className="overview-page__attention-item">
-                <span className="overview-page__alert-icon overview-page__alert-icon--neutral">
-                  <IconSleep />
-                </span>
-                <span>
-                  <strong>{inactiveCount}</strong> {inactiveCount === 1 ? 'cliente inativo' : 'clientes inativos'}
-                </span>
-              </Link>
-            )}
+          <aside className="panel-card">
+            <div className="panel-card__head">
+              <h2>Pra ficar de olho</h2>
+            </div>
+            <div className="overview-page__attention">
+              {birthdaysCount > 0 && (
+                <Link to="/painel/clientes?filtro=birthdays" className="overview-page__attention-item">
+                  <span className="overview-page__alert-icon overview-page__alert-icon--warning">
+                    <IconGift />
+                  </span>
+                  <span>
+                    <strong>{birthdaysCount}</strong>{' '}
+                    {birthdaysCount === 1 ? 'aniversariante esse mês' : 'aniversariantes esse mês'}
+                  </span>
+                </Link>
+              )}
+              {inactiveCount > 0 && (
+                <Link to="/painel/clientes?filtro=inactive" className="overview-page__attention-item">
+                  <span className="overview-page__alert-icon overview-page__alert-icon--neutral">
+                    <IconSleep />
+                  </span>
+                  <span>
+                    <strong>{inactiveCount}</strong> {inactiveCount === 1 ? 'cliente inativo' : 'clientes inativos'}
+                  </span>
+                </Link>
+              )}
+            </div>
           </aside>
         )}
       </div>

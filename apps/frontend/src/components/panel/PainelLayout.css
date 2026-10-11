@@ -1,7 +1,4 @@
 .painel {
-  /* Tokens de marca vêm do :root (index.css). */
-  --radius-card: 20px;
-
   min-height: 100svh;
   display: flex;
   background: var(--color-background);
@@ -9,27 +6,58 @@
 }
 
 .painel__sidebar {
-  width: 240px;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 232px;
+  height: 100svh;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: var(--color-white);
-  padding: 24px 16px;
+  background: var(--color-sidebar);
+  border-right: var(--border-subtle);
+  padding: 24px 14px 20px;
+  overflow-y: auto;
 }
 
 .painel__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 10px;
+  margin-bottom: 28px;
   font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--color-dark);
-  padding: 0 8px;
-  margin-bottom: 32px;
+}
+
+/* Ponto lima da marca, o mesmo do logo da landing */
+.painel__brand::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-action);
+  order: 1;
+  align-self: center;
+  margin-left: -4px;
+}
+
+.painel__brand small {
+  order: 2;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-text-muted);
 }
 
 .painel__nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
 }
 
@@ -37,59 +65,106 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border-radius: var(--radius-pill);
+  padding: 10px 12px;
+  border-radius: 10px;
   font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-secondary);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .painel__nav-link svg {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   flex-shrink: 0;
 }
 
 .painel__nav-link:hover {
-  background: var(--color-background);
+  background: var(--color-surface);
   color: var(--color-dark);
 }
 
-.painel__nav-link--active {
-  color: var(--color-dark-navy);
-  background: var(--color-accent-green);
-  font-weight: 700;
+/* Item ativo = azul da marca (a lima fica só para o botão principal) */
+.painel__nav-link--active,
+.painel__nav-link--active:hover {
+  background: var(--brand-primary);
+  color: var(--on-brand);
+  font-weight: 600;
+}
+
+.painel__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 10px 4px;
+  border-top: var(--border-subtle);
+}
+
+.painel__avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface-raised);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.painel__user-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.painel__user-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.painel__user-text span {
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 .painel__logout {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
   font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 600;
-  color: var(--color-dark);
-  background: var(--color-white);
-  border: var(--border-subtle);
-  border-radius: var(--radius-pill);
-  padding: 10px 14px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  margin-top: 16px;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .painel__logout:hover {
-  background: var(--color-background);
+  background: var(--color-surface);
+  color: var(--color-dark);
 }
 
 .painel__main {
   flex: 1;
   min-width: 0;
-  padding: 4vw 3vw;
+  padding: 40px clamp(20px, 3.4vw, 52px) 64px;
 }
 
 .painel__main > * {
-  max-width: 1280px;
+  max-width: 1200px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -99,26 +174,20 @@
   }
 }
 
+/* Telas estreitas: a barra vira uma coluna só de ícones */
 @media (max-width: 860px) {
-  .painel {
-    flex-direction: row;
-  }
-
   .painel__sidebar {
     width: 64px;
-    flex-direction: column;
     align-items: center;
     padding: 16px 8px;
-    box-shadow: var(--shadow-soft-sm);
-    overflow-y: auto;
   }
 
-  .painel__brand {
+  .painel__brand,
+  .painel__user-text {
     display: none;
   }
 
   .painel__nav {
-    flex-direction: column;
     align-items: center;
     width: 100%;
     gap: 6px;
@@ -135,17 +204,20 @@
     display: none;
   }
 
+  .painel__user {
+    border-top: 0;
+    padding: 8px 0 0;
+  }
+
   .painel__logout {
-    margin-top: 12px;
-    margin-left: 0;
     width: 44px;
     height: 44px;
     padding: 0;
     font-size: 12px;
+    text-align: center;
   }
 
   .painel__main {
-    padding: 6vw 5vw;
-    min-width: 0;
+    padding: 24px 16px 48px;
   }
 }

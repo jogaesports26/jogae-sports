@@ -13,7 +13,7 @@
 }
 
 .court-pricing-page__section {
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft-sm);
   padding: 24px;
@@ -53,7 +53,7 @@
   height: 28px;
   border-radius: 50%;
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   cursor: pointer;
   font-size: 14px;
@@ -99,7 +99,7 @@
   padding: 8px 14px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--color-dark);
   cursor: pointer;
 }
