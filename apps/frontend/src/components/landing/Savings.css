@@ -44,7 +44,7 @@
   align-content: center;
   padding: 36px;
   border-radius: 28px;
-  background: color-mix(in srgb, var(--on-brand) 10%, transparent);
+  background: color-mix(in srgb, var(--brand-dark) 42%, transparent);
   border: 1px solid color-mix(in srgb, var(--on-brand) 22%, transparent);
 }
 
@@ -113,6 +113,10 @@
 }
 
 @media (max-width: 860px) {
+  .savings__slider input[type='range'] {
+    height: 44px;
+  }
+
   .savings__grid {
     grid-template-columns: 1fr;
   }

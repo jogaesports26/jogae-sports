@@ -9,7 +9,7 @@ const SPORTS = [
   { name: 'Futsal', Icon: SoccerBall },
   { name: 'Vôlei de Praia', Icon: Volleyball },
   { name: 'Basquete', Icon: Basketball },
-  { name: 'Futebol Fut7', Icon: SoccerBall },
+  { name: 'Fut7', Icon: SoccerBall },
 ]
 
 export default function Marquee() {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SITE } from '../../lib/site'
 import './Hero.css'
@@ -7,12 +7,19 @@ const BOOKINGS = ['Quadra 1 · hoje, 19h', 'Quadra 2 · hoje, 20h', 'Quadra 3 ·
 
 export default function Hero() {
   // O selo troca de reserva a cada poucos segundos (parado em prefers-reduced-motion).
+  // Para sozinho depois de 2 voltas e pausa quando o mouse ou o foco está em cima (WCAG 2.2.2).
   const [booking, setBooking] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const changes = useRef(0)
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const id = setInterval(() => setBooking((n) => (n + 1) % BOOKINGS.length), 3400)
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => {
+      if (changes.current >= BOOKINGS.length * 2) return clearInterval(id)
+      changes.current += 1
+      setBooking((n) => (n + 1) % BOOKINGS.length)
+    }, 3400)
     return () => clearInterval(id)
-  }, [])
+  }, [paused])
 
   return (
     <section className="hero">
@@ -53,12 +60,12 @@ export default function Hero() {
           <path
             className="hero__arrow-line"
             pathLength="1"
-            d="M10 10 C 150 0, 192 64, 168 132 C 148 192, 90 224, 26 214"
+            d="M10 10 C 150 0, 192 64, 168 132 C 152 186, 108 222, 56 214"
           />
           <path
             className="hero__arrow-head"
             pathLength="1"
-            d="M48 196 L26 214 L52 228"
+            d="M78 196 L56 214 L82 228"
           />
         </svg>
       </div>
@@ -90,7 +97,12 @@ export default function Hero() {
           />
         </div>
 
-        <div className="hero__badge hero__badge--booking" data-drift="mid">
+        <div
+          className="hero__badge hero__badge--booking"
+          data-drift="mid"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
           <span key={booking} className="hero__badge-icon hero__badge-icon--positive hero__badge-icon--pop" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

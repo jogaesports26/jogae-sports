@@ -61,8 +61,6 @@ export default function FAQ() {
               </h3>
               <div
                 id={panelId}
-                role="region"
-                aria-labelledby={buttonId}
                 className={`faq__answer ${isOpen ? 'faq__answer--open' : ''}`}
               >
                 <p>{item.answer}</p>

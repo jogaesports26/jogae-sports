@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { formatCurrency } from '../../lib/money'
 import './Savings.css'
 
@@ -41,26 +41,32 @@ interface SliderProps {
   max: number
   step?: number
   format: (value: number) => string
+  /** Frase completa pro leitor de tela (ex.: "6 minutos por reserva"). */
+  spoken: (value: number) => string
   onChange: (value: number) => void
 }
 
-function Slider({ label, value, min, max, step = 1, format, onChange }: SliderProps) {
+function Slider({ label, value, min, max, step = 1, format, spoken, onChange }: SliderProps) {
+  const id = useId()
   return (
-    <label className="savings__slider">
-      <span className="savings__slider-head">
-        <span>{label}</span>
-        <output>{format(value)}</output>
-      </span>
+    <div className="savings__slider">
+      <div className="savings__slider-head">
+        <label htmlFor={id}>{label}</label>
+        <output htmlFor={id} aria-hidden="true">
+          {format(value)}
+        </output>
+      </div>
       <input
+        id={id}
         type="range"
         min={min}
         max={max}
         step={step}
         value={value}
-        aria-valuetext={format(value)}
+        aria-valuetext={spoken(value)}
         onChange={(event) => onChange(Number(event.target.value))}
       />
-    </label>
+    </div>
   )
 }
 
@@ -116,6 +122,7 @@ export default function Savings() {
               max={300}
               onChange={setBookingsPerWeek}
               format={(v) => String(v)}
+              spoken={(v) => `${v} reservas por semana`}
             />
             <Slider
               label="Minutos no WhatsApp por reserva"
@@ -124,6 +131,7 @@ export default function Savings() {
               max={20}
               onChange={setMinutesPerBooking}
               format={(v) => `${v} min`}
+              spoken={(v) => `${v} minutos por reserva`}
             />
             <Slider
               label="Faltas sem aviso"
@@ -132,6 +140,7 @@ export default function Savings() {
               max={30}
               onChange={setNoShowPercent}
               format={(v) => `${v}%`}
+              spoken={(v) => `${v} por cento de faltas sem aviso`}
             />
             <Slider
               label="Valor médio da reserva"
@@ -141,15 +150,20 @@ export default function Savings() {
               step={5}
               onChange={setAveragePrice}
               format={(v) => formatCurrency(v)}
+              spoken={(v) => `${formatCurrency(v)} por reserva`}
             />
           </form>
 
-          <div className="savings__result" aria-live="polite">
-            <p>
+          <div className="savings__result">
+            {/* A contagem animada fica fora do leitor de tela; ele recebe só o valor final, sem passos intermediários. */}
+            <p className="sr-only" aria-live="polite">
+              {`${hoursOnChat.toFixed(1).replace('.', ',')} horas por mês só confirmando horário por mensagem e ${formatCurrency(lostRevenue)} por mês em horários vazios por falta sem aviso.`}
+            </p>
+            <p aria-hidden="true">
               <strong>{shownHours.toFixed(1).replace('.', ',')} h</strong>
               <span>por mês só confirmando horário por mensagem</span>
             </p>
-            <p>
+            <p aria-hidden="true">
               <strong>{formatCurrency(shownRevenue)}</strong>
               <span>por mês em horários que ficam vazios por falta sem aviso</span>
             </p>

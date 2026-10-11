@@ -218,8 +218,8 @@
 
 .hero__badge small {
   display: block;
-  font-size: 12px;
-  opacity: 0.6;
+  font-size: 13px;
+  color: var(--color-text-secondary);
   line-height: 1.3;
 }
 
@@ -267,16 +267,16 @@
 }
 
 .hero__badge--booking {
-  top: 18%;
+  top: -14px;
   left: -7%;
 }
 
 .hero__stage figcaption {
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 18px);
   left: 0;
   width: 60%;
-  font-size: 12px;
+  font-size: 13px;
   color: color-mix(in srgb, var(--on-brand) 70%, transparent);
 }
 

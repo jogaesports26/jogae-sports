@@ -173,6 +173,9 @@ function Features() {
 export default function LandingPage() {
   return (
     <div className="landing">
+      <a href="#conteudo" className="landing__skip">
+        Pular para o conteúdo
+      </a>
       <header className="landing__nav">
         <span className="landing__logo">Jogaê</span>
         <nav className="landing__nav-links">
@@ -186,6 +189,7 @@ export default function LandingPage() {
         </nav>
       </header>
 
+      <main id="conteudo" tabIndex={-1}>
       <Hero />
       <Marquee />
       <HowItWorks />
@@ -208,6 +212,7 @@ export default function LandingPage() {
           Criar conta grátis
         </Link>
       </section>
+      </main>
 
       <footer className="landing__footer">
         <div className="landing__footer-columns">

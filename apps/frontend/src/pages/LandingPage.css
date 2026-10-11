@@ -25,6 +25,35 @@
   color: var(--color-dark);
 }
 
+/* Anel de foco que aparece em qualquer fundo: anel branco colado no elemento + anel navy por fora.
+   Em fundo claro vale o navy, em azul/navy vale o branco (o foco só navy sumia no rodapé). */
+.landing :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 5px var(--color-focus);
+}
+
+.landing__skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 30;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-dark-navy);
+  color: var(--color-white);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.landing__skip:focus-visible {
+  transform: none;
+}
+
+main:focus {
+  outline: none;
+}
+
 .landing__nav {
   position: sticky;
   top: 0;
@@ -71,6 +100,22 @@
 
 .landing__nav-login {
   font-weight: 600;
+}
+
+.landing__nav-links a:not(.landing__nav-cta) {
+  padding: 12px 4px;
+  text-underline-offset: 6px;
+}
+
+.landing__nav-links a:not(.landing__nav-cta):hover {
+  text-decoration: underline;
+  text-decoration-color: var(--brand-action);
+  text-decoration-thickness: 3px;
+}
+
+.landing__button:active,
+.landing__nav-cta:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .landing__nav-cta {
@@ -283,15 +328,15 @@
 }
 
 .agenda-mini__row--head b {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   text-align: center;
-  color: color-mix(in srgb, var(--color-white) 65%, transparent);
+  color: color-mix(in srgb, var(--color-white) 70%, transparent);
 }
 
 .agenda-mini__hour {
-  font-size: 12px;
-  color: color-mix(in srgb, var(--color-white) 55%, transparent);
+  font-size: 13px;
+  color: color-mix(in srgb, var(--color-white) 70%, transparent);
 }
 
 .agenda-mini__slot {
@@ -306,7 +351,7 @@
   opacity: 0;
   transform: scale(0.6);
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
-  transition-delay: calc(var(--i) * 110ms + 350ms);
+  transition-delay: calc(var(--i) * 70ms + 150ms);
 }
 
 .bento.is-visible .agenda-mini__slot--busy {
@@ -439,8 +484,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-mini__dot::after {
+  .live-mini__dot:not(.live-mini__dot--idle)::after {
     animation: none;
+    opacity: 0;
   }
 
   .panel-mini i::after {
@@ -605,7 +651,7 @@
   flex: 1 1 150px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
 .landing__footer-col span {
@@ -614,7 +660,13 @@
   color: var(--color-accent-green);
 }
 
+.landing__footer-col span {
+  margin-bottom: 6px;
+}
+
 .landing__footer-col a {
+  display: block;
+  padding: 11px 0;
   color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
 }
@@ -631,7 +683,7 @@
 
 @media (max-width: 900px) {
   .bento {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bento__card--agenda,
@@ -641,6 +693,16 @@
   .bento__card--panel {
     grid-column: auto;
     grid-row: auto;
+  }
+
+  .bento__card--agenda {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .bento {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -662,8 +724,8 @@
   }
 
   .landing__nav-cta {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 12px 18px;
+    font-size: 14px;
   }
 
   .bento__card {
