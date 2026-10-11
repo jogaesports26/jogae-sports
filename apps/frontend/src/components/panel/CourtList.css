@@ -87,7 +87,7 @@
   text-align: right;
   font-size: 13px;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--brand-text);
   text-decoration: none;
   padding: 10px 20px 16px;
 }
@@ -136,7 +136,7 @@
 
 .court-card__prices {
   font-size: 13px;
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-weight: 600;
 }
 

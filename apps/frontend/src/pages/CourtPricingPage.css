@@ -63,7 +63,7 @@
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
   background: none;
   border: none;
   cursor: pointer;
@@ -182,7 +182,7 @@
 
 .court-pricing-page__manual summary {
   cursor: pointer;
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-weight: 600;
   margin-bottom: 12px;
 }

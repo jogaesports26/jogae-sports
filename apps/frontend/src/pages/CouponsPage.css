@@ -104,7 +104,7 @@
 
 .coupons-page__item-body strong {
   font-size: 18px;
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .coupons-page__item-body small {

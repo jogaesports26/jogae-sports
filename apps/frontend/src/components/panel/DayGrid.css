@@ -12,7 +12,7 @@
 
 .day-grid__inner {
   position: relative;
-  min-width: calc(var(--label-w) + var(--cols) * 58px);
+  min-width: calc(var(--label-w) + var(--cols) * 50px);
   padding-top: 22px;
 }
 

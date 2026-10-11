@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactElement } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import type { AuthUser } from '../../lib/api'
 import { clearSession } from '../../lib/api'
 import { fetchTodayReservations } from '../../lib/reservations'
 import './PainelLayout.css'
 import './panel-kit.css'
+import './config-kit.css'
 
 export interface PainelContext {
   user: AuthUser
@@ -136,15 +137,20 @@ const AREA_TABS: { prefixes: string[]; tabs: { to: string; label: string }[] }[]
       { to: '/painel/avaliacoes', label: 'Avaliações' },
     ],
   },
-  {
-    prefixes: ['/painel/configuracoes', '/painel/equipe', '/painel/cupons', '/painel/equipamentos'],
-    tabs: [
-      { to: '/painel/configuracoes', label: 'Arena e lojinha' },
-      { to: '/painel/equipe', label: 'Equipe' },
-      { to: '/painel/cupons', label: 'Cupons' },
-      { to: '/painel/equipamentos', label: 'Equipamentos' },
-    ],
-  },
+]
+
+/** Área Configurar: telas que moram dentro dela e o menu de seções à esquerda. */
+const CONFIG_PREFIXES = ['/painel/configuracoes', '/painel/equipe', '/painel/cupons', '/painel/equipamentos']
+
+const CONFIG_NAV: { to: string; label: string; aba?: string; path: string }[] = [
+  { to: '/painel/configuracoes', label: 'Arena', path: '/painel/configuracoes' },
+  { to: '/painel/configuracoes?aba=lojinha', label: 'Lojinha pública', aba: 'lojinha', path: '/painel/configuracoes' },
+  { to: '/painel/configuracoes?aba=aparencia', label: 'Aparência', aba: 'aparencia', path: '/painel/configuracoes' },
+  { to: '/painel/configuracoes?aba=precos', label: 'Preços', aba: 'precos', path: '/painel/configuracoes' },
+  { to: '/painel/configuracoes?aba=metas', label: 'Metas', aba: 'metas', path: '/painel/configuracoes' },
+  { to: '/painel/equipe', label: 'Equipe', path: '/painel/equipe' },
+  { to: '/painel/cupons', label: 'Cupons', path: '/painel/cupons' },
+  { to: '/painel/equipamentos', label: 'Equipamentos', path: '/painel/equipamentos' },
 ]
 
 const COLLAPSED_KEY = 'jogae_painel_collapsed'
@@ -164,7 +170,7 @@ function readCollapsed() {
 
 export default function PainelLayout() {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const [user, setUser] = useState<AuthUser | null>(null)
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -254,6 +260,14 @@ export default function PainelLayout() {
     items: group.items.filter((item) => !item.ownerOnly || user.role !== 'STAFF'),
   })).filter((group) => group.items.length > 0)
 
+  const isConfigArea = CONFIG_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+  const currentAba = new URLSearchParams(search).get('aba')
+  const isConfigNavActive = (item: (typeof CONFIG_NAV)[number]) => {
+    if (item.path === '/painel/configuracoes') {
+      return pathname === '/painel/configuracoes' && (item.aba ?? null) === (CONFIG_NAV.some((n) => n.aba === currentAba) ? currentAba : null)
+    }
+    return pathname === item.path || pathname.startsWith(`${item.path}/`)
+  }
   const areaTabs = AREA_TABS.find((area) => area.prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)))
 
   const renderNav = (collapsedMode: boolean) => (
@@ -379,7 +393,23 @@ export default function PainelLayout() {
               })}
             </nav>
           )}
-          <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />
+          {isConfigArea ? (
+            <div className="config-area">
+              <nav className="config-nav" aria-label="Seções do Configurar">
+                <p className="config-nav__title">Configurar</p>
+                {CONFIG_NAV.map((item) => (
+                  <Link key={item.to} to={item.to} aria-current={isConfigNavActive(item) ? 'page' : undefined}>
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="config-area__content">
+                <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />
+              </div>
+            </div>
+          ) : (
+            <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />
+          )}
         </div>
       </div>
     </div>

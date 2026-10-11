@@ -3,7 +3,7 @@
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
   text-decoration: none;
   margin-bottom: 16px;
 }

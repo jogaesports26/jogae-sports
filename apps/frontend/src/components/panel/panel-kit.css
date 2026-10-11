@@ -302,3 +302,8 @@
   gap: 10px;
   margin-top: 8px;
 }
+
+/* Links sem classe própria usam o azul claro (o azul da marca puro some no fundo escuro) */
+.painel a:not([class]) {
+  color: var(--brand-text);
+}

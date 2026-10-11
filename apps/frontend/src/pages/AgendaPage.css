@@ -27,7 +27,7 @@
 
 .agenda-page__week-nav button:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .agenda-page__error,
@@ -141,13 +141,13 @@
 }
 
 .agenda-grid__day-header--today span {
-  color: var(--color-primary);
+  color: var(--brand-text);
   opacity: 1;
   font-weight: 600;
 }
 
 .agenda-grid__day-header--today strong {
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .agenda-grid__time {
@@ -186,7 +186,7 @@
 .agenda-grid__cell--available {
   background: var(--color-surface);
   box-shadow: inset 0 0 0 1px var(--color-border);
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;

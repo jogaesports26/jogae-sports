@@ -1,0 +1,657 @@
+/*
+ * Peças do Configurar e dos estados de salvamento (tema escuro do painel). Só tokens, nada de cor fixa.
+ * Movimento: só transform e opacity; tudo para com prefers-reduced-motion.
+ */
+
+/* Spinner: um componente só, três tamanhos */
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--brand-text) 28%, transparent);
+  border-top-color: var(--brand-text);
+  animation: spinner-turn 0.8s linear infinite;
+}
+
+.spinner--sm {
+  width: 12px;
+  height: 12px;
+}
+
+.spinner--md {
+  width: 20px;
+  height: 20px;
+}
+
+.spinner--lg {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+
+@keyframes spinner-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Indicador de salvamento */
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.save-status svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.save-status--saved {
+  color: var(--color-positive-text);
+}
+
+.save-status--error {
+  color: var(--color-negative-text);
+}
+
+.save-status__retry {
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Botão de copiar: o ícone vira check com um leve quique */
+.copy-btn__icon {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.copy-btn__icon svg {
+  position: absolute;
+  inset: 0;
+  width: 14px;
+  height: 14px;
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.copy-btn__ic-check {
+  opacity: 0;
+  transform: scale(0.5);
+  color: var(--color-positive-text);
+}
+
+.copy-btn--copied .copy-btn__ic-copy {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.copy-btn--copied .copy-btn__ic-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.copy-btn--failed {
+  color: var(--color-negative-text);
+}
+
+/* Chip selecionável */
+.chip-toggle {
+  position: relative;
+  display: inline-flex;
+}
+
+.chip-toggle input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.chip-toggle__body {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-background);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.chip-toggle:hover .chip-toggle__body {
+  color: var(--color-dark);
+  border-color: color-mix(in srgb, var(--color-dark) 25%, transparent);
+}
+
+.chip-toggle__check {
+  width: 0;
+  height: 14px;
+  opacity: 0;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.chip-toggle--on .chip-toggle__body {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--on-brand);
+}
+
+.chip-toggle--on .chip-toggle__check {
+  width: 14px;
+  opacity: 1;
+}
+
+.chip-toggle input:focus-visible + .chip-toggle__body {
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--brand-text);
+}
+
+.chip-toggle--disabled {
+  opacity: 0.55;
+}
+
+.chip-toggle--disabled input {
+  cursor: not-allowed;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Linha de configuração */
+.setting-list {
+  border: var(--border-subtle);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.setting-list__title {
+  margin: 0;
+  padding: 18px 20px 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.setting-list__intro {
+  margin: 0;
+  padding: 0 20px 6px;
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-top: var(--border-subtle);
+}
+
+.setting-row--editing {
+  align-items: stretch;
+  background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+}
+
+.setting-row__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.setting-row__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.setting-row__value {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.setting-row__value--empty {
+  color: var(--color-text-muted);
+}
+
+.setting-row__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-row__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setting-row__editor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 560px;
+}
+
+.setting-row__prefix {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.setting-row__extra {
+  max-width: 560px;
+}
+
+.setting-row__hint {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.setting-row__error {
+  color: var(--color-negative-text);
+}
+
+.setting-row__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-block {
+  padding: 16px 20px;
+  border-top: var(--border-subtle);
+}
+
+.setting-block__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.setting-block__hint {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+/* Passo a passo ("Configure sua arena: 3 de 4") */
+.setup-progress {
+  margin-bottom: 24px;
+  padding: 18px 20px;
+}
+
+.setup-progress__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.setup-progress__head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.setup-progress__count {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.setup-progress__meter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.setup-progress__meter span {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--color-background);
+  overflow: hidden;
+}
+
+.setup-progress__meter span i {
+  display: block;
+  height: 100%;
+  background: var(--brand-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.setup-progress__meter span[data-done='true'] i {
+  transform: scaleX(1);
+}
+
+.setup-progress__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.setup-progress__steps a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: var(--border-subtle);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+
+.setup-progress__steps a:hover {
+  background: color-mix(in srgb, var(--color-surface-raised) 45%, transparent);
+}
+
+.setup-progress__steps [data-done='true'] a {
+  color: var(--color-text-secondary);
+}
+
+.setup-progress__dot {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px dashed var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+[data-done='true'] > a .setup-progress__dot {
+  border: 0;
+  background: var(--color-positive-bg);
+  color: var(--color-positive-text);
+}
+
+/* Área Configurar: menu de seções à esquerda */
+.config-area {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  max-width: 1200px;
+}
+
+.config-area > * {
+  max-width: none;
+}
+
+.config-nav {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.config-nav__title {
+  margin: 0 0 8px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.config-nav a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.config-nav a:hover {
+  background: var(--color-surface);
+  color: var(--color-dark);
+}
+
+.config-nav a[aria-current='page'] {
+  background: var(--color-surface-raised);
+  color: var(--color-dark);
+  font-weight: 600;
+}
+
+.config-area__content {
+  min-width: 0;
+}
+
+.config-area__content > * {
+  max-width: 880px;
+}
+
+/* Lojinha: campos e prévia lado a lado */
+.store-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.store-preview {
+  position: sticky;
+  top: 20px;
+  overflow: hidden;
+}
+
+.store-preview__caption {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.store-preview__cover {
+  height: 84px;
+  background: var(--color-surface-raised) center / cover no-repeat;
+}
+
+.store-preview__body {
+  padding: 12px 14px 14px;
+}
+
+.store-preview__body strong {
+  display: block;
+  font-size: 15px;
+}
+
+.store-preview__body p {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+
+.store-preview__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.store-preview__tags span {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.store-preview__button {
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-action);
+  color: var(--on-action);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.store-qr {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.store-qr img {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  background: var(--color-white);
+  padding: 4px;
+}
+
+.store-qr p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.embed-code {
+  display: block;
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--color-background);
+  border: var(--border-subtle);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* Preço simples */
+.price-simple {
+  padding: 20px;
+}
+
+.price-simple__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.price-simple__courts {
+  margin: 4px 0 18px;
+}
+
+.price-simple__summary {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-background);
+  border: var(--border-subtle);
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+}
+
+.price-simple__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+
+  .copy-btn__icon svg,
+  .chip-toggle__body,
+  .chip-toggle__check,
+  .setup-progress__meter span i {
+    transition: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .store-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .store-preview {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .config-area {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .config-nav {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+
+  .config-nav__title {
+    display: none;
+  }
+
+  .config-nav a {
+    white-space: nowrap;
+    border: var(--border-subtle);
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .setting-row__actions {
+    justify-content: flex-start;
+  }
+}

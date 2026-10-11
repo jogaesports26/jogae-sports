@@ -82,7 +82,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--color-info-bg);
-  color: var(--color-primary);
+  color: var(--brand-text);
   font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;

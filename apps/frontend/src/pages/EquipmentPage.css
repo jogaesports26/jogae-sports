@@ -94,7 +94,7 @@
 .equipment-page__price {
   font-family: var(--font-body);
   font-size: 15px;
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .equipment-page__price small {

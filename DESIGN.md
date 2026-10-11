@@ -110,6 +110,14 @@ derivada no backend. O painel do dono continua claro.
 - **Menu:** 5 áreas em 2 grupos, "Dia a dia" (Hoje, Quadras, Clientes) e "Negócio" (Financeiro, Configurar). Item ativo em azul, selo com a contagem de reservas de hoje, recolhe para ícones (botão e Ctrl+B), vira gaveta no celular. Telas que moram dentro de uma área (Avaliações, Equipe, Cupons, Equipamentos) aparecem como abas no topo do conteúdo.
 - **Grade do dia (assinatura do produto):** quadras em linhas, horas em colunas, linha de "agora". Aqui a lima também aparece nos blocos de reserva, porque é dado e é o traço do Jogaê (o mesmo da mini-agenda da landing). Fora disso, a lima continua só no botão principal. Horas já passadas ficam apagadas; no celular a grade rola sozinha até o "agora".
 
+### Configurar (padrões)
+- **Linhas editáveis** (`SettingRow`): rótulo e valor à esquerda, "Editar" à direita; ao editar abre o campo ali mesmo, "Salvar" grava na hora e Esc cancela. Frase de ajuda embaixo do campo; erro em texto, nunca só em cor.
+- **Salvamento** (`useSaveStatus` + `SaveStatus`): "Salvando… / Salvo / Não foi possível salvar" com ícone e texto, anunciado a leitores de tela. O que muda com um clique (comodidades, capa) salva sozinho; formulários de criar têm "Salvar" e "Cancelar".
+- **Opções em chips** (`ChipToggle`): campo real escondido, anel de foco no chip e ícone de check quando marcado (azul = selecionado).
+- **Copiar** (`CopyButton`): o ícone vira check, o texto vira "Copiado", com cópia alternativa e aviso de falha.
+- **Preço simples** (`SimplePricing`): dia, noite e fim de semana em poucos campos, aplicado a várias quadras; sempre com confirmação dizendo o que será substituído.
+- **Menu de seções** à esquerda (Arena, Lojinha pública, Aparência, Preços, Metas, Equipe, Cupons, Equipamentos) e, na lojinha, prévia ao lado do formulário.
+
 ## Forma e elevação
 
 Cantos grandes e sombras suaves e difusas (`--shadow-soft-sm`, `--shadow-soft`, `--shadow-soft-lg`). Sem borda

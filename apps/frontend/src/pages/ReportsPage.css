@@ -42,7 +42,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--brand-text);
   text-decoration: none;
 }
 
@@ -100,7 +100,7 @@
 
 .reports-page__range-btn:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .reports-page__range-btn--active {
@@ -203,7 +203,7 @@
   height: 44px;
   border-radius: var(--radius-md);
   background: var(--color-info-bg);
-  color: var(--color-primary);
+  color: var(--brand-text);
   flex-shrink: 0;
 }
 

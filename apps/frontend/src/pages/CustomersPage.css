@@ -44,7 +44,7 @@
 
 .customers-page__tab:hover {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--brand-text);
 }
 
 .customers-page__tab--active {
