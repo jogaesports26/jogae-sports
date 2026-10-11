@@ -1,0 +1,184 @@
+---
+name: Jogaê
+version: 1.0
+description: Identidade visual do Jogaê, plataforma de agenda e reservas para quadras esportivas.
+# Fonte única dos valores: apps/frontend/src/styles/tokens.css. Este arquivo documenta e explica;
+# se os dois divergirem, vale o tokens.css (o lint de hex só deixa cor em tokens.css).
+colors:
+  brand-primary: "#013ff6"      # azul da marca: seleção, links, preço, fundo do hero
+  brand-600: "#0132c4"          # azul mais fundo (fim de gradiente)
+  brand-50: "#e8edff"           # azul bem claro (fundos suaves, chips informativos)
+  brand-action: "#acec00"       # lima: a ação principal da tela
+  on-action: "#00182e"          # texto sobre lima
+  on-brand: "#ffffff"           # texto sobre azul
+  navy: "#00182e"               # texto principal, fundos escuros
+  background: "#f4f5fa"         # cinza claro de página (na landing: --color-soft)
+  surface: "#ffffff"            # cards e modais
+  text-secondary: "#5b6472"
+  text-muted: "#8b94a3"         # só detalhe; NÃO usar pra texto que precisa ser lido
+  positive: "#1b9e52"
+  negative: "#c62828"
+  warning-text: "#9a5b00"
+  rating: "#8a6400"
+typography:
+  heading: { family: "Inter Tight", weights: [500, 600, 700], tracking: "-0.02em", leading: 1.1 }
+  body:    { family: "Inter", weights: [400, 500, 600], size: 16px, leading: 1.5 }
+  display: { size: "clamp(38px, 5.2vw, 76px)", weight: 600, tracking: "-0.035em", leading: 1.02 }
+  h2:      { size: "clamp(30px, 3.6vw, 48px)", weight: 600 }
+  label:   { size: 13px, weight: 500 }
+rounded:
+  sm: 10px
+  md: 16px
+  card: 20px
+  panel: 40px     # painel grande da landing (hero)
+  pill: 9999px    # botões e chips
+spacing:
+  scale: [4, 8, 12, 16, 24, 32, 48]
+  section-landing: "8vw 6vw"
+---
+
+# Jogaê — Design
+
+## Visão geral
+
+O Jogaê é uma ferramenta de trabalho do dono de quadra, e ao mesmo tempo a vitrine que o jogador usa para reservar.
+A sensação que o visual deve passar é **de esporte e de organização**: energia (lima e azul vivos), mas com a
+calma de um painel que funciona (muito espaço, texto claro, nada decorativo sem função).
+
+O nome da marca é **Jogaê**, sem "Sports". Em textos curtos usa-se só "Jogaê"; quando for preciso dizer o que ele
+faz, vem uma frase ao lado ("reservas e gestão de quadras"), não um sufixo no nome.
+
+Dois públicos, dois níveis de ousadia:
+
+- **Landing e telas do dono:** identidade completa (azul, lima, navy, movimento comedido).
+- **Lojinha do estabelecimento:** a marca do dono manda. O Jogaê aparece só em "Feito com Jogaê" e no comprovante.
+
+## Cores
+
+**Duas famílias que nunca se misturam** (regra do `tokens.css`):
+
+1. **Marca (`--brand-*`)** muda por lojinha quando o dono escolhe um tema (presets Jogaê, Quadra, Areia, Noite e
+   Clássico). Serve para seleção, links, preço, hero e botão de ação.
+2. **Semântica (`--color-positive/negative/warning/info/rating`)** tem significado fixo (sucesso, erro, aviso,
+   informação, estrela). Nunca muda com o tema e nunca é usada como decoração.
+
+Papéis:
+
+| Cor | Papel |
+|---|---|
+| Lima `#acec00` | **A ação principal da tela. Um botão lima por seção.** Também detalhes pequenos (pontos, ícone de check, valores sobre azul ou navy). |
+| Azul `#013ff6` | Seleção, links, preço, fundo do hero e das seções de destaque. |
+| Navy `#00182e` | Texto principal, fundos escuros (comparação, rodapé), texto sobre lima. |
+| Cinza claro `#f4f5fa` | Fundo de página e de cards secundários. |
+
+Contrastes verificados (relação calculada a partir dos valores acima; AA pede 4,5:1 para texto normal e 3:1 para texto grande):
+
+| Par | Relação | Uso |
+|---|---|---|
+| navy sobre lima | 12,6:1 | texto dos botões de ação |
+| branco sobre azul | 6,9:1 | texto no hero e nas seções azuis |
+| lima sobre azul | 4,85:1 | valores em destaque sobre azul (só texto médio ou grande; em azul claro do gradiente cai, então use sobre painel escurecido) |
+| lima sobre navy | 12,6:1 | rótulos e números sobre fundo escuro |
+| azul sobre branco | 6,9:1 | links e preço |
+| cinza secundário sobre branco | 6,0:1 | texto de apoio |
+| cinza mudo sobre branco | 3,1:1 | **não passa para texto**; só detalhe |
+| **lima sobre branco** | **1,4:1** | **nunca como texto nem como linha fina** |
+
+Modo escuro existe só nas rotas da lojinha (`data-theme="dark"`). Os neutros são uma paleta fixa e a marca é
+derivada no backend. O painel do dono continua claro.
+
+## Tipografia
+
+- **Inter Tight** nos títulos (500 a 700), com espaçamento negativo e entrelinha curta. É ela que dá o tom "esporte".
+- **Inter** no corpo (400 a 600), 16px com entrelinha 1,5.
+- Escala fluida com `clamp()` nos títulos grandes. Linhas de texto corrido com no máximo 46 a 65 caracteres.
+- Texto que precisa ser lido: **mínimo 13px**; em cards e FAQ, 15 a 16px.
+- Título só em sentence case. Nada de caixa alta nem de uma palavra isolada em outra cor dentro do título.
+- Observação: a página importa a fonte **Syne**, mas ela só entra como alternativa no `--font-heading`. Se não for
+  usada em lugar nenhum, vale tirar do `@import` para ganhar bytes.
+
+## Layout
+
+- **Ritmo de fundos** (landing): azul (hero) → lima (faixa de modalidades) → branco → azul-claro → navy → azul → cinza claro → branco → azul → navy.
+  Não colocar três fundos chapados e saturados em sequência; alternar claro e escuro.
+- Alinhamento à esquerda no hero e nos blocos de texto. Centralizado só em títulos de seção curtos.
+- Espaçamento em múltiplos de 4 (4, 8, 12, 16, 24, 32, 48). Seções da landing: `8vw 6vw`.
+- Raio por hierarquia: **painel (40) > card (20 a 28) > elemento interno (10 a 16)**. Nunca o mesmo raio em tudo.
+- Em telas até 640px tudo vira uma coluna; sem rolagem horizontal (verificado em 375, 768 e 1280px).
+
+## Forma e elevação
+
+Cantos grandes e sombras suaves e difusas (`--shadow-soft-sm`, `--shadow-soft`, `--shadow-soft-lg`). Sem borda
+dura. Sombra serve para separar camadas, não para enfeitar.
+
+## Componentes
+
+- **Botão principal (`.btn--primary`, `.landing__button--primary`):** pílula lima com texto navy, 15 a 16px, peso 600.
+  Hover sobe 1 a 2px; pressionado afunda. Apenas **um** por seção.
+- **Botão secundário (ghost):** contorno, sem preenchimento forte; sobre azul usa branco com 75% de opacidade no contorno.
+- **Card (`.card`):** superfície branca, raio 20, sombra suave. Na landing, cards de destaque usam raio 28.
+- **Pílulas de status (`.pill--*`):** significado fixo: positivo = ativo/confirmado; neutro = inativo (escolha, não erro);
+  negativo = alerta real; aviso = atenção; info = categoria ou resposta.
+- **Azulejo de ícone (`.landing__feature-icon`):** quadrado navy com linhas de quadra e traço lima. Os ícones de
+  esporte têm o **traço lima fixo no código**: sobre fundo claro ou lima eles somem, então vão sempre num círculo ou azulejo navy.
+- **Campos (`.field`, `.input`):** com rótulo ligado ao campo. Controles deslizantes têm nome acessível e frase completa para leitor de tela.
+- **Foco do teclado:** anel em duas camadas (branco colado no elemento + navy por fora), visível em qualquer fundo.
+
+## Movimento
+
+Regra geral: **movimento só quando mostra algo ou responde a uma ação.** Só `transform`, `opacity` e
+`stroke-dashoffset`; nunca animar layout. Tudo respeita `prefers-reduced-motion` (parado, e nada fica escondido).
+
+Inventário atual da landing (a revisão externa recomendou, no máximo, 2 efeitos de destaque por página; hoje
+estamos acima disso, então **não acrescentar nada novo sem tirar algo**):
+
+| Efeito | Onde | Tipo |
+|---|---|---|
+| Seta que se traça | hero, ao carregar | uma vez |
+| Parallax das telas | hero, na rolagem | scroll timeline (CSS) |
+| Selo "Reserva feita pelo link" | hero | loop de 2 voltas, pausa com mouse |
+| Faixa de modalidades | entre hero e passos | loop contínuo (pausa no hover) |
+| Linha tracejada dos passos | Como funciona | scroll timeline |
+| Horários, barras e pulso | bento | entra uma vez / pulso contínuo |
+| Cascata de itens | comparação | uma vez |
+| Contagem dos números | calculadora | ao entrar na tela e a cada ajuste |
+| Linhas de quadra se traçando | chamada final | scroll timeline |
+
+Preferir `animation-timeline: view()` dentro de `@supports`, para que navegadores sem suporte mostrem o estado final.
+
+## Acessibilidade (piso mínimo)
+
+- Contraste AA em todo texto que se lê.
+- Foco visível em tudo que se clica; Enter e Espaço funcionam; ordem de Tab lógica; link "pular para o conteúdo"; um `<main>`; um único `<h1>`.
+- Imagem com `alt`; decoração com `aria-hidden`.
+- Alvo de toque de pelo menos 40px (ideal 44px) no celular.
+- Número animado fora do leitor de tela; o leitor recebe só o valor final.
+
+## Faça e não faça
+
+**Faça**
+- Use `var(--token)` para qualquer cor, raio e sombra. Se faltar um token, crie em `tokens.css`.
+- Mantenha a lima como ação principal e o azul como seleção e link.
+- Mostre o produto real (telas verdadeiras do painel, com a legenda "dados de demonstração").
+- Escreva em português do Brasil, em tom direto, com verbo de ação nos botões ("Criar conta grátis").
+- Teste em 375, 768 e 1280px e com o teclado antes de publicar.
+
+**Não faça**
+- Cor hex fora de `tokens.css` (o `npm run lint` falha).
+- Lima como texto sobre branco, ou ícone de esporte sobre fundo claro sem o círculo navy.
+- Depoimento, número de clientes ou logo de arena que não seja real.
+- Cinza mudo (`--color-text-muted`) em texto que precisa ser lido.
+- Animar largura, altura, margem ou blur grande; mais de um botão lima na mesma seção.
+- Misturar a família de marca com a semântica (usar verde de "positivo" como cor de marca, por exemplo).
+- Chamar a marca de "Jogaê Sports".
+
+## Onde está cada coisa
+
+| O quê | Arquivo |
+|---|---|
+| Tokens (fonte única) | `apps/frontend/src/styles/tokens.css` |
+| Botões, campos, cards, pílulas | `apps/frontend/src/styles/primitives.css` |
+| Entradas por rolagem | `apps/frontend/src/styles/scroll-reveal.css` |
+| Temas por lojinha e modo escuro | `apps/frontend/src/lib/theme.ts` (cores derivadas no backend) |
+| Landing | `apps/frontend/src/pages/LandingPage.tsx` e `components/landing/*` |
+| Regra de lint de cor | `apps/frontend/scripts/check-no-hex.mjs` |
