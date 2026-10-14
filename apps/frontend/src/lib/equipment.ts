@@ -7,15 +7,19 @@ export interface Equipment {
   pricePerUnit: number
   active: boolean
   createdAt: string
+  /** Quadras onde aparece. Vazio = todas as quadras. */
+  courtIds: string[]
 }
 
 export interface EquipmentInput {
   name: string
   pricePerUnit: number
+  /** Vazio ou ausente = todas as quadras. */
+  courtIds?: string[]
 }
 
 function normalizeEquipment(equipment: Equipment): Equipment {
-  return { ...equipment, pricePerUnit: Number(equipment.pricePerUnit) }
+  return { ...equipment, pricePerUnit: Number(equipment.pricePerUnit), courtIds: equipment.courtIds ?? [] }
 }
 
 export async function fetchEquipment(): Promise<Equipment[]> {

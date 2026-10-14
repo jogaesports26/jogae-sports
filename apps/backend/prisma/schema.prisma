@@ -41,21 +41,21 @@ enum Role {
 }
 
 model Court {
-  id                String   @id @default(uuid())
-  ownerId           String
-  owner             User     @relation(fields: [ownerId], references: [id])
-  name              String
-  sport             String
-  surfaceType       String
-  hasLighting       Boolean  @default(false)
-  photoUrls         String[]
-  active            Boolean  @default(true)
-  minBookingMinutes Int      @default(60)
-  maxBookingMinutes Int?
-  slotStepMinutes   Int      @default(60)
-  bookingStepMinutes Int     @default(30)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  ownerId            String
+  owner              User     @relation(fields: [ownerId], references: [id])
+  name               String
+  sport              String
+  surfaceType        String
+  hasLighting        Boolean  @default(false)
+  photoUrls          String[]
+  active             Boolean  @default(true)
+  minBookingMinutes  Int      @default(60)
+  maxBookingMinutes  Int?
+  slotStepMinutes    Int      @default(60)
+  bookingStepMinutes Int      @default(30)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   priceRules                 PriceRule[]
   reservations               Reservation[]
@@ -63,6 +63,8 @@ model Court {
   recurringMaintenanceBlocks RecurringMaintenanceBlock[]
   reviews                    Review[]
   waitlist                   Waitlist[]
+  /// Equipamentos que se limitam a esta quadra (equipamento sem nenhuma quadra vale para todas).
+  equipment                  Equipment[]                 @relation("EquipmentCourts")
 
   @@index([ownerId])
 }
@@ -147,18 +149,18 @@ model Player {
 }
 
 model Review {
-  id            String      @id @default(uuid())
-  reservationId String      @unique
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  courtId       String
-  court         Court       @relation(fields: [courtId], references: [id])
-  playerId      String
-  player        Player      @relation(fields: [playerId], references: [id])
-  rating        Int
-  comment       String?
+  id             String      @id @default(uuid())
+  reservationId  String      @unique
+  reservation    Reservation @relation(fields: [reservationId], references: [id])
+  courtId        String
+  court          Court       @relation(fields: [courtId], references: [id])
+  playerId       String
+  player         Player      @relation(fields: [playerId], references: [id])
+  rating         Int
+  comment        String?
   ownerReply     String?
   ownerRepliedAt DateTime?
-  createdAt     DateTime    @default(now())
+  createdAt      DateTime    @default(now())
 
   @@index([courtId])
 }
@@ -263,6 +265,8 @@ model Equipment {
   createdAt    DateTime @default(now())
 
   reservationItems ReservationEquipment[]
+  /// Vazio = disponível em todas as quadras do dono; preenchido = só nessas quadras.
+  courts           Court[]                @relation("EquipmentCourts")
 
   @@index([ownerId])
 }

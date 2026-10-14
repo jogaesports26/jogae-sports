@@ -2,6 +2,8 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsOptional,
+  ArrayMaxSize,
+  IsArray,
   IsPositive,
   IsString,
   Max,
@@ -25,4 +27,11 @@ export class UpdateEquipmentDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+
+  /** Quadras onde o equipamento aparece. Vazio ou ausente = todas as quadras do dono. */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  courtIds?: string[];
 }

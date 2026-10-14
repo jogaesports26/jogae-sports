@@ -1,0 +1,43 @@
+.court-scope {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.court-scope legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.court-scope__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 22px;
+}
+
+.court-scope__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.court-scope__hint {
+  padding-left: 22px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-negative-text);
+}

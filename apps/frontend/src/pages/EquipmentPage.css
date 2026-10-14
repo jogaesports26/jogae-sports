@@ -143,3 +143,9 @@
     position: static;
   }
 }
+
+.equipment-page__scope {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}

@@ -503,9 +503,11 @@ describe('ReservationsService', () => {
         equipmentItems: [{ equipmentId: 'eq-1', quantity: 2 }],
       });
 
-      expect(equipmentService.resolveForOwner).toHaveBeenCalledWith('owner-1', [
-        { equipmentId: 'eq-1', quantity: 2 },
-      ]);
+      expect(equipmentService.resolveForOwner).toHaveBeenCalledWith(
+        'owner-1',
+        [{ equipmentId: 'eq-1', quantity: 2 }],
+        'court-1',
+      );
       expect(result.priceSnapshot).toBe(200);
       expect(result.equipmentItems).toEqual({ create: records });
     });
@@ -521,6 +523,7 @@ describe('ReservationsService', () => {
       expect(equipmentService.resolveForOwner).toHaveBeenCalledWith(
         'owner-1',
         undefined,
+        'court-1',
       );
       expect(result.priceSnapshot).toBe(180);
       expect(result.equipmentItems).toEqual({ create: [] });

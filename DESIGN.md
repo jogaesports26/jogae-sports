@@ -122,6 +122,8 @@ derivada no backend. O painel do dono continua claro.
 
 - **Como chegar (lojinha):** botão `DirectionsButton` (ícone de seta de navegação + "Como chegar", 40 px de altura) no topo da página da arena, sobre a faixa colorida (`onBrand`, translúcido), e na ficha da quadra, abaixo do nome da arena (`default`, borda fina e texto da marca). Abre a rota do Google Maps em outra aba (`rel="noopener noreferrer"`, rótulo diz que sai do site); sem endereço cadastrado o botão não aparece. Nenhum mapa é incorporado: nada do Google é carregado até o clique.
 
+- **Equipamento por quadra:** em Equipamentos, o bloco "Onde aparece" (`CourtScopePicker`): "Todas as quadras" (padrão) ou só as quadras marcadas; sem nenhuma marcada o botão de salvar fica desabilitado e a frase diz "Escolha ao menos uma quadra". Cada cartão mostra "Em todas as quadras" ou "Só em: …". Quem tem uma quadra só não vê nada disso (não há o que escolher).
+
 ### Configurar (padrões)
 - **Linhas editáveis** (`SettingRow`): rótulo e valor à esquerda, "Editar" à direita; ao editar abre o campo ali mesmo, "Salvar" grava na hora e Esc cancela. Frase de ajuda embaixo do campo; erro em texto, nunca só em cor.
 - **Salvamento** (`useSaveStatus` + `SaveStatus`): "Salvando… / Salvo / Não foi possível salvar" com ícone e texto, anunciado a leitores de tela. O que muda com um clique (comodidades, capa) salva sozinho; formulários de criar têm "Salvar" e "Cancelar".

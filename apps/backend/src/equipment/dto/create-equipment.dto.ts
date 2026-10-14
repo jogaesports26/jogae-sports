@@ -1,5 +1,8 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
+  IsOptional,
   IsPositive,
   IsString,
   Max,
@@ -17,4 +20,11 @@ export class CreateEquipmentDto {
   @IsPositive()
   @Max(100000)
   pricePerUnit: number;
+
+  /** Quadras onde o equipamento aparece. Vazio ou ausente = todas as quadras do dono. */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  courtIds?: string[];
 }

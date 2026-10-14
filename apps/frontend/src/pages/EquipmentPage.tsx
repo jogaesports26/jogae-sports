@@ -2,9 +2,19 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
+import CourtScopePicker from '../components/panel/CourtScopePicker'
+import { fetchCourts } from '../lib/courts'
+import type { Court } from '../lib/courts'
 import { createEquipment, fetchEquipment, removeEquipment, updateEquipment } from '../lib/equipment'
 import type { Equipment } from '../lib/equipment'
 import './EquipmentPage.css'
+
+/** "Em todas as quadras" ou "Só em: Society 1, Society 2". */
+function scopeLabel(item: Equipment, courts: Court[]) {
+  if (item.courtIds.length === 0) return 'Em todas as quadras'
+  const names = courts.filter((court) => item.courtIds.includes(court.id)).map((court) => court.name)
+  return names.length > 0 ? `Só em: ${names.join(', ')}` : 'Em todas as quadras'
+}
 
 export default function EquipmentPage() {
   const { onSessionExpired } = usePainelContext()
@@ -17,6 +27,11 @@ export default function EquipmentPage() {
   const [editName, setEditName] = useState('')
   const [editPrice, setEditPrice] = useState('')
   const [isSavingEdit, setIsSavingEdit] = useState(false)
+  const [courts, setCourts] = useState<Court[]>([])
+  const [newAll, setNewAll] = useState(true)
+  const [newCourtIds, setNewCourtIds] = useState<string[]>([])
+  const [editAll, setEditAll] = useState(true)
+  const [editCourtIds, setEditCourtIds] = useState<string[]>([])
 
   function load() {
     fetchEquipment()
@@ -31,6 +46,11 @@ export default function EquipmentPage() {
   }
 
   useEffect(() => {
+    fetchCourts()
+      .then(setCourts)
+      .catch(() => {
+        // sem a lista de quadras a tela segue funcionando: o equipamento vale para todas
+      })
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -40,9 +60,11 @@ export default function EquipmentPage() {
     setIsSaving(true)
     setError('')
     try {
-      await createEquipment({ name, pricePerUnit: Number(pricePerUnit) })
+      await createEquipment({ name, pricePerUnit: Number(pricePerUnit), courtIds: newAll ? [] : newCourtIds })
       setName('')
       setPricePerUnit('')
+      setNewAll(true)
+      setNewCourtIds([])
       load()
     } catch (err) {
       if (err instanceof SessionExpiredError) {
@@ -70,6 +92,8 @@ export default function EquipmentPage() {
     setEditingId(item.id)
     setEditName(item.name)
     setEditPrice(String(item.pricePerUnit))
+    setEditAll(item.courtIds.length === 0)
+    setEditCourtIds(item.courtIds)
   }
 
   function cancelEdit() {
@@ -80,7 +104,11 @@ export default function EquipmentPage() {
     setIsSavingEdit(true)
     setError('')
     try {
-      const updated = await updateEquipment(id, { name: editName, pricePerUnit: Number(editPrice) })
+      const updated = await updateEquipment(id, {
+        name: editName,
+        pricePerUnit: Number(editPrice),
+        courtIds: editAll ? [] : editCourtIds,
+      })
       setEquipment((prev) => (prev ? prev.map((e) => (e.id === updated.id ? updated : e)) : prev))
       setEditingId(null)
     } catch (err) {
@@ -147,7 +175,20 @@ export default function EquipmentPage() {
                 required
               />
             </label>
-            <button type="submit" className="btn btn--primary btn--full" disabled={isSaving}>
+            <CourtScopePicker
+              courts={courts}
+              all={newAll}
+              selectedIds={newCourtIds}
+              onChange={({ all, selectedIds }) => {
+                setNewAll(all)
+                setNewCourtIds(selectedIds)
+              }}
+            />
+            <button
+              type="submit"
+              className="btn btn--primary btn--full"
+              disabled={isSaving || (courts.length > 1 && !newAll && newCourtIds.length === 0)}
+            >
               {isSaving ? 'Adicionando...' : '+ Adicionar equipamento'}
             </button>
           </form>
@@ -184,6 +225,15 @@ export default function EquipmentPage() {
                           onChange={(event) => setEditPrice(event.target.value)}
                         />
                       </label>
+                      <CourtScopePicker
+                        courts={courts}
+                        all={editAll}
+                        selectedIds={editCourtIds}
+                        onChange={({ all, selectedIds }) => {
+                          setEditAll(all)
+                          setEditCourtIds(selectedIds)
+                        }}
+                      />
                       <div className="equipment-page__item-actions">
                         <button
                           type="button"
@@ -197,7 +247,7 @@ export default function EquipmentPage() {
                           type="button"
                           className="btn btn--primary btn--sm"
                           onClick={() => handleSaveEdit(item.id)}
-                          disabled={isSavingEdit || !editName.trim() || !editPrice}
+                          disabled={isSavingEdit || !editName.trim() || !editPrice || (courts.length > 1 && !editAll && editCourtIds.length === 0)}
                         >
                           {isSavingEdit ? 'Salvando...' : 'Salvar'}
                         </button>
@@ -209,6 +259,9 @@ export default function EquipmentPage() {
                       <span className="equipment-page__price">
                         R$ {item.pricePerUnit.toFixed(2).replace('.', ',')} <small>/ unidade</small>
                       </span>
+                      {courts.length > 1 && (
+                        <span className="equipment-page__scope">{scopeLabel(item, courts)}</span>
+                      )}
                       <div className="equipment-page__item-actions">
                         <button type="button" className="btn btn--ghost btn--sm" onClick={() => startEdit(item)}>
                           Editar

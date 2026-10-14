@@ -20,30 +20,77 @@ export interface ResolvedEquipment {
   records: ResolvedEquipmentItem[];
 }
 
+const WITH_COURT_IDS = { courts: { select: { id: true } } } as const;
+
+/** Troca a relação `courts` por `courtIds` (lista vazia = vale para todas as quadras do dono). */
+function withCourtIds<T extends { courts: { id: string }[] }>(equipment: T) {
+  const { courts, ...rest } = equipment;
+  return { ...rest, courtIds: courts.map((court) => court.id) };
+}
+
 @Injectable()
 export class EquipmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAllByOwner(ownerId: string) {
-    return this.prisma.equipment.findMany({
+  async findAllByOwner(ownerId: string) {
+    const list = await this.prisma.equipment.findMany({
       where: { ownerId },
+      include: WITH_COURT_IDS,
       orderBy: { name: 'asc' },
     });
+    return list.map(withCourtIds);
   }
 
-  create(ownerId: string, dto: CreateEquipmentDto) {
-    return this.prisma.equipment.create({
-      data: { ownerId, name: dto.name, pricePerUnit: dto.pricePerUnit },
+  /** Todas as quadras informadas precisam ser do dono: um dono não vincula equipamento a quadra de outro. */
+  private async assertCourtsBelongToOwner(ownerId: string, courtIds: string[]) {
+    const unique = [...new Set(courtIds)];
+    if (unique.length === 0) return unique;
+    const found = await this.prisma.court.count({
+      where: { id: { in: unique }, ownerId },
     });
+    if (found !== unique.length) {
+      throw new BadRequestException('Quadra inválida para este equipamento');
+    }
+    return unique;
+  }
+
+  async create(ownerId: string, dto: CreateEquipmentDto) {
+    const courtIds = await this.assertCourtsBelongToOwner(
+      ownerId,
+      dto.courtIds ?? [],
+    );
+    const created = await this.prisma.equipment.create({
+      data: {
+        ownerId,
+        name: dto.name,
+        pricePerUnit: dto.pricePerUnit,
+        courts: { connect: courtIds.map((id) => ({ id })) },
+      },
+      include: WITH_COURT_IDS,
+    });
+    return withCourtIds(created);
   }
 
   async update(ownerId: string, id: string, dto: UpdateEquipmentDto) {
     await this.findOneOrThrow(id, ownerId);
 
-    return this.prisma.equipment.update({
+    const { courtIds, ...fields } = dto;
+    const ids =
+      courtIds === undefined
+        ? undefined
+        : await this.assertCourtsBelongToOwner(ownerId, courtIds);
+
+    const updated = await this.prisma.equipment.update({
       where: { id },
-      data: dto,
+      data: {
+        ...fields,
+        ...(ids === undefined
+          ? {}
+          : { courts: { set: ids.map((courtId) => ({ id: courtId })) } }),
+      },
+      include: WITH_COURT_IDS,
     });
+    return withCourtIds(updated);
   }
 
   async remove(ownerId: string, id: string) {
@@ -78,14 +125,21 @@ export class EquipmentService {
     }
 
     return this.prisma.equipment.findMany({
-      where: { ownerId: court.ownerId, active: true },
+      where: {
+        ownerId: court.ownerId,
+        active: true,
+        // Sem nenhuma quadra marcada = vale para todas; senão, só nas marcadas.
+        OR: [{ courts: { none: {} } }, { courts: { some: { id: courtId } } }],
+      },
       orderBy: { name: 'asc' },
     });
   }
 
+  /** Com `courtId`, só aceita equipamento disponível nessa quadra (a validação do servidor, não só da tela). */
   async resolveForOwner(
     ownerId: string,
     items?: ReservationEquipmentItemDto[],
+    courtId?: string,
   ): Promise<ResolvedEquipment> {
     if (!items || items.length === 0) {
       return { total: 0, records: [] };
@@ -94,6 +148,7 @@ export class EquipmentService {
     const ids = [...new Set(items.map((item) => item.equipmentId))];
     const equipment = await this.prisma.equipment.findMany({
       where: { id: { in: ids }, ownerId, active: true },
+      include: WITH_COURT_IDS,
     });
     const byId = new Map(equipment.map((item) => [item.id, item]));
 
@@ -103,6 +158,15 @@ export class EquipmentService {
       if (!found) {
         throw new BadRequestException(
           'Equipamento não encontrado ou indisponível',
+        );
+      }
+      if (
+        courtId &&
+        found.courts.length > 0 &&
+        !found.courts.some((court) => court.id === courtId)
+      ) {
+        throw new BadRequestException(
+          'Esse equipamento não está disponível nessa quadra',
         );
       }
       const unitPrice = Number(found.pricePerUnit);
@@ -135,6 +199,6 @@ export class EquipmentService {
       throw new NotFoundException('Quadra não encontrada');
     }
 
-    return this.resolveForOwner(court.ownerId, items);
+    return this.resolveForOwner(court.ownerId, items, courtId);
   }
 }

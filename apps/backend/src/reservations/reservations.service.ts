@@ -789,7 +789,11 @@ export class ReservationsService {
     }
 
     const { total: equipmentTotal, records: equipmentRecords } =
-      await this.equipmentService.resolveForOwner(ownerId, dto.equipmentItems);
+      await this.equipmentService.resolveForOwner(
+        ownerId,
+        dto.equipmentItems,
+        courtId,
+      );
     priceSnapshot = Math.round((priceSnapshot + equipmentTotal) * 100) / 100;
 
     const reservation = await this.prisma.$transaction(async (tx) => {
