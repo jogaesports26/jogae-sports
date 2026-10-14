@@ -433,7 +433,6 @@ export default function CourtBookingPage() {
             )}
           </div>
           {establishmentName && <p className="booking-hero__establishment">{establishmentName}</p>}
-          <DirectionsButton address={court.owner.establishmentAddress} />
 
           <div className="booking-hero__tags">
             <span className="pill pill--info">{sportLabel(court.sport)}</span>
@@ -441,6 +440,7 @@ export default function CourtBookingPage() {
             {court.hasLighting && <span className="pill pill--neutral">Com iluminação</span>}
           </div>
 
+          <div className="booking-sheet__bottom">
           {fromPrice !== null && (
             <p className="booking-sheet__price">
               <span className="booking-sheet__price-label">a partir de</span>
@@ -448,6 +448,8 @@ export default function CourtBookingPage() {
               <span className="booking-sheet__price-label">por hora</span>
             </p>
           )}
+            <DirectionsButton address={court.owner.establishmentAddress} />
+          </div>
 
           <ul className="booking-amenities">
             {visibleAmenities.map((item) => (
@@ -578,6 +580,7 @@ export default function CourtBookingPage() {
                     key={slot.startMinute}
                     type="button"
                     className={`time-pill${isPending ? ' time-pill--active' : ''}`}
+                    aria-pressed={isPending}
                     onClick={() =>
                       setPendingSlot({
                         dayDate: selectedDay,
@@ -589,6 +592,7 @@ export default function CourtBookingPage() {
                     }
                   >
                     <span className="time-pill__time">
+                      {isPending && <span className="time-pill__check" aria-hidden="true">✓ </span>}
                       {formatMinutes(slot.startMinute)}–{formatMinutes(slot.endMinute)}
                     </span>
                     <span className={`time-pill__price${isLowestPrice ? ' time-pill__price--lowest' : ''}`}>
@@ -601,6 +605,21 @@ export default function CourtBookingPage() {
           </>
         )}
       </section>
+
+      {/* No celular o resumo da quadra sobe e as comodidades descem para depois do horário: dia e horário ficam perto do topo. */}
+      {amenities.length > 0 && (
+        <section className="booking-section booking-section--amenities-mobile" aria-label="O que tem na quadra">
+          <h2 className="booking-section__title">O que tem aqui</h2>
+          <ul className="booking-amenities">
+            {amenities.map((item) => (
+              <li key={item}>
+                <CheckIcon />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {pendingSlot && (
         <div className="booking-summary-bar">

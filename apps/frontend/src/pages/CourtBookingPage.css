@@ -471,16 +471,25 @@
   color: var(--color-positive-text);
 }
 
-.time-pill:hover,
+.time-pill {
+  border: 2px solid transparent;
+}
+
+/* Passar o mouse só contorna; "selecionado" é o preenchido, com ✓ (no toque o hover fica preso, por isso não preenche) */
+@media (hover: hover) {
+  .time-pill:not(.time-pill--active):not(.time-pill--taken):hover {
+    border-color: var(--brand-primary);
+  }
+}
+
 .time-pill--active {
   background: var(--brand-primary);
   color: var(--on-brand);
 }
 
-.time-pill:hover .time-pill__price,
 .time-pill--active .time-pill__price {
   color: inherit;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .time-pill--taken {
@@ -771,4 +780,112 @@
 
 .booking-sheet .directions-button {
   margin-top: 12px;
+}
+
+/* Preço e "Como chegar" lado a lado (celular); no desktop os dois filhos seguem soltos, como antes */
+.booking-sheet__bottom {
+  display: contents;
+}
+
+/* Comodidades repetidas para o celular: só aparecem abaixo de 960 px */
+.booking-section--amenities-mobile {
+  display: none;
+}
+
+/* Celular e tablet em pé: o resumo da quadra é compacto, para o dia e o horário aparecerem logo */
+@media (max-width: 959px) {
+  .booking-hero__media {
+    aspect-ratio: 2 / 1;
+  }
+
+  .booking-sheet__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px 12px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: var(--border-subtle);
+  }
+
+  .booking-sheet__bottom .booking-sheet__price {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .booking-sheet__bottom .directions-button {
+    flex: none;
+    margin: 0;
+    padding: 0 12px;
+  }
+
+  .booking-sheet__bottom .booking-sheet__price strong {
+    font-size: 22px;
+  }
+
+  /* "a partir de R$ 75 /h": a frase curta deixa o "Como chegar" na mesma linha */
+  .booking-sheet__bottom .booking-sheet__price strong::after {
+    content: '/h';
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-left: 2px;
+  }
+
+  .booking-sheet__bottom .booking-sheet__price .booking-sheet__price-label:last-child {
+    display: none;
+  }
+
+  /* Durações numa linha só, que rola de lado (em vez de ocupar duas linhas) */
+  .duration-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .duration-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .duration-pill {
+    flex: 0 0 auto;
+  }
+
+  .booking-sheet {
+    margin-top: -20px;
+    padding: 14px 16px;
+  }
+
+  .booking-sheet h1 {
+    font-size: 21px;
+    margin-bottom: 4px;
+  }
+
+  .booking-hero__establishment,
+  .booking-hero__tags,
+  .booking-sheet > .booking-amenities,
+  .booking-sheet__more {
+    display: none;
+  }
+
+  .booking-sheet .directions-button {
+    min-height: 34px;
+    font-size: 13px;
+  }
+
+  .booking-section {
+    margin-top: 20px;
+  }
+
+  .booking-section__title {
+    margin-bottom: 8px;
+  }
+
+  .booking-section--amenities-mobile {
+    display: block;
+  }
 }
