@@ -76,8 +76,54 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
     scroller.scrollLeft = Math.max(0, target - scroller.clientWidth * 0.4)
   }, [focusKey])
 
+  // Estados de cada quadra, calculados antes de desenhar: a legenda só mostra o que existe nesta tela.
+  const lanes = data.map((courtAgenda) => {
+    const { agenda } = courtAgenda
+    const states = rows.map((row) =>
+      getAgendaCellState(
+        dayOfWeek,
+        row,
+        agenda.priceRules,
+        day,
+        agenda.reservations,
+        agenda.maintenanceBlocks,
+        agenda.recurringMaintenanceBlocks,
+      ),
+    )
+    return { courtAgenda, items: buildLaneItems(states) }
+  })
+  // Mesma regra do servidor e da agenda: horário que já começou não aceita reserva (a hora corrente também sai; "Nova reserva" oferece os meios-horários que restam).
+  const isPastRow = (index: number) => nowMinutes !== null && rows[index].startMinute <= nowMinutes
+  const seen = {
+    completed: false,
+    noShow: false,
+    blocked: false,
+    off: false,
+    past: false,
+  }
+  for (const { items } of lanes) {
+    for (const item of items) {
+      if (item.kind === 'reserved') {
+        if (item.reservation.status === 'COMPLETED') seen.completed = true
+        if (item.reservation.status === 'NO_SHOW') seen.noShow = true
+      } else if (item.kind === 'blocked') seen.blocked = true
+      else if (item.kind === 'noPrice') seen.off = true
+      else if (item.kind === 'available' && isPastRow(item.start)) seen.past = true
+    }
+  }
+
   return (
     <div className="day-grid" style={{ '--cols': rows.length } as CSSProperties}>
+      <ul className="day-grid__legend" aria-label="Legenda">
+        <li><i className="day-grid__swatch day-grid__swatch--reserved" />Reservado</li>
+        {seen.completed && <li><i className="day-grid__swatch day-grid__swatch--done" />✓ Concluída</li>}
+        {seen.noShow && <li><i className="day-grid__swatch day-grid__swatch--noshow" />✕ Faltou</li>}
+        {seen.blocked && <li><i className="day-grid__swatch day-grid__swatch--blocked" />Manutenção</li>}
+        <li><i className="day-grid__swatch day-grid__swatch--free" />Livre</li>
+        {seen.past && <li><i className="day-grid__swatch day-grid__swatch--past" />Já passou</li>}
+        {seen.off && <li><i className="day-grid__swatch day-grid__swatch--off" />Sem preço</li>}
+      </ul>
+
       <div className="day-grid__scroll" ref={scrollRef}>
         <div className="day-grid__inner" role="group" aria-label="Grade do dia">
           <div className="day-grid__row day-grid__row--head" aria-hidden="true">
@@ -94,20 +140,8 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
             </div>
           </div>
 
-          {data.map((courtAgenda) => {
-            const { court, agenda } = courtAgenda
-            const states = rows.map((row) =>
-              getAgendaCellState(
-                dayOfWeek,
-                row,
-                agenda.priceRules,
-                day,
-                agenda.reservations,
-                agenda.maintenanceBlocks,
-                agenda.recurringMaintenanceBlocks,
-              ),
-            )
-            const items = buildLaneItems(states)
+          {lanes.map(({ courtAgenda, items }) => {
+            const { court } = courtAgenda
 
             return (
               <div className="day-grid__row" key={court.id} role="group" aria-label={court.name}>
@@ -142,6 +176,8 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
                           aria-label={`${reservation.guestName || 'Reservado'}, ${court.name}, ${start} às ${end}, ${STATUS_LABEL[reservation.status]}`}
                           title={`${reservation.guestName || 'Reservado'} · ${start}–${end}`}
                         >
+                          {reservation.status === 'COMPLETED' && <span aria-hidden="true">✓ </span>}
+                          {reservation.status === 'NO_SHOW' && <span aria-hidden="true">✕ </span>}
                           {(reservation.guestName || 'Reservado').split(' ')[0]}
                         </button>
                       )
@@ -160,8 +196,7 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
                     }
 
                     const row = rows[item.start]
-                    const isPast = nowMinutes !== null && row.endMinute <= nowMinutes
-                    if (isPast) {
+                    if (isPastRow(item.start)) {
                       return <span key={`${item.start}-p`} className="day-grid__slot day-grid__slot--past" style={placement} aria-hidden="true" />
                     }
 
@@ -194,13 +229,6 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
           )}
         </div>
       </div>
-
-      <ul className="day-grid__legend" aria-label="Legenda">
-        <li><i className="day-grid__swatch day-grid__swatch--reserved" />Reservado</li>
-        <li><i className="day-grid__swatch day-grid__swatch--free" />Livre</li>
-        <li><i className="day-grid__swatch day-grid__swatch--blocked" />Manutenção</li>
-        <li><i className="day-grid__swatch day-grid__swatch--done" />Concluída</li>
-      </ul>
     </div>
   )
 }

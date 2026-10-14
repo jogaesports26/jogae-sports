@@ -1,5 +1,7 @@
 /* Grade do dia (tela Hoje): quadras em linhas, horas em colunas, linha de "agora".
-   Reservado = lima (é o traço do produto, o mesmo da mini-agenda da landing); livre = tracejado; manutenção = âmbar. */
+   Hierarquia: o que dá para fazer (livre, com borda e "+") é mais forte que o que já passou (quase some).
+   Reservado = lima (traço do produto); concluída, faltou e manutenção têm borda, e o sentido também vem em texto/símbolo (✓, ✕,
+   hachura), nunca só em cor. */
 .day-grid {
   --label-w: 132px;
   --cell-h: 40px;
@@ -92,34 +94,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed color-mix(in srgb, var(--color-dark) 16%, transparent);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--brand-text) 50%, transparent);
+  background: color-mix(in srgb, var(--color-info-bg) 40%, transparent);
   font-size: 16px;
   line-height: 1;
-  color: transparent;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
 .day-grid__slot:hover,
 .day-grid__slot:focus-visible {
-  border-style: solid;
   border-color: var(--brand-text);
   background: var(--color-info-bg);
   color: var(--brand-text);
 }
 
+/* Já passou: quase some, para o que ainda dá para reservar se destacar */
 .day-grid__slot--past {
   cursor: default;
-  border-color: transparent;
-  background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-dark) 8%, transparent);
+  background: transparent;
+  color: transparent;
 }
 
 .day-grid__off {
   background: repeating-linear-gradient(
     135deg,
     transparent 0 5px,
-    color-mix(in srgb, var(--color-dark) 5%, transparent) 5px 10px
+    color-mix(in srgb, var(--color-dark) 9%, transparent) 5px 10px
   );
 }
 
@@ -154,16 +157,24 @@ button.day-grid__block:hover {
 .day-grid__block--completed {
   background: var(--color-positive-bg);
   color: var(--color-positive-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-positive-text) 55%, transparent);
 }
 
 .day-grid__block--no_show {
   background: var(--color-negative-bg);
   color: var(--color-negative-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-negative-text) 55%, transparent);
 }
 
 .day-grid__block--blocked {
-  background: var(--color-warning-bg);
+  background-color: var(--color-warning-bg);
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-warning-text) 22%, transparent) 0 5px,
+    transparent 5px 10px
+  );
   color: var(--color-warning-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-warning-text) 55%, transparent);
 }
 
 /* Linha de "agora" */
@@ -194,11 +205,10 @@ button.day-grid__block:hover {
 .day-grid__legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 18px;
-  margin: 8px 0 0;
-  padding: 12px 20px 0;
+  gap: 6px 16px;
+  margin: 0 0 14px;
+  padding: 0 20px;
   list-style: none;
-  border-top: var(--border-subtle);
   font-size: 12px;
   color: var(--color-text-secondary);
 }
@@ -209,10 +219,12 @@ button.day-grid__block:hover {
   gap: 6px;
 }
 
+/* Cada amostra repete o estilo da célula que representa */
 .day-grid__swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  flex: none;
+  width: 16px;
+  height: 12px;
+  border-radius: 4px;
 }
 
 .day-grid__swatch--reserved {
@@ -220,15 +232,40 @@ button.day-grid__block:hover {
 }
 
 .day-grid__swatch--free {
-  border: 1px dashed var(--color-text-muted);
+  border: 1px solid color-mix(in srgb, var(--brand-text) 50%, transparent);
+  background: color-mix(in srgb, var(--color-info-bg) 40%, transparent);
+}
+
+.day-grid__swatch--past {
+  border: 1px solid color-mix(in srgb, var(--color-dark) 14%, transparent);
+}
+
+.day-grid__swatch--off {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--color-dark) 22%, transparent) 3px 5px
+  );
 }
 
 .day-grid__swatch--blocked {
-  background: var(--color-warning-text);
+  background-color: var(--color-warning-bg);
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-warning-text) 40%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-warning-text) 55%, transparent);
 }
 
 .day-grid__swatch--done {
-  background: var(--color-positive-text);
+  background: var(--color-positive-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-positive-text) 55%, transparent);
+}
+
+.day-grid__swatch--noshow {
+  background: var(--color-negative-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-negative-text) 55%, transparent);
 }
 
 /* Celular: nome da quadra mais estreito, para sobrar espaço aos horários */
