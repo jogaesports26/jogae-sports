@@ -31,6 +31,12 @@ export class OverviewController {
     return this.reservationsService.getTodayReservations(ownerId);
   }
 
+  @Get('courts-week-summary')
+  @Roles('COURT_OWNER', 'STAFF')
+  getCourtsWeekSummary(@CurrentOwnerId() ownerId: string) {
+    return this.reservationsService.getCourtsWeekSummary(ownerId);
+  }
+
   @Get('reports')
   getReports(
     @CurrentUser() user: AuthenticatedUser,

@@ -764,6 +764,52 @@ describe('ReservationsService', () => {
     });
   });
 
+  describe('resumo da semana por quadra (cards de Quadras)', () => {
+    const day = (offset: number, hour: number) => {
+      const d = new Date();
+      d.setHours(hour, 0, 0, 0);
+      d.setDate(d.getDate() + offset);
+      return d;
+    };
+
+    it('devolve contagem e ocupação de cada quadra com uma consulta de reservas só', async () => {
+      // Todos os dias, 08h às 12h (4h por dia, 28h na semana).
+      const rules = Array.from({ length: 7 }, (_, dayOfWeek) => ({
+        dayOfWeek,
+        startMinute: 480,
+        endMinute: 720,
+      }));
+      prisma.court = {
+        ...prisma.court,
+        findMany: jest.fn().mockResolvedValue([
+          { id: 'c1', priceRules: rules },
+          { id: 'c2', priceRules: [] },
+        ]),
+      };
+      prisma.reservation.findMany.mockResolvedValue([
+        { courtId: 'c1', startsAt: day(1, 8), endsAt: day(1, 10) },
+        { courtId: 'c1', startsAt: day(2, 8), endsAt: day(2, 9) },
+      ]);
+
+      const result = await service.getCourtsWeekSummary('owner-1');
+
+      expect(prisma.reservation.findMany).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([
+        { courtId: 'c1', reservationsCount: 2, occupancyRate: 0.107 },
+        { courtId: 'c2', reservationsCount: 0, occupancyRate: 0 },
+      ]);
+    });
+
+    it('sem quadras não consulta reservas', async () => {
+      prisma.court = {
+        ...prisma.court,
+        findMany: jest.fn().mockResolvedValue([]),
+      };
+      expect(await service.getCourtsWeekSummary('owner-1')).toEqual([]);
+      expect(prisma.reservation.findMany).not.toHaveBeenCalled();
+    });
+  });
+
   describe('cancelamento', () => {
     it('rejeita cancelamento a menos de 2 horas do horário reservado', async () => {
       const startsAt = new Date(Date.now() + 30 * 60 * 1000);

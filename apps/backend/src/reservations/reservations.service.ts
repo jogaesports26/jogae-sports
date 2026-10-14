@@ -144,11 +144,7 @@ export class ReservationsService {
             surfaceType: true,
             hasLighting: true,
             photoUrls: true,
-            priceRules: {
-              select: { pricePerHour: true },
-              orderBy: { pricePerHour: 'asc' },
-              take: 1,
-            },
+            priceRules: { select: { pricePerHour: true } },
           },
         },
       },
@@ -170,13 +166,21 @@ export class ReservationsService {
       coverPhotoUrl: owner.coverPhotoUrl,
       amenities: owner.amenities,
       theme: (owner.theme as StoredTheme | null) ?? defaultTheme(),
-      courts: owner.courts.map((court) => ({
-        ...court,
-        fromPricePerHour: court.priceRules[0]?.pricePerHour ?? null,
-        priceRules: undefined,
-        averageRating: ratingByCourtId.get(court.id)?.averageRating ?? null,
-        reviewCount: ratingByCourtId.get(court.id)?.reviewCount ?? 0,
-      })),
+      courts: owner.courts.map((court) => {
+        const prices = court.priceRules.map((rule) =>
+          Number(rule.pricePerHour),
+        );
+        const lowest = prices.length > 0 ? Math.min(...prices) : null;
+        return {
+          ...court,
+          // O menor preço entre os horários; `priceVaries` diz se existe algum mais caro (aí o card mostra "a partir de").
+          fromPricePerHour: lowest !== null ? lowest.toFixed(2) : null,
+          priceVaries: lowest !== null && Math.max(...prices) > lowest,
+          priceRules: undefined,
+          averageRating: ratingByCourtId.get(court.id)?.averageRating ?? null,
+          reviewCount: ratingByCourtId.get(court.id)?.reviewCount ?? 0,
+        };
+      }),
     };
   }
 
@@ -1200,6 +1204,59 @@ export class ReservationsService {
     }
 
     return { start, end };
+  }
+
+  /**
+   * Para os cards de Quadras: reservas e ocupação dos próximos 7 dias de cada quadra do dono.
+   * Uma consulta de quadras e uma de reservas para todas, em vez de uma por quadra.
+   */
+  async getCourtsWeekSummary(ownerId: string) {
+    const courts = await this.prisma.court.findMany({
+      where: { ownerId },
+      select: {
+        id: true,
+        priceRules: {
+          select: { dayOfWeek: true, startMinute: true, endMinute: true },
+        },
+      },
+    });
+    if (courts.length === 0) return [];
+
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+
+    const reservations = await this.prisma.reservation.findMany({
+      where: {
+        courtId: { in: courts.map((court) => court.id) },
+        startsAt: { gte: start, lt: end },
+        status: { not: 'CANCELLED' },
+      },
+      select: { courtId: true, startsAt: true, endsAt: true },
+    });
+
+    return courts.map((court) => {
+      const own = reservations.filter((r) => r.courtId === court.id);
+      const reservedMinutes = own.reduce(
+        (sum, r) => sum + (r.endsAt.getTime() - r.startsAt.getTime()) / 60000,
+        0,
+      );
+      const availableMinutes = this.calculateAvailableMinutes(
+        [court],
+        start,
+        end,
+      );
+      const occupancyRate =
+        availableMinutes > 0
+          ? Math.min(reservedMinutes / availableMinutes, 1)
+          : 0;
+      return {
+        courtId: court.id,
+        reservationsCount: own.length,
+        occupancyRate: Math.round(occupancyRate * 1000) / 1000,
+      };
+    });
   }
 
   private calculateAvailableMinutes(
