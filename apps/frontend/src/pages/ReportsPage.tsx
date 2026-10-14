@@ -8,6 +8,10 @@ import type { Court } from '../lib/courts'
 import { fetchProfile } from '../lib/profile'
 import { downloadReportsCsv, fetchCommercialReport, fetchReports } from '../lib/reports'
 import type { CommercialReport, FinancialReport } from '../lib/reports'
+import AreaChart from '../components/panel/charts/AreaChart'
+import GroupedBarChart from '../components/panel/charts/GroupedBarChart'
+import RankBars from '../components/panel/charts/RankBars'
+import { fillDailySeries, percentChange, previousRange } from '../lib/chartMath'
 import { toDateInputValue } from '../lib/weekGrid'
 import { formatCurrency } from '../lib/money'
 import './ReportsPage.css'
@@ -53,6 +57,18 @@ function formatDayLabel(dateStr: string) {
   return `${day}/${month}`
 }
 
+function Delta({ current, previous }: { current: number; previous: number | undefined }) {
+  const change = previous === undefined ? null : percentChange(current, previous)
+  if (change === null) return <small className="reports-page__delta reports-page__delta--none">sem período anterior para comparar</small>
+  const up = change >= 0
+  return (
+    <small className={`reports-page__delta ${up ? 'reports-page__delta--up' : 'reports-page__delta--down'}`}>
+      <i aria-hidden="true">{up ? '▲' : '▼'}</i> {up ? '+' : ''}
+      {change}% <em className="reports-page__delta-note">sobre o período anterior</em>
+    </small>
+  )
+}
+
 export default function ReportsPage() {
   const { onSessionExpired } = usePainelContext()
   const today = useMemo(() => new Date(), [])
@@ -64,6 +80,7 @@ export default function ReportsPage() {
 
   const [courts, setCourts] = useState<Court[]>([])
   const [report, setReport] = useState<FinancialReport | null>(null)
+  const [previousReport, setPreviousReport] = useState<FinancialReport | null>(null)
   const [commercialReport, setCommercialReport] = useState<CommercialReport | null>(null)
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthRevenue, setMonthRevenue] = useState<number | null>(null)
@@ -116,14 +133,16 @@ export default function ReportsPage() {
     Promise.all([
       fetchReports({ from, to, courtId: courtId || undefined }),
       fetchCommercialReport({ from, to, courtId: courtId || undefined }),
+      fetchReports({ ...previousRange(from, to), courtId: courtId || undefined }).catch(() => null),
     ])
-      .then(([data, commercialData]) => {
+      .then(([data, commercialData, previousData]) => {
         // Descarta a resposta se um filtro mais recente já disparou outra
         // busca — sem isso, uma resposta mais lenta podia chegar por último
         // e sobrescrever o estado com os dados de um período errado.
         if (requestId !== latestRequestRef.current) return
         setReport(data)
         setCommercialReport(commercialData)
+        setPreviousReport(previousData)
       })
       .catch((err) => {
         if (requestId !== latestRequestRef.current) return
@@ -159,11 +178,13 @@ export default function ReportsPage() {
     ? Math.min(monthRevenue / monthlyGoal, 1)
     : null
 
-  const maxDailyRevenue = report ? Math.max(1, ...report.dailyRevenue.map((d) => d.revenue)) : 1
+  const dailySeries = report ? fillDailySeries(report.from.slice(0, 10), report.to.slice(0, 10), report.dailyRevenue) : []
+  const previousByCourt = new Map((previousReport?.courts ?? []).map((c) => [c.courtId, c]))
+  const hasRevenue = (report?.totalRevenue ?? 0) > 0
 
   return (
     <div className="reports-page">
-      <h1>Relatórios financeiros</h1>
+      <h1>Financeiro</h1>
       <p className="reports-page__subtitle">Acompanhe o faturamento, a ocupação e o desempenho das suas quadras.</p>
 
       <div className="reports-page__goal card">
@@ -264,6 +285,7 @@ export default function ReportsPage() {
               <span className="reports-page__stat-body">
                 <span>Faturamento no período</span>
                 <strong>{formatCurrency(report.totalRevenue)}</strong>
+                <Delta current={report.totalRevenue} previous={previousReport?.totalRevenue} />
               </span>
             </div>
             <div className="reports-page__stat">
@@ -273,6 +295,7 @@ export default function ReportsPage() {
               <span className="reports-page__stat-body">
                 <span>Reservas no período</span>
                 <strong>{report.reservationsCount}</strong>
+                <Delta current={report.reservationsCount} previous={previousReport?.reservationsCount} />
               </span>
             </div>
             <div className="reports-page__stat">
@@ -282,76 +305,138 @@ export default function ReportsPage() {
               <span className="reports-page__stat-body">
                 <span>Taxa de ocupação</span>
                 <strong>{Math.round(report.occupancyRate * 100)}%</strong>
+                <Delta
+                  current={report.occupancyRate}
+                  previous={previousReport?.occupancyRate}
+                />
               </span>
             </div>
           </div>
 
-          <div className="reports-page__grid">
-            <div className="card reports-page__courts">
-              <h2>Quadras por faturamento</h2>
-              {report.courts.length === 0 && <p className="reports-page__empty">Nenhuma quadra cadastrada ainda.</p>}
-              {report.courts.map((court, index) => (
-                <div key={court.courtId} className="reports-page__court-row">
-                  <span className="reports-page__court-rank">{index + 1}º</span>
-                  <span className="reports-page__court-name">{court.courtName}</span>
-                  <span className="reports-page__court-count">{court.reservationsCount} reservas</span>
-                  <strong className="reports-page__court-revenue">{formatCurrency(court.revenue)}</strong>
-                </div>
-              ))}
+          <section className="card reports-page__chart-card" aria-labelledby="chart-daily">
+            <div className="reports-page__chart-head">
+              <h2 id="chart-daily">Faturamento por dia</h2>
+              <p>
+                {formatDayLabel(dailySeries[0]?.date ?? from)} a {formatDayLabel(dailySeries[dailySeries.length - 1]?.date ?? to)}
+              </p>
             </div>
+            {hasRevenue ? (
+              <AreaChart
+                points={dailySeries}
+                label={`Faturamento por dia, de ${formatDayLabel(from)} a ${formatDayLabel(to)}`}
+              />
+            ) : (
+              <p className="reports-page__empty">Sem faturamento nesse período. Reservas futuras só contam depois de concluídas.</p>
+            )}
+          </section>
 
-            <div className="card reports-page__daily">
-              <h2>Faturamento por dia</h2>
-              {report.dailyRevenue.length === 0 && <p className="reports-page__empty">Sem reservas nesse período.</p>}
-              <div className="reports-page__bars">
-                {report.dailyRevenue.map((day) => (
-                  <div key={day.date} className="reports-page__bar-col">
-                    <div className="reports-page__bar-track">
-                      <div
-                        className="reports-page__bar-fill"
-                        style={{ height: `${Math.max(4, (day.revenue / maxDailyRevenue) * 100)}%` }}
-                        title={formatCurrency(day.revenue)}
-                      />
-                    </div>
-                    <span className="reports-page__bar-label">{formatDayLabel(day.date)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="reports-page__grid">
+            <section className="card reports-page__courts" aria-labelledby="chart-rank">
+              <h2 id="chart-rank">Quadras por faturamento</h2>
+              {report.courts.length === 0 ? (
+                <p className="reports-page__empty">Nenhuma quadra cadastrada ainda.</p>
+              ) : (
+                <RankBars
+                  items={report.courts.map((court) => ({
+                    id: court.courtId,
+                    label: court.courtName,
+                    detail: `${court.reservationsCount} ${court.reservationsCount === 1 ? 'reserva' : 'reservas'}`,
+                    value: court.revenue,
+                  }))}
+                />
+              )}
+            </section>
+
+            <section className="card reports-page__courts" aria-labelledby="chart-compare">
+              <h2 id="chart-compare">Este período e o anterior</h2>
+              {report.courts.length === 0 || !previousReport ? (
+                <p className="reports-page__empty">Sem dados do período anterior para comparar.</p>
+              ) : (
+                <GroupedBarChart
+                  currentLabel="Este período"
+                  previousLabel="Período anterior"
+                  items={report.courts.map((court) => ({
+                    label: court.courtName,
+                    current: court.revenue,
+                    previous: previousByCourt.get(court.courtId)?.revenue ?? 0,
+                  }))}
+                />
+              )}
+            </section>
           </div>
+
+          {report.courts.length > 0 && (
+            <section className="card reports-page__table-card" aria-labelledby="table-courts">
+              <h2 id="table-courts">Detalhe por quadra</h2>
+              <div className="reports-page__table-wrap">
+                <table className="reports-page__table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Quadra</th>
+                      <th scope="col" className="reports-page__num">Reservas</th>
+                      <th scope="col" className="reports-page__num">Faturamento</th>
+                      <th scope="col" className="reports-page__num reports-page__col-previous">Período anterior</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.courts.map((court) => (
+                      <tr key={court.courtId}>
+                        <th scope="row">{court.courtName}</th>
+                        <td className="reports-page__num">{court.reservationsCount}</td>
+                        <td className="reports-page__num">{formatCurrency(court.revenue)}</td>
+                        <td className="reports-page__num reports-page__col-previous">
+                          {previousReport ? formatCurrency(previousByCourt.get(court.courtId)?.revenue ?? 0) : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th scope="row">Total</th>
+                      <td className="reports-page__num">{report.reservationsCount}</td>
+                      <td className="reports-page__num">{formatCurrency(report.totalRevenue)}</td>
+                      <td className="reports-page__num reports-page__col-previous">
+                        {previousReport ? formatCurrency(previousReport.totalRevenue) : '—'}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </section>
+          )}
 
           {commercialReport && (
             <div className="reports-page__grid">
               <div className="card reports-page__courts">
                 <h2>Cupom mais usado</h2>
-                {commercialReport.topCoupons.length === 0 && (
+                {commercialReport.topCoupons.length === 0 ? (
                   <p className="reports-page__empty">Nenhum cupom usado nesse período.</p>
+                ) : (
+                  <RankBars
+                    items={commercialReport.topCoupons.map((coupon) => ({
+                      id: coupon.couponId,
+                      label: coupon.code,
+                      detail: `${coupon.usageCount} ${coupon.usageCount === 1 ? 'uso' : 'usos'}, desconto`,
+                      value: coupon.totalDiscount,
+                    }))}
+                  />
                 )}
-                {commercialReport.topCoupons.map((coupon, index) => (
-                  <div key={coupon.couponId} className="reports-page__court-row">
-                    <span className="reports-page__court-rank">{index + 1}º</span>
-                    <span className="reports-page__court-name">{coupon.code}</span>
-                    <span className="reports-page__court-count">
-                      {coupon.usageCount} {coupon.usageCount === 1 ? 'uso' : 'usos'}
-                    </span>
-                    <strong className="reports-page__court-revenue">{formatCurrency(coupon.totalDiscount)}</strong>
-                  </div>
-                ))}
               </div>
 
               <div className="card reports-page__courts">
                 <h2>Equipamento mais alugado</h2>
-                {commercialReport.topEquipment.length === 0 && (
+                {commercialReport.topEquipment.length === 0 ? (
                   <p className="reports-page__empty">Nenhum equipamento alugado nesse período.</p>
+                ) : (
+                  <RankBars
+                    items={commercialReport.topEquipment.map((item) => ({
+                      id: item.equipmentId,
+                      label: item.name,
+                      detail: `${item.quantityRented} un.`,
+                      value: item.revenue,
+                    }))}
+                  />
                 )}
-                {commercialReport.topEquipment.map((item, index) => (
-                  <div key={item.equipmentId} className="reports-page__court-row">
-                    <span className="reports-page__court-rank">{index + 1}º</span>
-                    <span className="reports-page__court-name">{item.name}</span>
-                    <span className="reports-page__court-count">{item.quantityRented} un.</span>
-                    <strong className="reports-page__court-revenue">{formatCurrency(item.revenue)}</strong>
-                  </div>
-                ))}
               </div>
             </div>
           )}
