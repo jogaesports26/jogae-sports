@@ -1,5 +1,8 @@
 import type { PriceRule, RecurringMaintenanceBlock } from './courts'
 import type { MaintenanceBlock, Reservation } from './reservations'
+import { isSlotInPast } from './slotTime'
+
+export { isSlotInPast, slotStartsAt } from './slotTime'
 
 export const WEEKDAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
@@ -202,7 +205,10 @@ export function isSlotAvailable(
   reservations: Reservation[],
   blocks: MaintenanceBlock[],
   recurringBlocks: RecurringMaintenanceBlock[] = [],
+  /** Com `now`, horário que já começou não está disponível. */
+  now?: Date,
 ): boolean {
+  if (now && isSlotInPast(dayDate, startMinute, now)) return false
   if (sumPriceForRange(dayOfWeek, startMinute, endMinute, priceRules) === null) return false
   return !findOccupant(dayDate, startMinute, endMinute, reservations, blocks, recurringBlocks)
 }
@@ -222,6 +228,8 @@ export function getAvailableStartTimes(
   reservations: Reservation[],
   blocks: MaintenanceBlock[],
   recurringBlocks: RecurringMaintenanceBlock[] = [],
+  /** Com `now`, só devolve horários que ainda não começaram. */
+  now?: Date,
 ): number[] {
   const dayRules = priceRules.filter((r) => r.dayOfWeek === dayOfWeek)
   if (dayRules.length === 0) return []
@@ -231,7 +239,7 @@ export function getAvailableStartTimes(
 
   const starts: number[] = []
   for (let start = dayStart; start + durationMinutes <= dayEnd; start += bookingStepMinutes) {
-    if (isSlotAvailable(dayOfWeek, start, start + durationMinutes, priceRules, dayDate, reservations, blocks, recurringBlocks)) {
+    if (isSlotAvailable(dayOfWeek, start, start + durationMinutes, priceRules, dayDate, reservations, blocks, recurringBlocks, now)) {
       starts.push(start)
     }
   }

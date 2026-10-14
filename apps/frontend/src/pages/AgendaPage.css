@@ -183,6 +183,11 @@
   background: var(--color-background);
 }
 
+.agenda-grid__cell--past {
+  background: color-mix(in srgb, var(--color-surface-raised) 35%, transparent);
+  cursor: default;
+}
+
 .agenda-grid__cell--available {
   background: var(--color-surface);
   box-shadow: inset 0 0 0 1px var(--color-border);

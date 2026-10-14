@@ -11,6 +11,7 @@ import {
   formatDuration,
   formatMinutes,
   getAvailableStartTimes,
+  isSlotInPast,
   getDayStepGrid,
   sumPriceForRange,
   toDateInputValue,
@@ -119,6 +120,13 @@ export default function CourtBookingPage() {
   const carouselRef = useRef<HTMLDivElement>(null)
   const [amenitiesOpen, setAmenitiesOpen] = useState(false)
   const pickedDayRef = useRef(false)
+  // "Agora" da tela: atualiza a cada minuto para sumirem os horários que já começaram, sem recarregar a página.
+  const [now, setNow] = useState(() => new Date())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   useDocumentTitle(
     court ? `${court.name}${court.owner.establishmentName ? ` · ${court.owner.establishmentName}` : ''}` : null,
@@ -151,6 +159,7 @@ export default function CourtBookingPage() {
             agendaData.reservations,
             agendaData.maintenanceBlocks,
             agendaData.recurringMaintenanceBlocks,
+            new Date(),
           )
           if (starts.length > 0) {
             if (i !== 0) setSelectedDayIndex(i)
@@ -213,11 +222,14 @@ export default function CourtBookingPage() {
       agenda.reservations,
       agenda.maintenanceBlocks,
       agenda.recurringMaintenanceBlocks,
+      now,
     ),
   )
 
   const slots: SlotView[] = dayGrid.flatMap((cellStart): SlotView[] => {
     const cellEnd = cellStart + court.bookingStepMinutes
+    // Horário que já começou não é oferecido, nem como "ocupado" com fila de espera.
+    if (isSlotInPast(selectedDay, cellStart, now)) return []
     const occupant = findOccupant(
       selectedDay,
       cellStart,
@@ -248,6 +260,7 @@ export default function CourtBookingPage() {
       agenda.reservations,
       agenda.maintenanceBlocks,
       agenda.recurringMaintenanceBlocks,
+      now,
     ).length
   }
   const suggestedDayIndex = [
@@ -316,7 +329,15 @@ export default function CourtBookingPage() {
   }
 
   function confirmPendingSlot() {
-    if (pendingSlot) setSelectedSlot(pendingSlot)
+    if (!pendingSlot) return
+    // Ficou parado na tela e o horário começou nesse meio tempo: avisa em vez de levar a pessoa até o código por SMS.
+    if (isSlotInPast(pendingSlot.dayDate, pendingSlot.startMinute, new Date())) {
+      setPendingSlot(null)
+      setNow(new Date())
+      showToast('Esse horário já começou. Escolha outro.', 'error')
+      return
+    }
+    setSelectedSlot(pendingSlot)
   }
 
   return (

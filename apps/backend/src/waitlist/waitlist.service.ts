@@ -34,6 +34,12 @@ export class WaitlistService {
       );
     }
 
+    if (startsAt.getTime() < Date.now()) {
+      throw new BadRequestException(
+        'Não é possível entrar na fila de um horário que já passou',
+      );
+    }
+
     return this.prisma.waitlist.create({
       data: {
         courtId,

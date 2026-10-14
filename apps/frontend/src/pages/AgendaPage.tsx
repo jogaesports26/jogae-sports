@@ -10,6 +10,7 @@ import {
   formatMinutes,
   getAgendaCellState,
   getBookableEndOptions,
+  isSlotInPast,
   startOfWeek,
   toDateInputValue,
   WEEKDAY_SHORT,
@@ -34,6 +35,13 @@ export default function AgendaPage() {
   const [error, setError] = useState('')
   const [selection, setSelection] = useState<SlotSelection | null>(null)
   const [activeReservation, setActiveReservation] = useState<Reservation | null>(null)
+  // "Agora" da tela: horários que já começaram deixam de aceitar reserva sem precisar recarregar a página.
+  const [now, setNow] = useState(() => new Date())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
   const latestRequestRef = useRef(0)
 
   async function load() {
@@ -73,11 +81,11 @@ export default function AgendaPage() {
 
   const rows = buildAgendaGridRows(agenda.priceRules, agenda.recurringMaintenanceBlocks)
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
-  const today = new Date()
+  const today = now
 
   return (
     <div className="agenda-page">
-      <p className="agenda-page__subtitle">Clique num horário livre pra criar uma reserva.</p>
+      <p className="agenda-page__subtitle">Clique num horário livre pra criar uma reserva. Horários que já passaram ficam apagados.</p>
 
       <div className="agenda-page__week-nav">
         <button onClick={() => setWeekStart((d) => addDays(d, -7))}>← Semana anterior</button>
@@ -145,6 +153,11 @@ export default function AgendaPage() {
                       Manutenção
                     </div>
                   )
+                }
+
+                if (state.kind === 'available' && isSlotInPast(day, row.startMinute, now)) {
+                  // Horário livre que já começou: sem botão. Reservas e bloqueios antigos continuam abrindo normalmente (ramos acima).
+                  return <div className="agenda-grid__cell agenda-grid__cell--past" key={cellKey} aria-hidden="true" />
                 }
 
                 if (state.kind === 'noPrice') {

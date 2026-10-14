@@ -687,6 +687,80 @@ describe('ReservationsService', () => {
     });
   });
 
+  describe('horário no passado (validação no servidor)', () => {
+    const past = (minutesAgo: number) =>
+      new Date(Date.now() - minutesAgo * 60_000);
+    const iso = (d: Date) => d.toISOString();
+
+    beforeEach(() => {
+      prisma.maintenanceBlock.findFirst.mockResolvedValue(null);
+      prisma.reservation.findFirst.mockResolvedValue(null);
+      prisma.priceRule.findMany.mockResolvedValue(SATURDAY_RULES);
+      prisma.court.findFirst.mockResolvedValue({
+        id: 'court-1',
+        minBookingMinutes: 60,
+        owner: {},
+      });
+      prisma.player.findUnique.mockResolvedValue({ id: 'player-1' });
+    });
+
+    it('o gestor não cria reserva que começou antes de agora', async () => {
+      await expect(
+        service.create('court-1', 'owner-1', {
+          guestName: 'Cliente',
+          guestPhone: '11999990000',
+          startsAt: iso(past(30)),
+          endsAt: iso(new Date(past(30).getTime() + 3_600_000)),
+        } as any),
+      ).rejects.toThrow('Não é possível reservar um horário no passado');
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
+    });
+
+    it('o jogador não cria reserva no passado nem por requisição direta', async () => {
+      await expect(
+        service.createForPlayer(
+          'court-1',
+          'player-1',
+          iso(past(30)),
+          iso(new Date(past(30).getTime() + 3_600_000)),
+        ),
+      ).rejects.toThrow('Não é possível reservar um horário no passado');
+      expect(prisma.reservation.create).not.toHaveBeenCalled();
+    });
+
+    it('o gestor não reagenda para o passado', async () => {
+      prisma.reservation.findFirst.mockResolvedValueOnce({
+        id: 'res-1',
+        courtId: 'court-1',
+        status: 'CONFIRMED',
+        startsAt: nextSaturdayAt(14),
+        endsAt: nextSaturdayAt(15),
+        guestPhone: '11999990000',
+        player: null,
+      });
+      await expect(
+        service.reschedule('court-1', 'owner-1', 'res-1', {
+          startsAt: iso(past(120)),
+          endsAt: iso(new Date(past(120).getTime() + 3_600_000)),
+        }),
+      ).rejects.toThrow('Não é possível reagendar para um horário no passado');
+      expect(prisma.reservation.update).not.toHaveBeenCalled();
+    });
+
+    it('um horário futuro continua sendo aceito', async () => {
+      prisma.reservation.create.mockImplementation(({ data }: any) =>
+        Promise.resolve({ id: 'res-ok', ...data }),
+      );
+      const result = await service.createForPlayer(
+        'court-1',
+        'player-1',
+        nextSaturdayAt(14).toISOString(),
+        nextSaturdayAt(15).toISOString(),
+      );
+      expect(result.id).toBe('res-ok');
+    });
+  });
+
   describe('cancelamento', () => {
     it('rejeita cancelamento a menos de 2 horas do horário reservado', async () => {
       const startsAt = new Date(Date.now() + 30 * 60 * 1000);
