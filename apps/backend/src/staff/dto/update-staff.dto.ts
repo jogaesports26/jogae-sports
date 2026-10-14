@@ -6,6 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { StaffPermission } from '@prisma/client';
+import { IsStrongPassword } from '../../common/strong-password';
 
 export class UpdateStaffDto {
   @IsOptional()
@@ -23,6 +24,6 @@ export class UpdateStaffDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
+  @IsStrongPassword()
   password?: string;
 }

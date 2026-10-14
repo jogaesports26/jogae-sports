@@ -1,5 +1,7 @@
 .court-detail__back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;

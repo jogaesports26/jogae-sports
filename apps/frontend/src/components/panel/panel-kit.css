@@ -10,6 +10,14 @@
   box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--brand-text);
 }
 
+/* Campos: o anel de marca como outline, que nenhum estilo de campo (data, hora) apaga */
+.painel input:focus-visible,
+.painel select:focus-visible,
+.painel textarea:focus-visible {
+  outline: 2px solid var(--brand-text);
+  outline-offset: 2px;
+}
+
 .painel input[type='date'],
 .painel input[type='datetime-local'],
 .painel select {
@@ -173,6 +181,9 @@
 }
 
 .empty-state a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
   color: var(--brand-text);
   font-weight: 600;
 }
@@ -306,4 +317,11 @@
 /* Links sem classe própria usam o azul claro (o azul da marca puro some no fundo escuro) */
 .painel a:not([class]) {
   color: var(--brand-text);
+}
+
+/* Caixa de seleção legível e fácil de tocar (o alvo clicável inclui o texto ao lado) */
+.painel input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-primary);
 }

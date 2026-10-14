@@ -166,6 +166,12 @@ textarea.input {
   box-shadow: 0 0 0 3px var(--color-info-bg);
 }
 
+/* O .input tira o outline padrão; no teclado o anel de foco volta. */
+.input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 .input:disabled {
   opacity: 0.6;
   cursor: not-allowed;

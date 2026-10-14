@@ -157,3 +157,19 @@
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-soft-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
+
+/*
+ * Prévia da lojinha dentro do painel escuro (Configurar > Aparência): a lojinha é clara, então a prévia
+ * volta aos neutros claros. A marca vem do estilo inline (as cores que o gestor está escolhendo).
+ */
+.theme-mock {
+  color-scheme: light;
+  color: var(--color-dark);
+  --color-background: #f4f5fa;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f4f5fa;
+  --color-dark: #00182e;
+  --color-text-secondary: #5b6472;
+  --color-text-muted: #8b94a3;
+  --color-border: rgba(0, 24, 46, 0.08);
+}

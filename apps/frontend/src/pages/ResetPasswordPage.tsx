@@ -3,6 +3,8 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
 import PasswordInput from '../components/PasswordInput'
+import PasswordMeter from '../components/PasswordMeter'
+import { weakPasswordReason } from '../lib/password'
 import { API_URL, parseApiError } from '../lib/api'
 
 interface FormErrors {
@@ -24,7 +26,8 @@ export default function ResetPasswordPage() {
 
   function validate(): FormErrors {
     const errors: FormErrors = {}
-    if (password.length < 6) errors.password = 'A senha deve ter pelo menos 6 caracteres'
+    const weak = weakPasswordReason(password)
+    if (weak) errors.password = weak
     if (confirmPassword !== password) errors.confirmPassword = 'As senhas não coincidem'
     return errors
   }
@@ -90,10 +93,14 @@ export default function ResetPasswordPage() {
               className="input"
               autoComplete="new-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              onChange={(e) => {
+              setPassword(e.target.value)
+              setFieldErrors((prev) => ({ ...prev, password: undefined }))
+            }}
+              placeholder="Mínimo 8 caracteres"
             />
-            {fieldErrors.password && <span className="auth__field-error">{fieldErrors.password}</span>}
+            <PasswordMeter password={password} />
+          {fieldErrors.password && <span className="auth__field-error">{fieldErrors.password}</span>}
           </div>
 
           <div className="auth__field field">

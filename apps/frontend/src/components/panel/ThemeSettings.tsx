@@ -295,9 +295,9 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
                   <span className="theme-mock__pill theme-mock__pill--active">19:00</span>
                   <span className="theme-mock__pill">20:00</span>
                 </div>
-                <a className="theme-mock__link" href="#preview" onClick={(event) => event.preventDefault()}>
+                <span className="theme-mock__link">
                   Ver comodidades
-                </a>
+                </span>
                 <button type="button" className="theme-mock__cta" tabIndex={-1}>
                   Reservar agora
                 </button>

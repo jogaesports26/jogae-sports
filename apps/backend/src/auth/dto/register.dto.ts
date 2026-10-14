@@ -1,4 +1,5 @@
 import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsStrongPassword } from '../../common/strong-password';
 
 export class RegisterDto {
   @IsString()
@@ -9,6 +10,6 @@ export class RegisterDto {
   email: string;
 
   @IsString()
-  @MinLength(6)
+  @IsStrongPassword()
   password: string;
 }

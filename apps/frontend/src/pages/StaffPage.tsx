@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import PasswordInput from '../components/PasswordInput'
+import PasswordMeter from '../components/PasswordMeter'
 import { SessionExpiredError } from '../lib/api'
 import { createStaff, fetchStaff, removeStaff, updateStaff } from '../lib/staff'
 import type { StaffMember, StaffPermission } from '../lib/staff'
@@ -126,10 +127,11 @@ export default function StaffPage() {
                 className="input"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 required
-                minLength={6}
+                minLength={8}
               />
+              <PasswordMeter password={password} />
             </label>
             <label className="staff-page__field field">
               <span>Permissão</span>

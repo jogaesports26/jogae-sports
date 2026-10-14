@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
 import PasswordInput from '../components/PasswordInput'
+import PasswordMeter from '../components/PasswordMeter'
+import { weakPasswordReason } from '../lib/password'
 import { API_URL, parseApiError, saveSession, type AuthResponse } from '../lib/api'
 
 interface FormErrors {
@@ -33,8 +35,9 @@ function validate(
 
   if (!password) {
     errors.password = 'Informe uma senha'
-  } else if (password.length < 6) {
-    errors.password = 'A senha deve ter pelo menos 6 caracteres'
+  } else {
+    const weak = weakPasswordReason(password)
+    if (weak) errors.password = weak
   }
 
   if (confirmPassword !== password) {
@@ -132,9 +135,13 @@ export default function RegisterPage() {
             className="input"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Mínimo 6 caracteres"
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setFieldErrors((prev) => ({ ...prev, password: undefined }))
+            }}
+            placeholder="Mínimo 8 caracteres"
           />
+          <PasswordMeter password={password} />
           {fieldErrors.password && (
             <span className="auth__field-error">{fieldErrors.password}</span>
           )}

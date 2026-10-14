@@ -34,6 +34,15 @@ html {
   html {
     scroll-behavior: auto;
   }
+
+  /* Rede de segurança: nada anima para quem pediu menos movimento (o indicador de carregamento fica de fora). */
+  *:not(.spinner, .spinner *),
+  *:not(.spinner, .spinner *)::before,
+  *:not(.spinner, .spinner *)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 h1, h2, h3 {

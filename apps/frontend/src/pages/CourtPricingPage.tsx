@@ -445,6 +445,7 @@ export default function CourtPricingPage() {
               <select
                 className="input input--sm"
                 value={rule.dayOfWeek}
+                aria-label={`Dia da semana da regra ${index + 1}`}
                 onChange={(event) => updatePriceRule(index, { dayOfWeek: Number(event.target.value) })}
               >
                 {WEEKDAY_LABELS.map((label, day) => (
@@ -456,6 +457,7 @@ export default function CourtPricingPage() {
               <input
                 className="input input--sm"
                 type="time"
+                aria-label={`Início da regra ${index + 1}`}
                 value={rule.startTime}
                 onChange={(event) => updatePriceRule(index, { startTime: event.target.value })}
               />
@@ -463,6 +465,7 @@ export default function CourtPricingPage() {
               <input
                 className="input input--sm"
                 type="time"
+                aria-label={`Fim da regra ${index + 1}`}
                 value={rule.endTime}
                 onChange={(event) => updatePriceRule(index, { endTime: event.target.value })}
               />
@@ -472,6 +475,7 @@ export default function CourtPricingPage() {
                 min="0"
                 step="0.01"
                 placeholder="R$/hora"
+                aria-label={`Preço por hora da regra ${index + 1}`}
                 value={rule.price}
                 onChange={(event) => updatePriceRule(index, { price: event.target.value })}
               />
@@ -479,7 +483,7 @@ export default function CourtPricingPage() {
                 type="button"
                 className="court-pricing-page__remove-row"
                 onClick={() => removePriceRule(index)}
-                aria-label="Remover regra"
+                aria-label={`Remover regra ${index + 1}`}
               >
                 ×
               </button>
@@ -517,6 +521,7 @@ export default function CourtPricingPage() {
             <select
               className="input input--sm"
               value={block.dayOfWeek}
+              aria-label={`Dia da semana do bloqueio ${index + 1}`}
               onChange={(event) => updateBlock(index, { dayOfWeek: Number(event.target.value) })}
             >
               {WEEKDAY_LABELS.map((label, day) => (
@@ -528,6 +533,7 @@ export default function CourtPricingPage() {
             <input
               className="input input--sm"
               type="time"
+              aria-label={`Início do bloqueio ${index + 1}`}
               value={block.startTime}
               onChange={(event) => updateBlock(index, { startTime: event.target.value })}
             />
@@ -535,6 +541,7 @@ export default function CourtPricingPage() {
             <input
               className="input input--sm"
               type="time"
+              aria-label={`Fim do bloqueio ${index + 1}`}
               value={block.endTime}
               onChange={(event) => updateBlock(index, { endTime: event.target.value })}
             />
@@ -542,6 +549,7 @@ export default function CourtPricingPage() {
               className="input input--sm"
               type="text"
               placeholder="Motivo (opcional)"
+              aria-label={`Motivo do bloqueio ${index + 1}`}
               value={block.reason}
               onChange={(event) => updateBlock(index, { reason: event.target.value })}
             />
@@ -549,7 +557,7 @@ export default function CourtPricingPage() {
               type="button"
               className="court-pricing-page__remove-row"
               onClick={() => removeBlock(index)}
-              aria-label="Remover bloqueio"
+              aria-label={`Remover bloqueio ${index + 1}`}
             >
               ×
             </button>
