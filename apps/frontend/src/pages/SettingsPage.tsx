@@ -293,7 +293,16 @@ export default function SettingsPage() {
       )}
 
       {section === 'aparencia' && (
-        <ThemeSettings initial={profile.theme ?? null} storeName={profile.establishmentName ?? ''} onSessionExpired={onSessionExpired} />
+        <ThemeSettings
+          initial={profile.theme ?? null}
+          storeName={profile.establishmentName ?? ''}
+          address={profile.establishmentAddress ?? ''}
+          fallbackCoverUrl={profile.coverPhotoUrl ?? ''}
+          amenitiesCount={profile.amenities.length}
+          courtsCount={activeCourts.length}
+          fromPrice={fromPrice}
+          onSessionExpired={onSessionExpired}
+        />
       )}
 
       {section === 'precos' &&

@@ -127,6 +127,8 @@ derivada no backend. O painel do dono continua claro.
 
 - **Equipamento por quadra:** em Equipamentos, o bloco "Onde aparece" (`CourtScopePicker`): "Todas as quadras" (padrão) ou só as quadras marcadas; sem nenhuma marcada o botão de salvar fica desabilitado e a frase diz "Escolha ao menos uma quadra". Cada cartão mostra "Em todas as quadras" ou "Só em: …". Quem tem uma quadra só não vê nada disso (não há o que escolher).
 
+- **Prévia de Aparência (G03):** usa só dados reais da arena: nome, endereço, número de quadras, menor preço por hora, capa e logo, e o aviso "Ainda não salvo" / "Igual ao que está no ar" ao lado do título (compara pelo efeito, aplicando os padrões). Faltando dado, diz isso ("Endereço ainda não cadastrado", "Defina os preços para mostrar o valor") em vez de inventar. Só os horários (18:00, 19:00, 20:00) são ilustrativos, e a nota abaixo da prévia avisa. Estilo, cores, cantos e letra aparecem na hora (cartão da quadra com o raio escolhido, letra aplicada no bloco); o rascunho nunca altera a lojinha publicada: só "Salvar aparência" publica.
+
 ### Configurar (padrões)
 - **Linhas editáveis** (`SettingRow`): rótulo e valor à esquerda, "Editar" à direita; ao editar abre o campo ali mesmo, "Salvar" grava na hora e Esc cancela. Frase de ajuda embaixo do campo; erro em texto, nunca só em cor.
 - **Salvamento** (`useSaveStatus` + `SaveStatus`): "Salvando… / Salvo / Não foi possível salvar" com ícone e texto, anunciado a leitores de tela. O que muda com um clique (comodidades, capa) salva sozinho; formulários de criar têm "Salvar" e "Cancelar".

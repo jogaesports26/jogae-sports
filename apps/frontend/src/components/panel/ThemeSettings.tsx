@@ -10,6 +10,14 @@ import './ThemeSettings.css'
 interface ThemeSettingsProps {
   initial: StoredTheme | null
   storeName: string
+  /** Dados reais da arena para a prévia (nada de texto de exemplo). */
+  address: string
+  /** Capa já cadastrada em "Lojinha pública"; a capa da Aparência, quando existe, tem prioridade (igual à lojinha). */
+  fallbackCoverUrl: string
+  amenitiesCount: number
+  courtsCount: number
+  /** Menor preço por hora entre as quadras ativas, ou null se ainda não há preço. */
+  fromPrice: number | null
   onSessionExpired: () => void
 }
 
@@ -31,12 +39,32 @@ function toInput(theme: StoredTheme | null): ThemeInput {
   return { preset, primary, action, radius, font, logoUrl, coverUrl }
 }
 
+/** Compara dois temas pelo efeito: aplica os padrões (estilo, cantos, letra) e ignora a ordem das chaves e os campos vazios. */
+function sameTheme(a: ThemeInput, b: ThemeInput) {
+  const effective = (theme: ThemeInput) =>
+    JSON.stringify(
+      Object.entries({ ...theme, preset: theme.preset ?? 'jogae', radius: theme.radius ?? 'md', font: theme.font ?? 'inter' })
+        .filter(([, value]) => value !== undefined && value !== '' && value !== null)
+        .sort(([x], [y]) => x.localeCompare(y)),
+    )
+  return effective(a) === effective(b)
+}
+
 function describe(version: ThemeInput) {
   const preset = THEME_PRESET_OPTIONS.find((option) => option.key === version.preset)?.label
   return version.primary ? `Cores personalizadas` : (preset ?? 'Tema padrão')
 }
 
-export default function ThemeSettings({ initial, storeName, onSessionExpired }: ThemeSettingsProps) {
+export default function ThemeSettings({
+  initial,
+  storeName,
+  address,
+  fallbackCoverUrl,
+  amenitiesCount,
+  courtsCount,
+  fromPrice,
+  onSessionExpired,
+}: ThemeSettingsProps) {
   const [saved, setSaved] = useState<StoredTheme | null>(initial)
   const [input, setInput] = useState<ThemeInput>(() => toInput(initial))
   const [preview, setPreview] = useState<ResolvedTheme | null>(initial?.resolved ?? null)
@@ -82,6 +110,7 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
     try {
       const profile = await updateProfile({ theme: input })
       setSaved(profile.theme)
+      setInput(toInput(profile.theme))
       showToast('Aparência da lojinha salva.', 'success')
     } catch (err) {
       if (err instanceof SessionExpiredError) {
@@ -111,6 +140,8 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
   }
 
   const vars = preview?.cssVars
+  const dirty = !sameTheme(input, toInput(saved))
+  const coverUrl = input.coverUrl ?? fallbackCoverUrl
   const primaryValue = input.primary ?? vars?.['--brand-primary'] ?? ''
   const actionValue = input.action ?? vars?.['--brand-action'] ?? ''
 
@@ -273,7 +304,12 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
       </div>
 
       <aside className="theme-settings__preview" aria-label="Prévia da lojinha">
-        <p className="theme-settings__preview-title">Prévia ao vivo</p>
+        <p className="theme-settings__preview-title">
+          Prévia ao vivo
+          <span className={`theme-settings__state${dirty ? ' theme-settings__state--dirty' : ''}`}>
+            {dirty ? 'Ainda não salvo' : 'Igual ao que está no ar'}
+          </span>
+        </p>
         {previewError ? (
           <p className="theme-settings__error" role="alert">
             {previewError}
@@ -283,21 +319,31 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
             <div className="theme-mock" style={vars}>
               <div className="theme-mock__hero">
                 {input.logoUrl && <img src={input.logoUrl} alt="" className="theme-mock__logo" />}
-                <strong>{storeName || 'Seu estabelecimento'}</strong>
-                <span>Rua Exemplo, 123 · Centro</span>
+                <strong>{storeName || 'Nome da arena'}</strong>
+                <span>{address || 'Endereço ainda não cadastrado'}</span>
               </div>
+              {coverUrl && <img src={coverUrl} alt="" className="theme-mock__cover" />}
               <div className="theme-mock__body">
-                <p className="theme-mock__price">
-                  a partir de <strong>R$ 80</strong> por hora
-                </p>
-                <div className="theme-mock__pills">
+                <div className="theme-mock__court">
+                  <strong>
+                    {courtsCount} {courtsCount === 1 ? 'quadra' : 'quadras'}
+                  </strong>
+                  <span>
+                    {fromPrice !== null ? (
+                      <>
+                        a partir de <b>R$ {fromPrice.toFixed(0)}</b> por hora
+                      </>
+                    ) : (
+                      'Defina os preços para mostrar o valor'
+                    )}
+                  </span>
+                </div>
+                <div className="theme-mock__pills" aria-hidden="true">
                   <span className="theme-mock__pill">18:00</span>
                   <span className="theme-mock__pill theme-mock__pill--active">19:00</span>
                   <span className="theme-mock__pill">20:00</span>
                 </div>
-                <span className="theme-mock__link">
-                  Ver comodidades
-                </span>
+                {amenitiesCount > 0 && <span className="theme-mock__link">Ver comodidades ({amenitiesCount})</span>}
                 <button type="button" className="theme-mock__cta" tabIndex={-1}>
                   Reservar agora
                 </button>
@@ -305,6 +351,7 @@ export default function ThemeSettings({ initial, storeName, onSessionExpired }: 
             </div>
           )
         )}
+        <p className="theme-settings__note">Nome, endereço, quadras, preço, capa e logo são os da sua arena. Os horários são só ilustrativos.</p>
         {preview?.adjustments.map((message) => (
           <p key={message} className="theme-settings__note">
             {message}
