@@ -8,8 +8,27 @@ export interface Customer {
   totalReservations: number
   totalSpent: number
   noShowCount: number
-  lastReservationAt: string
-  daysSinceLastReservation: number
+  lastReservationAt: string | null
+  nextReservationAt: string | null
+  upcomingReservations: number
+  daysSinceLastReservation: number | null
+}
+
+export type CustomerFilter = 'all' | 'inactive' | 'birthdays' | 'noShows'
+
+export interface CustomersPage {
+  items: Customer[]
+  total: number
+  pagina: number
+  porPagina: number
+  totalPaginas: number
+}
+
+export interface CustomersSummary {
+  total: number
+  inactive: number
+  birthdays: number
+  noShows: number
 }
 
 export const INACTIVE_THRESHOLD_DAYS = 30
@@ -29,10 +48,29 @@ export interface CustomerReservation {
   court: { id: string; name: string }
 }
 
-export async function fetchCustomers(): Promise<Customer[]> {
-  const response = await authFetch('/customers')
+export async function fetchCustomers(params: {
+  q?: string
+  filtro?: CustomerFilter
+  pagina?: number
+  porPagina?: number
+}): Promise<CustomersPage> {
+  const search = new URLSearchParams()
+  if (params.q) search.set('q', params.q)
+  if (params.filtro && params.filtro !== 'all') search.set('filtro', params.filtro)
+  if (params.pagina) search.set('pagina', String(params.pagina))
+  if (params.porPagina) search.set('porPagina', String(params.porPagina))
+  const query = search.toString()
+  const response = await authFetch(`/customers${query ? `?${query}` : ''}`)
   if (!response.ok) {
     throw new Error(await parseApiError(response, 'Não foi possível carregar os clientes'))
+  }
+  return response.json()
+}
+
+export async function fetchCustomersSummary(): Promise<CustomersSummary> {
+  const response = await authFetch('/customers/summary')
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível carregar o resumo dos clientes'))
   }
   return response.json()
 }

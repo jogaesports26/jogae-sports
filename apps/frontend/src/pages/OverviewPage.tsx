@@ -12,8 +12,8 @@ import type { Court } from '../lib/courts'
 import { fetchProfile } from '../lib/profile'
 import { fetchReports } from '../lib/reports'
 import type { FinancialReport } from '../lib/reports'
-import { fetchCustomers, INACTIVE_THRESHOLD_DAYS, isBirthdayThisMonth } from '../lib/customers'
-import type { Customer } from '../lib/customers'
+import { fetchCustomersSummary } from '../lib/customers'
+import type { CustomersSummary } from '../lib/customers'
 import { toDateInputValue } from '../lib/weekGrid'
 import { formatCurrency } from '../lib/money'
 import './OverviewPage.css'
@@ -37,7 +37,7 @@ export default function OverviewPage() {
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthReport, setMonthReport] = useState<FinancialReport | null>(null)
   const [previousReport, setPreviousReport] = useState<FinancialReport | null>(null)
-  const [customers, setCustomers] = useState<Customer[] | null>(null)
+  const [customers, setCustomers] = useState<CustomersSummary | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function OverviewPage() {
       fetchCourts(),
       fetchProfile(),
       fetchReports({ from: toDateInputValue(monthStart), to: toDateInputValue(today) }),
-      fetchCustomers(),
+      fetchCustomersSummary(),
       fetchReports({ from: toDateInputValue(previousStart), to: toDateInputValue(previousEnd) }),
     ]).then(([reservationsResult, courtsResult, profileResult, reportResult, customersResult, previousResult]) => {
       if (
@@ -131,9 +131,8 @@ export default function OverviewPage() {
   const goalProgress =
     monthlyGoal && monthlyGoal > 0 && monthReport ? Math.min(monthReport.totalRevenue / monthlyGoal, 1) : null
 
-  const currentMonth = new Date().getMonth()
-  const birthdaysCount = customers?.filter((c) => isBirthdayThisMonth(c.birthDate, currentMonth)).length ?? 0
-  const inactiveCount = customers?.filter((c) => c.daysSinceLastReservation >= INACTIVE_THRESHOLD_DAYS).length ?? 0
+  const birthdaysCount = customers?.birthdays ?? 0
+  const inactiveCount = customers?.inactive ?? 0
 
   return (
     <div className="overview-page">

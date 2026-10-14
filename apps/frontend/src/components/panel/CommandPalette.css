@@ -1,0 +1,64 @@
+.palette {
+  margin: 12vh auto auto;
+  width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-dark);
+  box-shadow: var(--shadow-soft-lg);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+.palette::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.palette__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  font: inherit;
+  font-size: 16px;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-subtle);
+  outline: none;
+}
+
+.palette__input:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+}
+
+.palette__list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.palette__item,
+.palette__empty {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+.palette__item {
+  cursor: pointer;
+}
+
+.palette__item small,
+.palette__empty {
+  color: var(--color-text-secondary);
+}
+
+.palette__item--active {
+  background: var(--color-surface-raised);
+}

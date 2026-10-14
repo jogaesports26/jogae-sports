@@ -7,6 +7,7 @@ import { fetchTodayReservations } from '../../lib/reservations'
 import './PainelLayout.css'
 import './panel-kit.css'
 import './config-kit.css'
+import CommandPalette from './CommandPalette'
 
 export interface PainelContext {
   user: AuthUser
@@ -174,6 +175,7 @@ export default function PainelLayout() {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const [todayCount, setTodayCount] = useState<number | null>(null)
   const drawerRef = useRef<HTMLDialogElement | null>(null)
 
@@ -213,6 +215,17 @@ export default function PainelLayout() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [toggleCollapsed])
+
+  // Ctrl+K (ou Cmd+K) abre a busca rápida de telas e clientes.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return
+      event.preventDefault()
+      setPaletteOpen((current) => !current)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Gaveta do celular: o <dialog> nativo já cuida do foco, do Esc e do fundo.
   useEffect(() => {
@@ -269,6 +282,16 @@ export default function PainelLayout() {
     return pathname === item.path || pathname.startsWith(`${item.path}/`)
   }
   const areaTabs = AREA_TABS.find((area) => area.prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)))
+
+  const paletteDestinations = (() => {
+    const list = groups.flatMap((group) => group.items.map((item) => ({ label: item.label, to: item.to })))
+    if (user.role === 'STAFF') return list
+    const known = new Set(list.map((d) => d.to))
+    for (const item of CONFIG_NAV) {
+      if (!known.has(item.to)) list.push({ label: `Configurar · ${item.label}`, to: item.to })
+    }
+    return list
+  })()
 
   const renderNav = (collapsedMode: boolean) => (
     <nav className="painel__nav" aria-label="Principal">
@@ -352,6 +375,13 @@ export default function PainelLayout() {
         </div>
       </dialog>
 
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        canSearchCustomers={user.role !== 'STAFF'}
+        destinations={paletteDestinations}
+      />
+
       <div className="painel__main">
         <div className="painel__topbar">
           <button
@@ -373,6 +403,19 @@ export default function PainelLayout() {
             <IconMenu />
           </button>
           <span className="painel__topbar-brand">Jogaê</span>
+          <button
+            type="button"
+            className="painel__icon-button"
+            onClick={() => setPaletteOpen(true)}
+            aria-label="Busca rápida"
+            title="Busca rápida (Ctrl+K)"
+            style={{ marginLeft: 'auto' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+          </button>
         </div>
 
         <div className="painel__content">

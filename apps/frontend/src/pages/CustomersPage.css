@@ -59,8 +59,13 @@
   padding: 9px 16px;
   border-radius: var(--radius-pill);
   border: var(--border-subtle);
-  min-width: 240px;
+  min-width: 0;
+  flex: 1 1 220px;
+  max-width: 360px;
   color: var(--color-dark);
+  background: var(--color-surface);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .customers-page__empty {
@@ -76,88 +81,132 @@
   opacity: 0.65;
 }
 
-.customers-page__list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.customers-page__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.customers-page__row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+.customers-page__tab-count {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+}
+
+.customers-page__tab--active .customers-page__tab-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--on-brand);
+}
+
+.customers-page__table-wrap {
   background: var(--color-surface);
-  border: none;
+  border: var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-soft-sm);
-  padding: 16px 20px;
+  overflow-x: auto;
+}
+
+.customers-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+}
+
+.customers-page__table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 12px 16px;
+  border-bottom: var(--border-subtle);
+  white-space: nowrap;
+}
+
+.customers-page__table td {
+  padding: 12px 16px;
+  border-bottom: var(--border-subtle);
+  white-space: nowrap;
+}
+
+.customers-page__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.customers-page__table tbody tr:hover {
+  background: var(--color-surface-raised);
+}
+
+.customers-page__table .customers-page__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.customers-page__who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
   text-align: left;
   cursor: pointer;
-  font-family: var(--font-body);
-  color: var(--color-dark);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  font: inherit;
+  color: inherit;
 }
 
-.customers-page__row:hover {
-  box-shadow: var(--shadow-soft);
-  transform: translateY(-1px);
+.customers-page__avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .customers-page__row {
-    transition: none;
-  }
-}
-
-.customers-page__row-identity {
+.customers-page__who-text {
   display: flex;
   flex-direction: column;
-  min-width: 160px;
-  flex: 1.2;
 }
 
-.customers-page__row-identity strong {
-  font-size: 14px;
-}
-
-.customers-page__row-identity small {
+.customers-page__who-text small {
   font-size: 12px;
   color: var(--color-text-secondary);
 }
 
-.customers-page__row-badges {
+.customers-page__badges {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
-  flex: 1;
 }
 
-.customers-page__row-stat {
+.customers-page__pager {
   display: flex;
-  flex-direction: column;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  color: var(--color-dark);
-  min-width: 90px;
-}
-
-.customers-page__row-stat small {
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
   font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 2px;
 }
 
-.customers-page__row-stat--last {
-  min-width: 110px;
+.customers-page__pager-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 @media (max-width: 860px) {
-  .customers-page__row {
-    flex-wrap: wrap;
-  }
-
   .customers-page__search {
     min-width: 0;
     flex: 1;

@@ -110,6 +110,9 @@ derivada no backend. O painel do dono continua claro.
 - **Menu:** 5 áreas em 2 grupos, "Dia a dia" (Hoje, Quadras, Clientes) e "Negócio" (Financeiro, Configurar). Item ativo em azul, selo com a contagem de reservas de hoje, recolhe para ícones (botão e Ctrl+B), vira gaveta no celular. Telas que moram dentro de uma área (Avaliações, Equipe, Cupons, Equipamentos) aparecem como abas no topo do conteúdo.
 - **Grade do dia (assinatura do produto):** quadras em linhas, horas em colunas, linha de "agora". Aqui a lima também aparece nos blocos de reserva, porque é dado e é o traço do Jogaê (o mesmo da mini-agenda da landing). Fora disso, a lima continua só no botão principal. Horas já passadas ficam apagadas; no celular a grade rola sozinha até o "agora".
 
+- **Clientes e Quadras:** Clientes é uma tabela (avatar com iniciais, alertas em pílulas, números alinhados à direita), com filtros que mostram a contagem, busca com atraso de 300 ms e paginação "Anterior / Próxima" ("1–20 de N"). No celular a tabela rola dentro do cartão, nunca a página. Os cards de Quadras mostram a faixa de preço ("R$ 80,00 a R$ 110,00/h") e um aviso âmbar quando falta preço.
+- **Busca rápida (Ctrl+K):** janela nativa `<dialog>` com telas e, a partir de 2 letras, clientes; setas, Enter e Esc; no celular, o botão de lupa na barra do topo. Sem biblioteca externa.
+
 ### Configurar (padrões)
 - **Linhas editáveis** (`SettingRow`): rótulo e valor à esquerda, "Editar" à direita; ao editar abre o campo ali mesmo, "Salvar" grava na hora e Esc cancela. Frase de ajuda embaixo do campo; erro em texto, nunca só em cor.
 - **Salvamento** (`useSaveStatus` + `SaveStatus`): "Salvando… / Salvo / Não foi possível salvar" com ícone e texto, anunciado a leitores de tela. O que muda com um clique (comodidades, capa) salva sozinho; formulários de criar têm "Salvar" e "Cancelar".

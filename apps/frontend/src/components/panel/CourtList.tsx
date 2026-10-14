@@ -11,6 +11,15 @@ const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.valu
 const surfaceLabel = (value: string) =>
   SURFACE_OPTIONS.find((option) => option.value === value)?.label ?? value
 
+function priceRange(court: Court) {
+  const prices = court.priceRules.map((rule) => Number(rule.pricePerHour)).filter((price) => !Number.isNaN(price))
+  if (prices.length === 0) return null
+  const format = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`
+  const min = Math.min(...prices)
+  const max = Math.max(...prices)
+  return min === max ? `${format(min)}/h` : `${format(min)} a ${format(max)}/h`
+}
+
 interface CourtListProps {
   onSessionExpired: () => void
 }
@@ -89,12 +98,11 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
                   {court.hasLighting ? ' · Com iluminação' : ''}
                 </p>
                 <p className="court-card__prices">
-                  {court.priceRules.length === 0
-                    ? 'Sem preços configurados'
-                    : court.priceRules.length === 1
-                      ? '1 horário com preço definido'
-                      : `${court.priceRules.length} horários com preço definido`}
+                  {priceRange(court) ?? 'Sem preços configurados'}
                 </p>
+                {court.priceRules.length === 0 && (
+                  <p className="court-card__hint">Defina os preços para a quadra aparecer na lojinha.</p>
+                )}
               </button>
               <Link to={`/painel/quadras/${court.id}/agenda`} className="court-card__agenda-link">
                 Ver agenda →

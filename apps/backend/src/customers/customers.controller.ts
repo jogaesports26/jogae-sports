@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Patch,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CustomersService } from './customers.service';
 import { UpdateBirthDateDto } from './dto/update-birth-date.dto';
+import { ListCustomersQueryDto } from './dto/list-customers-query.dto';
 import { toCsv } from '../common/csv.util';
 
 @Controller('customers')
@@ -26,8 +28,16 @@ export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
   @Get()
-  list(@CurrentUser() user: AuthenticatedUser) {
-    return this.customersService.listCustomers(user.sub);
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListCustomersQueryDto,
+  ) {
+    return this.customersService.listCustomersPage(user.sub, query);
+  }
+
+  @Get('summary')
+  summary(@CurrentUser() user: AuthenticatedUser) {
+    return this.customersService.getSummary(user.sub);
   }
 
   @Get('export')
@@ -52,8 +62,12 @@ export class CustomersController {
       String(customer.totalReservations),
       customer.totalSpent.toFixed(2).replace('.', ','),
       String(customer.noShowCount),
-      customer.lastReservationAt.toLocaleDateString('pt-BR'),
-      String(customer.daysSinceLastReservation),
+      customer.lastReservationAt
+        ? customer.lastReservationAt.toLocaleDateString('pt-BR')
+        : '',
+      customer.daysSinceLastReservation === null
+        ? ''
+        : String(customer.daysSinceLastReservation),
     ]);
 
     const csv = toCsv(header, rows);

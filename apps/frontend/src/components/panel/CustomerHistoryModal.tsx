@@ -78,14 +78,14 @@ export default function CustomerHistoryModal({
 
         <div className="customer-modal__summary">
           <span>
-            <strong>{customer.totalReservations}</strong> reservas
+            <strong>{customer.totalReservations}</strong> {customer.totalReservations === 1 ? 'reserva' : 'reservas'}
           </span>
           <span>
             <strong>R$ {customer.totalSpent.toFixed(2).replace('.', ',')}</strong> gastos
           </span>
           {customer.noShowCount > 0 && (
             <span className="customer-modal__no-show">
-              <strong>{customer.noShowCount}</strong> faltas
+              <strong>{customer.noShowCount}</strong> {customer.noShowCount === 1 ? 'falta' : 'faltas'}
             </span>
           )}
         </div>
