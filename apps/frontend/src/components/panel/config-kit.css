@@ -655,3 +655,73 @@
     justify-content: flex-start;
   }
 }
+
+.price-simple__courts-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.price-simple__courts-head small {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.price-simple__courts-actions {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.price-simple__summary p {
+  margin: 0 0 12px;
+}
+
+.price-simple__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.price-simple__table th,
+.price-simple__table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: var(--border-subtle);
+  vertical-align: top;
+}
+
+.price-simple__table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.price-simple__table tbody th {
+  font-weight: 600;
+}
+
+.price-simple__row--warn td:last-child {
+  color: var(--color-warning-text);
+  font-weight: 600;
+}
+
+.price-simple__note {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.price-simple__note--warn {
+  color: var(--color-warning-text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .price-simple__table {
+    display: block;
+    overflow-x: auto;
+  }
+}

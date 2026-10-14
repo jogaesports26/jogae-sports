@@ -4,6 +4,8 @@ import { SessionExpiredError } from '../../lib/api'
 import { replacePriceRules } from '../../lib/courts'
 import type { Court, PriceRuleInput } from '../../lib/courts'
 import { useSaveStatus } from '../../hooks/useSaveStatus'
+import { buildCourtChange } from '../../lib/priceSummary'
+import type { ChangeKind } from '../../lib/priceSummary'
 import { showToast } from '../../lib/toast'
 import ChipToggle from './ChipToggle'
 import SaveStatus from './SaveStatus'
@@ -15,6 +17,13 @@ interface SimplePricingProps {
 }
 
 const HOURS = Array.from({ length: 25 }, (_, hour) => hour)
+
+const CHANGE_LABEL: Record<ChangeKind, string> = {
+  new: 'Passa a ter preços',
+  same: 'Sem mudança',
+  'replaces-simple': 'Substitui',
+  'replaces-custom': '⚠ Perde o detalhe por dia e hora',
+}
 
 function money(value: string) {
   const parsed = Number(value.replace(',', '.'))
@@ -61,6 +70,8 @@ export default function SimplePricing({ courts, onApplied, onSessionExpired }: S
     return result
   }, [dayPrice, nightPrice, weekendMode, weekendExtra, open, close, nightStart])
 
+  const courtName = (id: string) => courts.find((court) => court.id === id)?.name ?? 'quadra'
+
   function toggleCourt(id: string, checked: boolean) {
     setSelected((current) => (checked ? [...current, id] : current.filter((courtId) => courtId !== id)))
   }
@@ -81,7 +92,26 @@ export default function SimplePricing({ courts, onApplied, onSessionExpired }: S
   async function apply() {
     if (!rules) return
     const ok = await run(async () => {
-      for (const courtId of selected) await replacePriceRules(courtId, rules)
+      const done: string[] = []
+      for (const [index, courtId] of selected.entries()) {
+        try {
+          await replacePriceRules(courtId, rules)
+          done.push(courtName(courtId))
+        } catch (err) {
+          if (err instanceof SessionExpiredError) {
+            onSessionExpired()
+            throw err
+          }
+          // Cada quadra grava em separado: as que já foram continuam com o preço novo. Diz quais, e deixa marcadas só as que faltam.
+          const remaining = selected.slice(index)
+          setSelected(remaining)
+          if (done.length > 0) onApplied()
+          const reason = err instanceof Error ? err.message : 'erro desconhecido'
+          throw new Error(
+            `${done.length > 0 ? `Já aplicado em: ${done.join(', ')}. ` : 'Nada foi aplicado. '}Falhou em ${courtName(courtId)} (${reason}). ${remaining.length > 1 ? 'Ficaram marcadas as quadras que faltam: ' : 'Tente de novo.'}${remaining.length > 1 ? remaining.map(courtName).join(', ') + '.' : ''}`,
+          )
+        }
+      }
     })
     if (ok) {
       setConfirming(false)
@@ -101,6 +131,11 @@ export default function SimplePricing({ courts, onApplied, onSessionExpired }: S
   }
 
   const nightLabel = nightStart <= open ? 'o dia todo' : `a partir das ${nightStart}h`
+
+  const selectedCourts = courts.filter((court) => selected.includes(court.id))
+  const changes = rules ? selectedCourts.map((court) => ({ court, change: buildCourtChange(court.priceRules, rules) })) : []
+  const unchanged = courts.filter((court) => !selected.includes(court.id))
+  const customCount = changes.filter(({ change }) => change.kind === 'replaces-custom').length
 
   return (
     <div className="panel-card price-simple">
@@ -159,7 +194,22 @@ export default function SimplePricing({ courts, onApplied, onSessionExpired }: S
       </div>
 
       <div className="price-simple__courts field">
-        <span id="courts-label">Aplicar em</span>
+        <span id="courts-label" className="price-simple__courts-head">
+          Aplicar em
+          <small>
+            {selected.length} de {courts.length} {courts.length === 1 ? 'quadra' : 'quadras'}
+          </small>
+          {courts.length > 1 && (
+            <span className="price-simple__courts-actions">
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSelected(courts.map((court) => court.id))} disabled={selected.length === courts.length}>
+                Todas
+              </button>
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setSelected([])} disabled={selected.length === 0}>
+                Nenhuma
+              </button>
+            </span>
+          )}
+        </span>
         <div className="chip-group" role="group" aria-labelledby="courts-label">
           {courts.map((court) => (
             <ChipToggle key={court.id} label={court.name} checked={selected.includes(court.id)} onChange={(checked) => toggleCourt(court.id, checked)} />
@@ -169,10 +219,43 @@ export default function SimplePricing({ courts, onApplied, onSessionExpired }: S
 
       {confirming ? (
         <>
-          <p className="price-simple__summary" role="alert">
-            Isto vai <strong>substituir os preços atuais</strong> de {selected.length} {selected.length === 1 ? 'quadra' : 'quadras'}: das {open}h às {close}h, dia a R$ {dayPrice} e noite ({nightLabel}) a R$ {nightPrice}
-            {weekendMode === 'extra' && weekendExtra ? `, com R$ ${weekendExtra} a mais no fim de semana` : ''}. Reservas que já existem não mudam.
-          </p>
+          <div className="price-simple__summary" role="alert">
+            <p>
+              Isto vai <strong>substituir os preços atuais</strong> de {selected.length} {selected.length === 1 ? 'quadra' : 'quadras'} pelo modelo: das {open}h às {close}h, dia a R$ {dayPrice} e noite ({nightLabel}) a R$ {nightPrice}
+              {weekendMode === 'extra' && weekendExtra ? `, com R$ ${weekendExtra} a mais no fim de semana` : ''}. Reservas que já existem não mudam.
+            </p>
+            <table className="price-simple__table">
+              <caption className="sr-only">O que muda em cada quadra</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Quadra</th>
+                  <th scope="col">Hoje</th>
+                  <th scope="col">Depois</th>
+                  <th scope="col">O que acontece</th>
+                </tr>
+              </thead>
+              <tbody>
+                {changes.map(({ court, change }) => (
+                  <tr key={court.id} className={change.kind === 'replaces-custom' ? 'price-simple__row--warn' : undefined}>
+                    <th scope="row">{court.name}</th>
+                    <td>{change.before.text}</td>
+                    <td>{change.after.text}</td>
+                    <td>{CHANGE_LABEL[change.kind]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {unchanged.length > 0 && (
+              <p className="price-simple__note">
+                Não mudam: {unchanged.map((court) => court.name).join(', ')}.
+              </p>
+            )}
+            {customCount > 0 && (
+              <p className="price-simple__note price-simple__note--warn">
+                ⚠ {customCount} {customCount === 1 ? 'quadra tem' : 'quadras têm'} preços personalizados por dia e hora, que serão trocados por este modelo. Se não quiser, volte e desmarque {customCount === 1 ? 'essa quadra' : 'essas quadras'}.
+              </p>
+            )}
+          </div>
           <div className="price-simple__actions">
             <button type="button" className="btn btn--primary" onClick={applySafely} disabled={state === 'saving'}>
               Confirmar e aplicar
