@@ -97,6 +97,7 @@
   color-scheme: dark;
   --color-background: #0e141b;
   --color-surface: #16202b;
+  --color-surface-raised: #1f2d3b; /* um degrau acima do card (bolha do assistente, campos) */
   --color-dark: #e8edf3;
   --color-text-secondary: #a3afbf;
   --color-text-muted: #7d8999;
