@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
+import SaveStatus from '../components/panel/SaveStatus'
+import { useSaveStatus } from '../hooks/useSaveStatus'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 import { SessionExpiredError } from '../lib/api'
 import {
   replacePriceRules,
@@ -83,15 +86,32 @@ function generateSlots(
   return slots
 }
 
+function PendingChip({ dirty }: { dirty: boolean }) {
+  if (!dirty) return null
+  return (
+    <span className="court-pricing-page__pending">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 4.5v4M8 11.5v.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="8" cy="8" r="6.2" stroke="currentColor" strokeWidth="1.4" />
+      </svg>
+      Alterações não salvas
+    </span>
+  )
+}
+
 export default function CourtPricingPage() {
   const { court, reloadCourt, onSessionExpired } = useCourtDetailContext()
   const [priceRules, setPriceRules] = useState<PriceRuleDraft[]>(court.priceRules.map(toDraft))
   const [blocks, setBlocks] = useState<BlockDraft[]>(court.recurringMaintenanceBlocks.map(toBlockDraft))
-  const [savingPrices, setSavingPrices] = useState(false)
-  const [savingBlocks, setSavingBlocks] = useState(false)
-  const [pricesSaved, setPricesSaved] = useState(false)
-  const [blocksSaved, setBlocksSaved] = useState(false)
   const [error, setError] = useState('')
+  const pricesStatus = useSaveStatus()
+  const blocksStatus = useSaveStatus()
+  const settingsStatus = useSaveStatus()
+  // O que está salvo no servidor (como texto), para saber o que está pendente em cada bloco.
+  const [pricesBaseline, setPricesBaseline] = useState(() => JSON.stringify(court.priceRules.map(toDraft)))
+  const [blocksBaseline, setBlocksBaseline] = useState(() => JSON.stringify(court.recurringMaintenanceBlocks.map(toBlockDraft)))
+  // Resultado do "Gerar horários": avisa que gerar NÃO salva.
+  const [generated, setGenerated] = useState<{ count: number; days: string } | null>(null)
 
   const [genDays, setGenDays] = useState<Set<number>>(new Set())
   const [genOpen, setGenOpen] = useState('08:00')
@@ -105,8 +125,19 @@ export default function CourtPricingPage() {
   const [bookingStepMinutes, setBookingStepMinutes] = useState(
     STEP_OPTIONS.includes(court.bookingStepMinutes) ? court.bookingStepMinutes : 30,
   )
-  const [savingSettings, setSavingSettings] = useState(false)
-  const [settingsSaved, setSettingsSaved] = useState(false)
+  const settingsNow = JSON.stringify({ minBookingMinutes, maxBookingMinutes, bookingStepMinutes })
+  const [settingsBaseline, setSettingsBaseline] = useState(() =>
+    JSON.stringify({
+      minBookingMinutes: court.minBookingMinutes,
+      maxBookingMinutes: court.maxBookingMinutes,
+      bookingStepMinutes: STEP_OPTIONS.includes(court.bookingStepMinutes) ? court.bookingStepMinutes : 30,
+    }),
+  )
+  const pricesDirty = JSON.stringify(priceRules) !== pricesBaseline
+  const blocksDirty = JSON.stringify(blocks) !== blocksBaseline
+  // A "duração do horário" do gerador (genStep) é só o valor inicial do gerador: vai junto no próximo salvamento das regras de reserva.
+  const settingsDirty = settingsNow !== settingsBaseline
+  useUnsavedChangesGuard(pricesDirty || blocksDirty || settingsDirty)
 
   function toggleGenDay(day: number) {
     setGenDays((prev) => {
@@ -143,119 +174,128 @@ export default function CourtPricingPage() {
       return
     }
 
-    const generated = generateSlots([...genDays], genOpen, genClose, genStep, genPrice)
-    setPricesSaved(false)
-    setPriceRules((rules) => [...rules.filter((rule) => !genDays.has(rule.dayOfWeek)), ...generated])
+    const slots = generateSlots([...genDays], genOpen, genClose, genStep, genPrice)
+    pricesStatus.reset()
+    setGenerated({
+      count: slots.length,
+      days: [...genDays].sort((a, b) => a - b).map((day) => WEEKDAY_SHORT[day]).join(', '),
+    })
+    setPriceRules((rules) => [...rules.filter((rule) => !genDays.has(rule.dayOfWeek)), ...slots])
   }
 
   function addPriceRule() {
-    setPricesSaved(false)
+    pricesStatus.reset()
     setPriceRules((rules) => [...rules, { dayOfWeek: 1, startTime: '08:00', endTime: '09:00', price: '' }])
   }
 
   function updatePriceRule(index: number, patch: Partial<PriceRuleDraft>) {
-    setPricesSaved(false)
+    pricesStatus.reset()
     setPriceRules((rules) => rules.map((rule, i) => (i === index ? { ...rule, ...patch } : rule)))
   }
 
   function removePriceRule(index: number) {
-    setPricesSaved(false)
+    pricesStatus.reset()
     setPriceRules((rules) => rules.filter((_, i) => i !== index))
   }
 
   async function handleSavePriceRules() {
-    setSavingPrices(true)
     setError('')
-    setPricesSaved(false)
 
-    try {
-      await replacePriceRules(
-        court.id,
-        priceRules.map((rule) => ({
-          dayOfWeek: rule.dayOfWeek,
-          startMinute: timeToMinutes(rule.startTime),
-          endMinute: timeToMinutes(rule.endTime),
-          pricePerHour: Number(rule.price),
-        })),
-      )
-      setPricesSaved(true)
-      reloadCourt()
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-        return
+    const invalid = priceRules.findIndex(
+      (rule) => !rule.price || Number(rule.price) <= 0 || timeToMinutes(rule.endTime) <= timeToMinutes(rule.startTime),
+    )
+    if (invalid !== -1) {
+      setError(`Confira o horário ${invalid + 1} da lista: informe um preço maior que zero e um fim depois do início.`)
+      return
+    }
+
+    const ok = await pricesStatus.run(async () => {
+      try {
+        await replacePriceRules(
+          court.id,
+          priceRules.map((rule) => ({
+            dayOfWeek: rule.dayOfWeek,
+            startMinute: timeToMinutes(rule.startTime),
+            endMinute: timeToMinutes(rule.endTime),
+            pricePerHour: Number(rule.price),
+          })),
+        )
+      } catch (err) {
+        if (err instanceof SessionExpiredError) onSessionExpired()
+        throw err
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível salvar os preços')
-    } finally {
-      setSavingPrices(false)
+    })
+    if (ok) {
+      setPricesBaseline(JSON.stringify(priceRules))
+      setGenerated(null)
+      reloadCourt()
     }
   }
 
   async function handleSaveSettings() {
-    setSavingSettings(true)
     setError('')
-    setSettingsSaved(false)
-
-    try {
-      await updateCourt(court.id, {
-        minBookingMinutes,
-        maxBookingMinutes,
-        bookingStepMinutes,
-        slotStepMinutes: genStep,
-      })
-      setSettingsSaved(true)
-      reloadCourt()
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-        return
+    const ok = await settingsStatus.run(async () => {
+      try {
+        await updateCourt(court.id, {
+          minBookingMinutes,
+          maxBookingMinutes,
+          bookingStepMinutes,
+          slotStepMinutes: genStep,
+        })
+      } catch (err) {
+        if (err instanceof SessionExpiredError) onSessionExpired()
+        throw err
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível salvar a configuração')
-    } finally {
-      setSavingSettings(false)
+    })
+    if (ok) {
+      setSettingsBaseline(settingsNow)
+      reloadCourt()
     }
   }
 
   function addBlock() {
-    setBlocksSaved(false)
+    blocksStatus.reset()
     setBlocks((rows) => [...rows, { dayOfWeek: 1, startTime: '08:00', endTime: '09:00', reason: '' }])
   }
 
   function updateBlock(index: number, patch: Partial<BlockDraft>) {
-    setBlocksSaved(false)
+    blocksStatus.reset()
     setBlocks((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)))
   }
 
   function removeBlock(index: number) {
-    setBlocksSaved(false)
+    blocksStatus.reset()
     setBlocks((rows) => rows.filter((_, i) => i !== index))
   }
 
   async function handleSaveBlocks() {
-    setSavingBlocks(true)
     setError('')
-    setBlocksSaved(false)
 
-    try {
-      await replaceRecurringMaintenanceBlocks(
-        court.id,
-        blocks.map((block) => ({
-          dayOfWeek: block.dayOfWeek,
-          startMinute: timeToMinutes(block.startTime),
-          endMinute: timeToMinutes(block.endTime),
-          reason: block.reason || undefined,
-        })),
-      )
-      setBlocksSaved(true)
-      reloadCourt()
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-        return
+    const invalid = blocks.findIndex((block) => timeToMinutes(block.endTime) <= timeToMinutes(block.startTime))
+    if (invalid !== -1) {
+      setError(`Confira o bloqueio ${invalid + 1}: o fim precisa ser depois do início.`)
+      return
+    }
+
+    const ok = await blocksStatus.run(async () => {
+      try {
+        await replaceRecurringMaintenanceBlocks(
+          court.id,
+          blocks.map((block) => ({
+            dayOfWeek: block.dayOfWeek,
+            startMinute: timeToMinutes(block.startTime),
+            endMinute: timeToMinutes(block.endTime),
+            reason: block.reason || undefined,
+          })),
+        )
+      } catch (err) {
+        if (err instanceof SessionExpiredError) onSessionExpired()
+        throw err
       }
-      setError(err instanceof Error ? err.message : 'Não foi possível salvar os bloqueios')
-    } finally {
-      setSavingBlocks(false)
+    })
+    if (ok) {
+      setBlocksBaseline(JSON.stringify(blocks))
+      reloadCourt()
     }
   }
 
@@ -268,7 +308,21 @@ export default function CourtPricingPage() {
 
   return (
     <div className="court-pricing-page">
-      {error && <p className="court-pricing-page__error">{error}</p>}
+      {error && <p className="court-pricing-page__error" role="alert">{error}</p>}
+
+      {(pricesDirty || blocksDirty || settingsDirty) && (
+        <p className="court-pricing-page__summary" role="status">
+          <strong>Falta salvar:</strong>{' '}
+          {[
+            settingsDirty && <a key="s" href="#regras-de-reserva">regras de reserva</a>,
+            pricesDirty && <a key="p" href="#precos-por-horario">preços</a>,
+            blocksDirty && <a key="b" href="#bloqueios-recorrentes">bloqueios recorrentes</a>,
+          ]
+            .filter(Boolean)
+            .flatMap((item, index) => (index === 0 ? [item] : [', ', item]))}
+          . Cada bloco tem o seu botão de salvar.
+        </p>
+      )}
 
       <div className="court-pricing-page__grid">
       <section className="court-pricing-page__section">
@@ -347,7 +401,21 @@ export default function CourtPricingPage() {
           Gerar horários
         </button>
 
-        <div className="court-pricing-page__settings">
+        {generated && (
+          <p className="court-pricing-page__generated" role="status">
+            <strong>
+              {generated.count} {generated.count === 1 ? 'horário gerado' : 'horários gerados'} ({generated.days}).
+            </strong>{' '}
+            Eles já estão na lista de preços abaixo, no lugar dos que esses dias tinham, mas ainda <strong>não foram salvos</strong>.{' '}
+            <a href="#precos-por-horario">Ver a lista</a>
+          </p>
+        )}
+
+        <div className="court-pricing-page__settings" id="regras-de-reserva">
+          <div className="court-pricing-page__section-head">
+            <h3>Regras de reserva</h3>
+            <PendingChip dirty={settingsDirty} />
+          </div>
           <p className="court-pricing-page__hint">
             Essas opções controlam o que o jogador vê na tela de reserva — independente de como
             os preços foram cadastrados acima.
@@ -399,16 +467,19 @@ export default function CourtPricingPage() {
             type="button"
             className="btn btn--primary btn--sm"
             onClick={handleSaveSettings}
-            disabled={savingSettings}
+            disabled={settingsStatus.state === 'saving' || !settingsDirty}
           >
-            {savingSettings ? 'Salvando...' : 'Salvar configurações de reserva'}
+            Salvar regras de reserva
           </button>
-          {settingsSaved && <span className="court-pricing-page__saved">Salvo!</span>}
+          <SaveStatus state={settingsStatus.state} message={settingsStatus.message} />
         </div>
       </section>
 
       <section className="court-pricing-page__section">
-        <h2>Preços por horário</h2>
+        <div className="court-pricing-page__section-head">
+          <h2 id="precos-por-horario">Preços por horário</h2>
+          <PendingChip dirty={pricesDirty} />
+        </div>
         <p className="court-pricing-page__hint">
           Defina o valor da hora por dia da semana. Só os horários com uma regra cadastrada ficam
           disponíveis pra reserva. Clique no × de um horário pra desabilitá-lo.
@@ -500,16 +571,19 @@ export default function CourtPricingPage() {
             type="button"
             className="btn btn--primary btn--sm"
             onClick={handleSavePriceRules}
-            disabled={savingPrices}
+            disabled={pricesStatus.state === 'saving' || !pricesDirty}
           >
-            {savingPrices ? 'Salvando...' : 'Salvar preços'}
+            Salvar preços
           </button>
-          {pricesSaved && <span className="court-pricing-page__saved">Salvo!</span>}
+          <SaveStatus state={pricesStatus.state} message={pricesStatus.message} />
         </div>
       </section>
 
       <section className="court-pricing-page__section">
-        <h2>Bloqueios recorrentes</h2>
+        <div className="court-pricing-page__section-head">
+          <h2 id="bloqueios-recorrentes">Bloqueios recorrentes</h2>
+          <PendingChip dirty={blocksDirty} />
+        </div>
         <p className="court-pricing-page__hint">
           Horários que ficam sempre indisponíveis nesse dia da semana — por exemplo, manutenção toda
           segunda de manhã. Diferente do bloqueio pontual (na aba Manutenção), esse se repete toda
@@ -573,11 +647,11 @@ export default function CourtPricingPage() {
             type="button"
             className="btn btn--primary btn--sm"
             onClick={handleSaveBlocks}
-            disabled={savingBlocks}
+            disabled={blocksStatus.state === 'saving' || !blocksDirty}
           >
-            {savingBlocks ? 'Salvando...' : 'Salvar bloqueios'}
+            Salvar bloqueios
           </button>
-          {blocksSaved && <span className="court-pricing-page__saved">Salvo!</span>}
+          <SaveStatus state={blocksStatus.state} message={blocksStatus.message} />
         </div>
       </section>
       </div>

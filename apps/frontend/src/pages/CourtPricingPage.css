@@ -225,3 +225,68 @@
     display: none;
   }
 }
+
+.court-pricing-page__section-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.court-pricing-page__section-head h2,
+.court-pricing-page__section-head h3 {
+  margin: 0;
+}
+
+.court-pricing-page__section-head h3 {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.court-pricing-page__pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.court-pricing-page__pending svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.court-pricing-page__summary,
+.court-pricing-page__generated {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.court-pricing-page__generated {
+  margin: 12px 0 0;
+}
+
+.court-pricing-page__summary a,
+.court-pricing-page__generated a {
+  color: inherit;
+  font-weight: 700;
+}
+
+.court-pricing-page__save-row .btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
