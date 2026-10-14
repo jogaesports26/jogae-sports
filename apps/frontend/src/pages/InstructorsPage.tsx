@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { createInstructor, fetchInstructors, removeInstructor } from '../lib/instructors'
-import { sanitizePhoneInput } from '../lib/phone'
+import { sanitizePhoneInput, PHONE_EXAMPLE } from '../lib/phone'
 import type { Instructor } from '../lib/instructors'
 import './InstructorsPage.css'
 
@@ -97,7 +97,7 @@ export default function InstructorsPage() {
                 type="tel"
                 value={phone}
                 onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
-                placeholder="(85) 99999-9999"
+                placeholder={PHONE_EXAMPLE}
               />
             </label>
             <button type="submit" className="btn btn--primary btn--full" disabled={isSaving}>

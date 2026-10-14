@@ -32,6 +32,8 @@ export interface EstablishmentCourt {
   hasLighting: boolean
   photoUrls: string[]
   fromPricePerHour: string | null
+  /** Existe horário mais caro que o menor preço (o card mostra "a partir de"). */
+  priceVaries?: boolean
   averageRating: number | null
   reviewCount: number
 }

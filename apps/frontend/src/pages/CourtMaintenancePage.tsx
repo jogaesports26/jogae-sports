@@ -86,6 +86,7 @@ export default function CourtMaintenancePage() {
       {blocks !== null && blocks.length === 0 && (
         <div className="court-maintenance-page__empty card">
           <p>Nenhum bloqueio de manutenção registrado ainda.</p>
+          <span>Bloqueie um horário quando a quadra não puder ser usada (limpeza, obra, evento): ele deixa de aparecer para os jogadores.</span>
         </div>
       )}
 

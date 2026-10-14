@@ -123,14 +123,41 @@
 }
 
 @media (max-width: 640px) {
+  /* Cabeçalho numa linha só: o nome da arena (até duas linhas) à esquerda, as ações à direita */
   .portal__nav {
-    padding: 16px 5vw;
-    flex-wrap: wrap;
-    gap: 12px;
+    padding: 10px 5vw;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .portal__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 auto;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+
+  .portal__logo-name {
+    max-width: none;
+    min-width: 0;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
   }
 
   .portal__nav-links {
-    gap: 14px;
+    flex: none;
+    gap: 6px;
+  }
+
+  .portal__nav-links a.portal__login-link {
+    padding: 0 14px;
+    min-height: 40px;
   }
 
   .portal__player-name {
@@ -208,4 +235,29 @@
 
 .portal__scheme-button:hover {
   background: var(--brand-50);
+}
+
+.portal__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.portal__legal-links {
+  display: flex;
+  gap: 16px;
+  padding-top: 12px;
+}
+
+.portal__legal-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.portal__legal-links a:hover {
+  color: var(--brand-text);
 }

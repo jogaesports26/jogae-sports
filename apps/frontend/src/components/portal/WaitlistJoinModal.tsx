@@ -4,7 +4,7 @@ import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { joinWaitlist } from '../../lib/waitlist'
 import { formatMinutes } from '../../lib/weekGrid'
 import { getPlayerUser } from '../../lib/player'
-import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits } from '../../lib/phone'
+import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits, PHONE_EXAMPLE } from '../../lib/phone'
 import './BookingFlowModal.css'
 
 interface WaitlistJoinModalProps {
@@ -105,7 +105,7 @@ export default function WaitlistJoinModal({
                 autoComplete="tel"
                 value={formatPhone(phone)}
                 onChange={(event) => setPhone(phoneDigits(event.target.value))}
-                placeholder="(85) 99999-9999"
+                placeholder={PHONE_EXAMPLE}
                 required
                 minLength={FORMATTED_PHONE_MIN_LENGTH}
               />

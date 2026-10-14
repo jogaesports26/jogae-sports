@@ -42,9 +42,32 @@ interface ChatWidgetProps {
   tabbed?: boolean
   /** No mobile, esconde o botão flutuante (o assistente abre por outro controle). */
   hideToggleOnMobile?: boolean
+  /** Nome da arena: o assistente se apresenta como "Assistente {nome}" e usa a inicial (ou a logo) no avatar. */
+  assistantName?: string | null
+  logoUrl?: string | null
 }
 
-export default function ChatWidget({ open, onOpenChange, tabbed = false, hideToggleOnMobile = false }: ChatWidgetProps) {
+/** Avatar do assistente: a logo da arena, ou a inicial do nome quando não há logo. */
+function Avatar({ className, logoUrl, initial }: { className: string; logoUrl: string | null; initial: string }) {
+  return logoUrl ? (
+    <img src={logoUrl} alt="" className={`${className} chat-widget__avatar--img`} />
+  ) : (
+    <span className={className} aria-hidden="true">
+      {initial}
+    </span>
+  )
+}
+
+export default function ChatWidget({
+  open,
+  onOpenChange,
+  tabbed = false,
+  hideToggleOnMobile = false,
+  assistantName = null,
+  logoUrl = null,
+}: ChatWidgetProps) {
+  const displayName = assistantName?.trim() || 'Jogaê'
+  const initial = displayName.charAt(0).toUpperCase()
   const [internalOpen, setInternalOpen] = useState(false)
   const isOpen = open ?? internalOpen
   const setIsOpen = onOpenChange ?? setInternalOpen
@@ -132,11 +155,11 @@ export default function ChatWidget({ open, onOpenChange, tabbed = false, hideTog
   return (
     <div className={`chat-widget${tabbed ? ' chat-widget--tabbed' : ''}${hideToggleOnMobile ? ' chat-widget--no-toggle' : ''}`}>
       {isOpen && (
-        <div className="chat-widget__panel" role="dialog" aria-label="Assistente Jogaê">
+        <div className="chat-widget__panel" role="dialog" aria-label={`Assistente ${displayName}`}>
           <div className="chat-widget__header">
-            <span className="chat-widget__avatar chat-widget__avatar--header" aria-hidden="true">J</span>
+            <Avatar className="chat-widget__avatar chat-widget__avatar--header" logoUrl={logoUrl} initial={initial} />
             <span className="chat-widget__title">
-              <strong>Assistente Jogaê</strong>
+              <strong>Assistente {displayName}</strong>
               <small>Tira dúvidas e ajuda a achar quadra</small>
             </span>
             <button type="button" onClick={resetConversation} aria-label="Nova conversa" title="Nova conversa" disabled={onlyGreeting && !isLoading}>
@@ -171,7 +194,7 @@ export default function ChatWidget({ open, onOpenChange, tabbed = false, hideTog
                     className={`chat-widget__row chat-widget__row--${message.role}${joinedAbove ? ' chat-widget__row--joined' : ''}`}
                   >
                     {message.role === 'assistant' && (
-                      <span className={`chat-widget__avatar${joinedBelow ? ' chat-widget__avatar--hidden' : ''}`} aria-hidden="true">J</span>
+                      <Avatar className={`chat-widget__avatar${joinedBelow ? ' chat-widget__avatar--hidden' : ''}`} logoUrl={logoUrl} initial={initial} />
                     )}
                     <div className="chat-widget__stack">
                       <div
@@ -204,7 +227,7 @@ export default function ChatWidget({ open, onOpenChange, tabbed = false, hideTog
 
               {isLoading && (
                 <div className="chat-widget__row chat-widget__row--assistant" role="status">
-                  <span className="chat-widget__avatar" aria-hidden="true">J</span>
+                  <Avatar className="chat-widget__avatar" logoUrl={logoUrl} initial={initial} />
                   <div className="chat-widget__bubble chat-widget__bubble--assistant chat-widget__typing">
                     <span className="chat-widget__dot" aria-hidden="true" />
                     <span className="chat-widget__dot" aria-hidden="true" />

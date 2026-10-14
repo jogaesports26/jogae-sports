@@ -28,6 +28,7 @@ import CourtBookingPage from './pages/CourtBookingPage'
 import PlayerReservationsPage from './pages/PlayerReservationsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import LegalPage from './pages/LegalPage'
+import WeekAgendaPage from './pages/WeekAgendaPage'
 import ToastHost from './components/ToastHost'
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
         <Route path="/painel" element={<PainelLayout />}>
           <Route index element={<OverviewPage />} />
           <Route path="agenda" element={<Navigate to="/painel" replace />} />
+          <Route path="agenda-semanal" element={<WeekAgendaPage />} />
           <Route path="quadras" element={<QuadrasPage />} />
           <Route path="quadras/:courtId" element={<CourtDetailLayout />}>
             <Route index element={<Navigate to="agenda" replace />} />
@@ -75,6 +77,8 @@ function App() {
         </Route>
         <Route path="/:slug" element={<PortalLayout />}>
           <Route index element={<EstablishmentPage />} />
+          <Route path="termos" element={<LegalPage kind="termos" />} />
+          <Route path="privacidade" element={<LegalPage kind="privacidade" />} />
           <Route path=":courtId" element={<CourtBookingPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

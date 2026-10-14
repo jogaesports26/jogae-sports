@@ -20,6 +20,8 @@ interface DayGridProps {
   nowMinutes: number | null
   onPickSlot: (courtAgenda: CourtAgenda, startMinute: number) => void
   onPickReservation: (court: Court, reservation: Reservation) => void
+  /** A legenda aparece por padrão; a visão da semana mostra uma só no topo. */
+  showLegend?: boolean
 }
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -35,7 +37,7 @@ const STATUS_LABEL: Record<Reservation['status'], string> = {
  * A "grade do dia": cada quadra é uma linha e cada hora uma coluna. Reservas e manutenções
  * viram blocos que ocupam as horas seguidas, e uma linha marca o "agora".
  */
-export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReservation }: DayGridProps) {
+export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReservation, showLegend = true }: DayGridProps) {
   const dayOfWeek = day.getDay()
   const rows = buildAgendaGridRows(
     data.flatMap((item) => item.agenda.priceRules),
@@ -93,7 +95,10 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
     return { courtAgenda, items: buildLaneItems(states) }
   })
   // Mesma regra do servidor e da agenda: horário que já começou não aceita reserva (a hora corrente também sai; "Nova reserva" oferece os meios-horários que restam).
-  const isPastRow = (index: number) => nowMinutes !== null && rows[index].startMinute <= nowMinutes
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const isPastDay = day.getTime() < startOfToday.getTime()
+  const isPastRow = (index: number) => isPastDay || (nowMinutes !== null && rows[index].startMinute <= nowMinutes)
   const seen = {
     completed: false,
     noShow: false,
@@ -114,6 +119,7 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
 
   return (
     <div className="day-grid" style={{ '--cols': rows.length } as CSSProperties}>
+      {showLegend && (
       <ul className="day-grid__legend" aria-label="Legenda">
         <li><i className="day-grid__swatch day-grid__swatch--reserved" />Reservado</li>
         {seen.completed && <li><i className="day-grid__swatch day-grid__swatch--done" />✓ Concluída</li>}
@@ -123,6 +129,7 @@ export default function DayGrid({ data, day, nowMinutes, onPickSlot, onPickReser
         {seen.past && <li><i className="day-grid__swatch day-grid__swatch--past" />Já passou</li>}
         {seen.off && <li><i className="day-grid__swatch day-grid__swatch--off" />Sem preço</li>}
       </ul>
+      )}
 
       <div className="day-grid__scroll" ref={scrollRef}>
         <div className="day-grid__inner" role="group" aria-label="Grade do dia">

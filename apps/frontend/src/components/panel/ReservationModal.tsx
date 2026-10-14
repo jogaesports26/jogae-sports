@@ -13,6 +13,7 @@ import type { Equipment } from '../../lib/equipment'
 import { formatMinutes, sumPriceForRange } from '../../lib/weekGrid'
 import { showToast } from '../../lib/toast'
 import './ReservationModal.css'
+import { PHONE_EXAMPLE } from '../../lib/phone'
 
 interface ReservationModalProps {
   courtId: string
@@ -163,7 +164,7 @@ export default function ReservationModal({
               onChange={(e) => setGuestPhone(e.target.value)}
               required
               minLength={8}
-              placeholder="(85) 99999-9999"
+              placeholder={PHONE_EXAMPLE}
             />
           </label>
 

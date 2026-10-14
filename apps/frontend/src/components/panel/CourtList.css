@@ -53,6 +53,8 @@
 }
 
 .court-card {
+  position: relative;
+  padding: 20px;
   background: var(--color-surface);
   border: none;
   border-radius: var(--radius-card);
@@ -158,4 +160,84 @@
   font-size: 12px;
   color: var(--color-warning-text);
   margin-top: 6px;
+}
+
+/* Card inteiro clicável: o link do nome cobre o card; o botão Editar fica por cima dele */
+.court-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.court-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+}
+
+.court-card__link:focus-visible::after {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.court-card__week {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.court-card__week p {
+  margin: 0 0 6px;
+}
+
+.court-card__week strong {
+  color: var(--color-dark);
+}
+
+.court-card__bar {
+  display: block;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  overflow: hidden;
+}
+
+.court-card__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary);
+}
+
+.court-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.court-card__agenda-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand-text);
+}
+
+.court-card__edit {
+  position: relative;
+  z-index: 1;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.court-card__edit:hover {
+  border-color: var(--brand-primary);
 }

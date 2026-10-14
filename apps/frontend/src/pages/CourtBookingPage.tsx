@@ -22,6 +22,7 @@ import SportIcon from '../components/SportIcon'
 import BookingFlowModal from '../components/portal/BookingFlowModal'
 import WaitlistJoinModal from '../components/portal/WaitlistJoinModal'
 import HeartToggle from '../components/HeartToggle'
+import { groupFullHours } from '../lib/slotGrouping'
 import { shareOrCopy } from '../lib/share'
 import { showToast } from '../lib/toast'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
@@ -116,6 +117,7 @@ export default function CourtBookingPage() {
   const [selectedSlot, setSelectedSlot] = useState<PendingSlot | null>(null)
   const [waitlistSlot, setWaitlistSlot] = useState<WaitlistSlot | null>(null)
   const [period, setPeriod] = useState<Period | null>(null)
+  const [showAllStarts, setShowAllStarts] = useState(false)
   const [photoIndex, setPhotoIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
   const [amenitiesOpen, setAmenitiesOpen] = useState(false)
@@ -277,12 +279,19 @@ export default function CourtBookingPage() {
       <p className="booking-section__empty">Sem horários livres nos próximos 7 dias. Fale com o local pra combinar.</p>
     )
 
-  const periodsWithSlots = PERIODS.filter((item) => slots.some((slot) => periodOf(slot.startMinute) === item.key))
+  // Horários de 30 em 30 min: a lista começa só com os da hora cheia (o escolhido nunca some); "ver todos" mostra o resto.
+  const { listed, hiddenCount, canToggle } = groupFullHours(
+    slots,
+    court.bookingStepMinutes,
+    showAllStarts,
+    (slot) => pendingSlot?.startMinute === slot.startMinute,
+  )
+  const periodsWithSlots = PERIODS.filter((item) => listed.some((slot) => periodOf(slot.startMinute) === item.key))
   const activePeriod =
     period && periodsWithSlots.some((item) => item.key === period) ? period : (periodsWithSlots[0]?.key ?? null)
-  const visibleSlots = periodsWithSlots.length > 1 ? slots.filter((slot) => periodOf(slot.startMinute) === activePeriod) : slots
+  const visibleSlots = periodsWithSlots.length > 1 ? listed.filter((slot) => periodOf(slot.startMinute) === activePeriod) : listed
   const availableCountByPeriod = (key: Period) =>
-    slots.filter((slot) => slot.kind === 'available' && periodOf(slot.startMinute) === key).length
+    listed.filter((slot) => slot.kind === 'available' && periodOf(slot.startMinute) === key).length
 
   const amenities = [
     surfaceLabel(court.surfaceType),
@@ -292,8 +301,10 @@ export default function CourtBookingPage() {
     'Cancelamento até 2h antes',
   ]
   const visibleAmenities = amenitiesOpen ? amenities : amenities.slice(0, 4)
-  const fromPrice =
-    agenda.priceRules.length > 0 ? Math.min(...agenda.priceRules.map((rule) => Number(rule.pricePerHour))) : null
+  const allPrices = agenda.priceRules.map((rule) => Number(rule.pricePerHour))
+  const fromPrice = allPrices.length > 0 ? Math.min(...allPrices) : null
+  // "a partir de" só quando existe algum horário mais caro; com um preço só, é só o preço.
+  const priceVaries = fromPrice !== null && Math.max(...allPrices) > fromPrice
 
   const photos = court.photoUrls
   const establishmentName = court.owner.establishmentName
@@ -443,7 +454,7 @@ export default function CourtBookingPage() {
           <div className="booking-sheet__bottom">
           {fromPrice !== null && (
             <p className="booking-sheet__price">
-              <span className="booking-sheet__price-label">a partir de</span>
+              {priceVaries && <span className="booking-sheet__price-label">a partir de</span>}
               <strong>{formatSlotPrice(fromPrice)}</strong>
               <span className="booking-sheet__price-label">por hora</span>
             </p>
@@ -602,6 +613,11 @@ export default function CourtBookingPage() {
                 )
               })}
             </div>
+            {canToggle && (
+              <button type="button" className="booking-section__toggle" aria-expanded={showAllStarts} onClick={() => setShowAllStarts((open) => !open)}>
+                {showAllStarts ? 'Mostrar só os horários cheios' : `Mostrar todos os horários (+${hiddenCount})`}
+              </button>
+            )}
           </>
         )}
       </section>

@@ -404,3 +404,8 @@
     display: none;
   }
 }
+
+.chat-widget__avatar--img {
+  object-fit: cover;
+  background: var(--color-surface);
+}

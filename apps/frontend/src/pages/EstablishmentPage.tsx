@@ -13,7 +13,6 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { CANCELLATION_POLICY } from '../lib/policy'
 import './EstablishmentPage.css'
 import DirectionsButton from '../components/DirectionsButton'
-import { directionsUrl } from '../lib/maps'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
@@ -29,6 +28,9 @@ function normalize(value: string) {
 function formatPrice(value: number) {
   return Number.isInteger(value) ? `R$ ${value}` : `R$ ${value.toFixed(2).replace('.', ',')}`
 }
+
+/** Quantas comodidades aparecem antes do "+N mais". */
+const AMENITIES_PREVIEW = 4
 
 function PinIcon() {
   return (
@@ -172,7 +174,6 @@ export default function EstablishmentPage() {
         totalReviews
       : null
   const phoneNumber = establishment.establishmentPhone ? phoneDigits(establishment.establishmentPhone) : ''
-  const mapsUrl = directionsUrl(establishment.establishmentAddress)
 
   function clearFilters() {
     setSportFilter(null)
@@ -247,25 +248,26 @@ export default function EstablishmentPage() {
       )}
 
       {establishment.amenities.length > 0 && (
-        <div className="establishment-page__amenities-block">
-          <button
-            type="button"
-            className="establishment-page__amenities-toggle"
-            aria-expanded={amenitiesOpen}
-            onClick={() => setAmenitiesOpen((open) => !open)}
-          >
-            {amenitiesOpen ? 'Esconder comodidades' : `Ver comodidades (${establishment.amenities.length})`}
-          </button>
-          {amenitiesOpen && (
-            <div className="establishment-page__amenities">
-              {establishment.amenities.map((amenity) => (
-                <span key={amenity} className="pill pill--neutral">
-                  {amenityLabel(amenity)}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        <section className="establishment-page__amenities-block" aria-label="Comodidades">
+          <h2 className="establishment-page__amenities-title">Comodidades</h2>
+          <div className="establishment-page__amenities">
+            {(amenitiesOpen ? establishment.amenities : establishment.amenities.slice(0, AMENITIES_PREVIEW)).map((amenity) => (
+              <span key={amenity} className="pill pill--neutral">
+                {amenityLabel(amenity)}
+              </span>
+            ))}
+            {establishment.amenities.length > AMENITIES_PREVIEW && (
+              <button
+                type="button"
+                className="establishment-page__amenities-toggle"
+                aria-expanded={amenitiesOpen}
+                onClick={() => setAmenitiesOpen((open) => !open)}
+              >
+                {amenitiesOpen ? 'Ver menos' : `+${establishment.amenities.length - AMENITIES_PREVIEW} mais`}
+              </button>
+            )}
+          </div>
+        </section>
       )}
 
       {availableSports.length > 1 && (
@@ -327,6 +329,7 @@ export default function EstablishmentPage() {
                 <HeartToggle courtId={court.id} className="establishment-card__favorite" />
                 {court.fromPricePerHour && (
                   <span className="establishment-card__price">
+                    {court.priceVaries ? 'a partir de ' : ''}
                     {formatPrice(Number(court.fromPricePerHour))}/h
                   </span>
                 )}
@@ -366,17 +369,7 @@ export default function EstablishmentPage() {
           {establishment.establishmentAddress && (
             <li>
               <PinIcon />
-              <span>
-                {establishment.establishmentAddress}
-                {mapsUrl && (
-                  <>
-                    {' · '}
-                    <a href={mapsUrl} target="_blank" rel="noreferrer">
-                      Como chegar
-                    </a>
-                  </>
-                )}
-              </span>
+              <span>{establishment.establishmentAddress}</span>
             </li>
           )}
           {phoneNumber && (

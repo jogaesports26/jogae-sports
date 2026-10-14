@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import ChipToggle from '../components/panel/ChipToggle'
 import CopyButton from '../components/panel/CopyButton'
@@ -12,6 +12,7 @@ import StorePreview from '../components/panel/StorePreview'
 import ThemeSettings from '../components/panel/ThemeSettings'
 import ImageDropzone from '../components/ImageDropzone'
 import { useSaveStatus } from '../hooks/useSaveStatus'
+import { describeOpeningHours } from '../lib/openingHours'
 import { SessionExpiredError } from '../lib/api'
 import { AMENITY_OPTIONS } from '../lib/amenities'
 import { fetchCep } from '../lib/cep'
@@ -19,6 +20,7 @@ import { fetchCourts } from '../lib/courts'
 import type { Court } from '../lib/courts'
 import { fetchProfile, updateProfile } from '../lib/profile'
 import type { Profile, ProfileInput } from '../lib/profile'
+import { PHONE_EXAMPLE } from '../lib/phone'
 
 const SHARED_KEY = 'jogae_lojinha_compartilhada'
 
@@ -96,6 +98,7 @@ export default function SettingsPage() {
   }
 
   const activeCourts = useMemo(() => (courts ?? []).filter((court) => court.active), [courts])
+  const openingHours = useMemo(() => describeOpeningHours(activeCourts.flatMap((court) => court.priceRules)), [activeCourts])
   const fromPrice = useMemo(() => {
     const prices = activeCourts.flatMap((court) => court.priceRules.map((rule) => Number(rule.pricePerHour)))
     return prices.length > 0 ? Math.min(...prices) : null
@@ -179,7 +182,7 @@ export default function SettingsPage() {
             <SettingRow
               label="Telefone de contato"
               value={profile.establishmentPhone ?? ''}
-              placeholder="(85) 99999-9999"
+              placeholder={PHONE_EXAMPLE}
               inputMode="tel"
               hint="Aparece para o cliente chamar no WhatsApp."
               onSave={(value) => save({ establishmentPhone: value.trim() })}
@@ -192,6 +195,22 @@ export default function SettingsPage() {
               onSave={(value) => save({ establishmentAddress: value.trim() })}
               editorExtra={({ setDraft }) => <CepLookup onFound={setDraft} />}
             />
+            <div className="setting-row">
+              <div className="setting-row__text">
+                <span className="setting-row__label">Horário de funcionamento</span>
+                {openingHours.length > 0 ? (
+                  <span className="setting-row__value">{openingHours.map((line) => `${line.days} ${line.hours}`).join(' · ')}</span>
+                ) : (
+                  <span className="setting-row__value setting-row__value--empty">Ainda não definido</span>
+                )}
+                <span className="setting-row__hint">Vem dos horários com preço das suas quadras, por isso muda quando você muda os preços.</span>
+              </div>
+              <div className="setting-row__actions">
+                <Link to="/painel/configuracoes?aba=precos" className="btn btn--outline btn--sm">
+                  Ajustar nos preços
+                </Link>
+              </div>
+            </div>
           </div>
         </>
       )}

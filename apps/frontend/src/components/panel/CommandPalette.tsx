@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fetchCourts } from '../../lib/courts'
+import type { Court } from '../../lib/courts'
 import { fetchCustomers } from '../../lib/customers'
 import type { Customer } from '../../lib/customers'
 import './CommandPalette.css'
@@ -14,8 +16,8 @@ interface PaletteItem {
 interface CommandPaletteProps {
   open: boolean
   onClose: () => void
-  /** Telas que o usuário pode abrir (já filtradas pelo papel). */
-  destinations: { label: string; to: string }[]
+  /** Telas que o usuário pode abrir (já filtradas pelo papel). `keywords` são apelidos: "desconto" acha Cupons. */
+  destinations: { label: string; to: string; keywords?: string[] }[]
   canSearchCustomers: boolean
 }
 
@@ -29,6 +31,7 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [query, setQuery] = useState('')
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [courts, setCourts] = useState<Court[]>([])
   const [active, setActive] = useState(0)
 
   useEffect(() => {
@@ -39,6 +42,14 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
       inputRef.current?.focus()
     }
     if (!open && dialog.open) dialog.close()
+  }, [open])
+
+  // As telas de cada quadra (agenda, preços, fila, manutenção) entram na busca quando a paleta abre.
+  useEffect(() => {
+    if (!open) return
+    fetchCourts()
+      .then(setCourts)
+      .catch(() => setCourts([]))
   }, [open])
 
   // Busca de clientes só depois de digitar (evita carregar a lista toda ao abrir).
@@ -59,9 +70,30 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
 
   const items = useMemo<PaletteItem[]>(() => {
     const term = normalize(query.trim())
-    const screens = destinations
-      .filter((d) => !term || normalize(d.label).includes(term))
-      .map((d) => ({ id: `d-${d.to}`, label: d.label, hint: 'Ir para', to: d.to }))
+    const tokens = term.split(/\s+/).filter(Boolean)
+
+    const courtScreens = courts.flatMap((court) => [
+      { label: `${court.name} · Agenda`, to: `/painel/quadras/${court.id}/agenda`, keywords: ['quadra', 'semana', 'reservas'] },
+      { label: `${court.name} · Preços e disponibilidade`, to: `/painel/quadras/${court.id}/precos`, keywords: ['quadra', 'preco', 'valor', 'horarios', 'bloqueio'] },
+      { label: `${court.name} · Fila de espera`, to: `/painel/quadras/${court.id}/fila-de-espera`, keywords: ['quadra', 'avise-me'] },
+      { label: `${court.name} · Manutenção`, to: `/painel/quadras/${court.id}/manutencao`, keywords: ['quadra', 'bloqueio', 'obra', 'limpeza'] },
+    ])
+    const seen = new Set<string>()
+    const all = [...destinations, ...courtScreens].filter((d) => (seen.has(d.to) ? false : (seen.add(d.to), true)))
+
+    const screens = all
+      .map((d, index) => {
+        const label = normalize(d.label)
+        const haystack = `${label} ${(d.keywords ?? []).map(normalize).join(' ')}`
+        if (!tokens.every((token) => haystack.includes(token))) return null
+        const score = !term ? 0 : label.startsWith(term) ? 0 : label.includes(term) ? 1 : 2
+        return { id: `d-${d.to}`, label: d.label, hint: 'Ir para', to: d.to, score, index }
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => a.score - b.score || a.index - b.index)
+      .slice(0, term ? 8 : 10)
+      .map(({ id, label, hint, to }) => ({ id, label, hint, to }))
+
     const people =
       term.length >= 2
         ? customers.map((c) => ({
@@ -72,7 +104,7 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
           }))
         : []
     return [...screens, ...people]
-  }, [query, destinations, customers])
+  }, [query, destinations, customers, courts])
 
   function close() {
     setQuery('')

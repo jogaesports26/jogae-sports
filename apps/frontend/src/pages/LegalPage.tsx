@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { PRIVACY, TERMS } from '../content/legal'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { SITE } from '../lib/site'
@@ -6,10 +6,24 @@ import './LegalPage.css'
 
 export default function LegalPage({ kind }: { kind: 'termos' | 'privacidade' }) {
   const doc = kind === 'termos' ? TERMS : PRIVACY
-  useDocumentTitle(`${doc.title} · Jogaê`)
+  // Dentro da lojinha de uma arena (/:slug/termos) o cabeçalho, as cores e o logo são os dela; fora, é o Jogaê.
+  const { slug } = useParams<{ slug?: string }>()
+  const embedded = Boolean(slug)
+  const base = slug ? `/${slug}` : ''
+  useDocumentTitle(embedded ? doc.title : `${doc.title} · Jogaê`)
 
   return (
-    <div className="legal">
+    <div className={`legal${embedded ? ' legal--embedded' : ''}`}>
+      {embedded ? (
+        <nav className="legal__tabs" aria-label="Documentos">
+          <Link to={`${base}/termos`} aria-current={kind === 'termos' ? 'page' : undefined}>
+            Termos de uso
+          </Link>
+          <Link to={`${base}/privacidade`} aria-current={kind === 'privacidade' ? 'page' : undefined}>
+            Privacidade
+          </Link>
+        </nav>
+      ) : (
       <header className="legal__nav">
         <Link to="/" className="legal__logo">
           Jogaê
@@ -23,6 +37,7 @@ export default function LegalPage({ kind }: { kind: 'termos' | 'privacidade' }) 
           </Link>
         </nav>
       </header>
+      )}
 
       <main className="legal__content">
         <h1>{doc.title}</h1>
@@ -37,6 +52,20 @@ export default function LegalPage({ kind }: { kind: 'termos' | 'privacidade' }) 
             ))}
           </section>
         ))}
+
+        <section className="legal__operator" aria-label="Responsável pela plataforma">
+          <h2>Quem opera a plataforma</h2>
+          <p>
+            As reservas deste site são feitas pela plataforma <strong>{SITE.name}</strong>.
+            {SITE.contactEmail && (
+              <>
+                {' '}
+                Contato: <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+              </>
+            )}
+            {SITE.cnpj && <> CNPJ {SITE.cnpj}.</>}
+          </p>
+        </section>
       </main>
     </div>
   )

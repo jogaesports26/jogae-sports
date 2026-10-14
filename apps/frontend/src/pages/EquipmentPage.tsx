@@ -5,7 +5,7 @@ import { SessionExpiredError } from '../lib/api'
 import CourtScopePicker from '../components/panel/CourtScopePicker'
 import { fetchCourts } from '../lib/courts'
 import type { Court } from '../lib/courts'
-import { createEquipment, fetchEquipment, removeEquipment, updateEquipment } from '../lib/equipment'
+import { createEquipment, fetchEquipment, updateEquipment } from '../lib/equipment'
 import type { Equipment } from '../lib/equipment'
 import './EquipmentPage.css'
 
@@ -122,18 +122,8 @@ export default function EquipmentPage() {
     }
   }
 
-  async function handleRemove(id: string) {
-    try {
-      await removeEquipment(id)
-      setEquipment((prev) => (prev ? prev.filter((e) => e.id !== id) : prev))
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-      }
-    }
-  }
-
   const active = (equipment ?? []).filter((e) => e.active)
+  const inactive = (equipment ?? []).filter((e) => !e.active)
 
   return (
     <div className="equipment-page">
@@ -269,20 +259,28 @@ export default function EquipmentPage() {
                         <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(item)}>
                           Desativar
                         </button>
-                        <button
-                          type="button"
-                          className="equipment-page__remove"
-                          onClick={() => handleRemove(item.id)}
-                          aria-label="Remover equipamento"
-                        >
-                          ×
-                        </button>
                       </div>
                     </>
                   )}
                 </div>
               ))}
             </div>
+          )}
+
+          {inactive.length > 0 && (
+            <details className="equipment-page__inactive">
+              <summary>Desativados ({inactive.length})</summary>
+              <ul>
+                {inactive.map((item) => (
+                  <li key={item.id}>
+                    <span>{item.name}</span>
+                    <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(item)}>
+                      Reativar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
         </div>
       )}

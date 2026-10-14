@@ -21,7 +21,9 @@ function readLastSlug() {
 export default function PortalLayout() {
   const player = getPlayerUser()
   const { slug } = useParams<{ slug?: string }>()
-  const isCourtPage = Boolean(useMatch('/:slug/:courtId'))
+  const courtMatch = useMatch('/:slug/:courtId')
+  // /:slug/termos e /:slug/privacidade usam o mesmo formato de endereço, mas não são a tela de uma quadra.
+  const isCourtPage = Boolean(courtMatch) && !['termos', 'privacidade'].includes(courtMatch?.params.courtId ?? '')
   const [chatOpen, setChatOpen] = useState(false)
 
   useEffect(() => {
@@ -120,9 +122,24 @@ export default function PortalLayout() {
         <Outlet context={{ basePath: slug ? `/${slug}` : '' }} />
       </main>
 
-      <PoweredBy className="portal__powered" />
+      <footer className="portal__footer">
+        {homeSlug && (
+          <nav className="portal__legal-links" aria-label="Termos e privacidade">
+            <Link to={`/${homeSlug}/termos`}>Termos de uso</Link>
+            <Link to={`/${homeSlug}/privacidade`}>Privacidade</Link>
+          </nav>
+        )}
+        <PoweredBy className="portal__powered" />
+      </footer>
 
-      <ChatWidget open={chatOpen} onOpenChange={setChatOpen} tabbed={showTabs} hideToggleOnMobile={!showTabs} />
+      <ChatWidget
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+        tabbed={showTabs}
+        hideToggleOnMobile={!showTabs}
+        assistantName={storeName}
+        logoUrl={theme?.logoUrl ?? null}
+      />
 
       {showTabs && (
         <PortalTabBar

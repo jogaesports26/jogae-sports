@@ -153,3 +153,37 @@
     position: static;
   }
 }
+
+.staff-page__inactive {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.staff-page__inactive summary {
+  cursor: pointer;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.staff-page__inactive ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staff-page__inactive li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: var(--border-subtle);
+}

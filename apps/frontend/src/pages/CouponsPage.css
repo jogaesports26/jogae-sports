@@ -137,20 +137,6 @@
 }
 
 .coupons-page__remove {
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: none;
-  background: var(--color-border);
-  color: var(--color-dark);
-  font-size: 15px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.coupons-page__remove:hover:not(:disabled) {
-  background: var(--color-negative-bg);
   color: var(--color-negative-text);
 }
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { getPlayerUser, requestOtp, savePlayerSession, updatePlayerName, verifyOtp } from '../../lib/player'
 import type { PlayerUser } from '../../lib/player'
-import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits } from '../../lib/phone'
+import { FORMATTED_PHONE_MIN_LENGTH, formatPhone, phoneDigits, PHONE_EXAMPLE } from '../../lib/phone'
 import './BookingFlowModal.css'
 
 interface PlayerLoginFormProps {
@@ -89,7 +89,7 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
               autoComplete="tel"
               value={formatPhone(phone)}
               onChange={(event) => setPhone(phoneDigits(event.target.value))}
-              placeholder="(85) 99999-9999"
+              placeholder={PHONE_EXAMPLE}
               required
               minLength={FORMATTED_PHONE_MIN_LENGTH}
             />
@@ -103,7 +103,10 @@ export default function PlayerLoginForm({ hint, submitLabel, onSuccess }: Player
       {step === 'code' && (
         <form className="booking-modal__form" onSubmit={handleVerifyOtp}>
           <p className="booking-modal__hint">
-            Digite o código enviado pro seu telefone.
+            Digite o código de 6 dígitos que enviamos para <strong>{formatPhone(phone)}</strong>.{' '}
+            <button type="button" className="booking-modal__link" onClick={() => { setCode(''); setError(''); setStep('form') }}>
+              Corrigir número
+            </button>
             {devCode && (
               <>
                 {' '}

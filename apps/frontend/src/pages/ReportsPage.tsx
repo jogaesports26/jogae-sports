@@ -313,6 +313,10 @@ export default function ReportsPage() {
             </div>
           </div>
 
+          <p className="reports-page__note">
+            Faturamento = soma do valor das reservas não canceladas no período (inclui faltas e dias futuros do período). O Jogaê ainda não registra pagamentos, por isso não há forma de pagamento nem valor a receber.
+          </p>
+
           <section className="card reports-page__chart-card" aria-labelledby="chart-daily">
             <div className="reports-page__chart-head">
               <h2 id="chart-daily">Faturamento por dia</h2>
@@ -326,44 +330,26 @@ export default function ReportsPage() {
                 label={`Faturamento por dia, de ${formatDayLabel(from)} a ${formatDayLabel(to)}`}
               />
             ) : (
-              <p className="reports-page__empty">Sem faturamento nesse período. Reservas futuras só contam depois de concluídas.</p>
+              <p className="reports-page__empty">Sem faturamento nesse período. "Este mês" vai só até hoje: reservas de dias que ainda não chegaram aparecem quando você escolhe um período que as inclua.</p>
             )}
           </section>
 
-          <div className="reports-page__grid">
-            <section className="card reports-page__courts" aria-labelledby="chart-rank">
-              <h2 id="chart-rank">Quadras por faturamento</h2>
-              {report.courts.length === 0 ? (
-                <p className="reports-page__empty">Nenhuma quadra cadastrada ainda.</p>
-              ) : (
-                <RankBars
-                  items={report.courts.map((court) => ({
-                    id: court.courtId,
-                    label: court.courtName,
-                    detail: `${court.reservationsCount} ${court.reservationsCount === 1 ? 'reserva' : 'reservas'}`,
-                    value: court.revenue,
-                  }))}
-                />
-              )}
-            </section>
-
-            <section className="card reports-page__courts" aria-labelledby="chart-compare">
-              <h2 id="chart-compare">Este período e o anterior</h2>
-              {report.courts.length === 0 || !previousReport ? (
-                <p className="reports-page__empty">Sem dados do período anterior para comparar.</p>
-              ) : (
-                <GroupedBarChart
-                  currentLabel="Este período"
-                  previousLabel="Período anterior"
-                  items={report.courts.map((court) => ({
-                    label: court.courtName,
-                    current: court.revenue,
-                    previous: previousByCourt.get(court.courtId)?.revenue ?? 0,
-                  }))}
-                />
-              )}
-            </section>
-          </div>
+          <section className="card reports-page__chart-card" aria-labelledby="chart-compare">
+            <h2 id="chart-compare">Quadras: este período e o anterior</h2>
+            {report.courts.length === 0 || !previousReport ? (
+              <p className="reports-page__empty">Sem dados do período anterior para comparar.</p>
+            ) : (
+              <GroupedBarChart
+                currentLabel="Este período"
+                previousLabel="Período anterior"
+                items={report.courts.map((court) => ({
+                  label: court.courtName,
+                  current: court.revenue,
+                  previous: previousByCourt.get(court.courtId)?.revenue ?? 0,
+                }))}
+              />
+            )}
+          </section>
 
           {report.courts.length > 0 && (
             <section className="card reports-page__table-card" aria-labelledby="table-courts">

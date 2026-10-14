@@ -20,3 +20,6 @@ export function formatPhone(value: string): string {
 
 /** Comprimento mínimo do valor formatado pra um telefone com DDD (10 dígitos). */
 export const FORMATTED_PHONE_MIN_LENGTH = formatPhone('0000000000').length
+
+/** Exemplo neutro de telefone para os campos (DDD de São Paulo; não é de nenhuma arena em particular). */
+export const PHONE_EXAMPLE = '(11) 91234-5678'

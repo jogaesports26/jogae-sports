@@ -453,7 +453,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--brand-text);
-  background: var(--brand-50);
+  background: var(--color-surface);
   border: none;
   border-radius: var(--radius-pill);
   padding: 8px 18px;
@@ -462,7 +462,7 @@
 }
 
 .time-pill__price {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-text-secondary);
 }
@@ -471,8 +471,9 @@
   color: var(--color-positive-text);
 }
 
+/* Horário livre: contorno visível (antes um fundo claro quase sem contraste com a página), sem depender só de cor */
 .time-pill {
-  border: 2px solid transparent;
+  border: 2px solid color-mix(in srgb, var(--brand-text) 70%, transparent);
 }
 
 /* Passar o mouse só contorna; "selecionado" é o preenchido, com ✓ (no toque o hover fica preso, por isso não preenche) */
@@ -502,7 +503,7 @@
   font-weight: 600;
   color: var(--color-text-secondary);
   background: var(--color-background);
-  border: var(--border-subtle);
+  border: 2px dashed var(--color-border);
   border-radius: var(--radius-pill);
   padding: 8px 8px 8px 18px;
   cursor: default;
@@ -510,7 +511,7 @@
 
 .time-pill__notify {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--brand-text);
   background: var(--color-surface);
@@ -888,4 +889,18 @@
   .booking-section--amenities-mobile {
     display: block;
   }
+}
+
+.booking-section__toggle {
+  margin-top: 10px;
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: underline;
+  cursor: pointer;
 }

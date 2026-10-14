@@ -4,6 +4,7 @@ import { createPlayerReservation, getPlayerUser, validatePublicCoupon } from '..
 import type { CouponPreview } from '../../lib/player'
 import { fetchActiveEquipmentForCourt } from '../../lib/equipment'
 import type { Equipment } from '../../lib/equipment'
+import { formatPhone } from '../../lib/phone'
 import { formatMinutes } from '../../lib/weekGrid'
 import { shareOrCopy } from '../../lib/share'
 import type { ShareResult } from '../../lib/share'
@@ -234,6 +235,28 @@ export default function BookingFlowModal({
             </section>
 
             <section className="booking-modal__section">
+              <h3>Seus dados</h3>
+              {step === 'login' ? (
+                <PlayerLoginForm
+                  hint="Digite seu nome e telefone. Vamos enviar um código de 6 dígitos para confirmar que o número é seu."
+                  submitLabel="Confirmar e reservar"
+                  onSuccess={handleConfirm}
+                />
+              ) : (
+                <dl className="booking-modal__rows">
+                  <div className="booking-modal__row">
+                    <dt>Em nome de</dt>
+                    <dd>{existingPlayer?.name || '—'}</dd>
+                  </div>
+                  <div className="booking-modal__row">
+                    <dt>Telefone</dt>
+                    <dd>{existingPlayer?.phone ? formatPhone(existingPlayer.phone) : '—'}</dd>
+                  </div>
+                </dl>
+              )}
+            </section>
+
+            <section className="booking-modal__section">
               <h3>Cupom</h3>
               <div className="booking-modal__coupon">
                 <div className="booking-modal__coupon-row">
@@ -316,13 +339,6 @@ export default function BookingFlowModal({
               </div>
             )}
 
-            {step === 'login' && (
-              <PlayerLoginForm
-                hint="Digite seu nome e telefone pra confirmar a reserva."
-                submitLabel="Confirmar e reservar"
-                onSuccess={handleConfirm}
-              />
-            )}
           </>
         )}
 

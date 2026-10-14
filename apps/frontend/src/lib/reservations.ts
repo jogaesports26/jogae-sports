@@ -183,3 +183,19 @@ export async function fetchTodayReservations(): Promise<TodayReservation[]> {
   }
   return response.json()
 }
+
+export interface CourtWeekSummary {
+  courtId: string
+  /** Reservas não canceladas nos próximos 7 dias. */
+  reservationsCount: number
+  /** Parte dos horários com preço dos próximos 7 dias que está reservada (0 a 1). */
+  occupancyRate: number
+}
+
+export async function fetchCourtsWeekSummary(): Promise<CourtWeekSummary[]> {
+  const response = await authFetch('/reservations/courts-week-summary')
+  if (!response.ok) {
+    throw new Error(await parseApiError(response, 'Não foi possível carregar o resumo da semana'))
+  }
+  return response.json()
+}

@@ -4,7 +4,7 @@ import { usePainelContext } from '../components/panel/PainelLayout'
 import PasswordInput from '../components/PasswordInput'
 import PasswordMeter from '../components/PasswordMeter'
 import { SessionExpiredError } from '../lib/api'
-import { createStaff, fetchStaff, removeStaff, updateStaff } from '../lib/staff'
+import { createStaff, fetchStaff, updateStaff } from '../lib/staff'
 import type { StaffMember, StaffPermission } from '../lib/staff'
 import './StaffPage.css'
 
@@ -72,23 +72,13 @@ export default function StaffPage() {
     }
   }
 
-  async function handleRemove(id: string) {
-    try {
-      await removeStaff(id)
-      setStaff((prev) => (prev ? prev.filter((s) => s.id !== id) : prev))
-    } catch (err) {
-      if (err instanceof SessionExpiredError) {
-        onSessionExpired()
-      }
-    }
-  }
-
   const active = (staff ?? []).filter((s) => s.active)
+  const inactive = (staff ?? []).filter((s) => !s.active)
 
   return (
     <div className="staff-page">
       <p className="staff-page__subtitle">
-        Cadastre e-mail e senha pro funcionário entrar no painel (aba "Sou funcionário" na tela de login). Ele só vê Visão geral e Quadras, com a agenda liberada conforme a permissão.
+        Cadastre e-mail e senha pro funcionário entrar no painel (aba "Sou funcionário" na tela de login). Ele só vê Hoje e Quadras, com a agenda liberada conforme a permissão.
       </p>
 
       {error && <p className="staff-page__error">{error}</p>}
@@ -170,18 +160,28 @@ export default function StaffPage() {
                     <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(member)}>
                       Desativar
                     </button>
-                    <button
-                      type="button"
-                      className="staff-page__remove"
-                      onClick={() => handleRemove(member.id)}
-                      aria-label="Remover funcionário"
-                    >
-                      ×
-                    </button>
                   </div>
                 </div>
               ))}
             </div>
+          )}
+
+          {inactive.length > 0 && (
+            <details className="staff-page__inactive">
+              <summary>Desativados ({inactive.length})</summary>
+              <ul>
+                {inactive.map((member) => (
+                  <li key={member.id}>
+                    <span>
+                      {member.name} <small>{member.email}</small>
+                    </span>
+                    <button type="button" className="btn btn--ghost btn--sm" onClick={() => handleToggleActive(member)}>
+                      Reativar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
         </div>
       )}

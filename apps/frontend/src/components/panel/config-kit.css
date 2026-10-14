@@ -437,6 +437,16 @@
   color: var(--color-text-muted);
 }
 
+.config-nav__group {
+  margin: 14px 0 4px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
 .config-nav a {
   display: block;
   padding: 9px 12px;
@@ -635,6 +645,16 @@
     overflow-x: auto;
     gap: 6px;
     padding-bottom: 4px;
+  }
+
+  /* No celular os grupos viram uma fila só de abas; o título do grupo some */
+  .config-nav > div {
+    display: flex;
+    gap: 6px;
+  }
+
+  .config-nav__group {
+    display: none;
   }
 
   .config-nav__title {

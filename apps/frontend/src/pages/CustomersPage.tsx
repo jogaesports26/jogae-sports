@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import CustomerHistoryModal from '../components/panel/CustomerHistoryModal'
 import { SessionExpiredError } from '../lib/api'
@@ -25,8 +25,9 @@ function isFilter(value: string | null): value is CustomerFilter {
   return FILTERS.some((item) => item.key === value)
 }
 
-function formatLastSeen(days: number | null, hasUpcoming: boolean) {
-  if (days === null) return hasUpcoming ? 'Ainda não jogou' : '—'
+function formatLastSeen(days: number | null, nextAt: string | null) {
+  // Quem só tem reserva futura mostra a data da próxima, em vez de repetir "ainda não jogou" em todas as linhas.
+  if (days === null) return nextAt ? `Próxima: ${new Date(nextAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}` : '—'
   if (days === 0) return 'Hoje'
   if (days === 1) return 'Ontem'
   return `Há ${days} dias`
@@ -176,6 +177,27 @@ export default function CustomersPage() {
       {data !== null && items.length === 0 && (
         <div className="customers-page__empty card">
           <p>Nenhum cliente encontrado {filtering ? 'com esse filtro' : 'ainda'}.</p>
+          {filtering ? (
+            <span>
+              Tente outro nome ou telefone.{' '}
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => {
+                  setFilter('all')
+                  setSearch('')
+                  setPage(1)
+                }}
+              >
+                Limpar filtro e busca
+              </button>
+            </span>
+          ) : (
+            <span>
+              Os clientes aparecem aqui depois da primeira reserva.{' '}
+              <Link to="/painel/configuracoes?aba=lojinha">Veja o link da sua lojinha</Link> para divulgar.
+            </span>
+          )}
         </div>
       )}
 
@@ -219,7 +241,7 @@ export default function CustomersPage() {
                     </td>
                     <td className="customers-page__num">{customer.totalReservations}</td>
                     <td className="customers-page__num">{formatMoney(customer.totalSpent)}</td>
-                    <td>{formatLastSeen(customer.daysSinceLastReservation, customer.upcomingReservations > 0)}</td>
+                    <td>{formatLastSeen(customer.daysSinceLastReservation, customer.nextReservationAt)}</td>
                   </tr>
                 )
               })}

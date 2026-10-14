@@ -4,10 +4,11 @@ import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { createCoupon, fetchCoupons, removeCoupon, updateCoupon } from '../lib/coupons'
 import type { Coupon, CouponDiscountType } from '../lib/coupons'
+import { formatCurrency } from '../lib/money'
 import './CouponsPage.css'
 
 function formatDiscount(coupon: Coupon): string {
-  return coupon.discountType === 'PERCENT' ? `${coupon.discountValue}%` : `R$ ${coupon.discountValue.toFixed(2)}`
+  return coupon.discountType === 'PERCENT' ? `${coupon.discountValue}%` : formatCurrency(coupon.discountValue)
 }
 
 function formatUsage(coupon: Coupon): string {
@@ -295,13 +296,14 @@ export default function CouponsPage() {
                         </button>
                         <button
                           type="button"
-                          className="coupons-page__remove"
-                          onClick={() => handleRemove(coupon.id)}
-                          aria-label="Remover cupom"
+                          className="btn btn--ghost btn--sm coupons-page__remove"
+                          onClick={() => {
+                            if (window.confirm(`Remover o cupom ${coupon.code}? Isso não pode ser desfeito.`)) handleRemove(coupon.id)
+                          }}
                           disabled={coupon.usageCount > 0}
-                          title={coupon.usageCount > 0 ? 'Cupons já usados só podem ser desativados' : 'Remover cupom'}
+                          title={coupon.usageCount > 0 ? 'Cupons já usados só podem ser desativados' : undefined}
                         >
-                          ×
+                          Remover
                         </button>
                       </div>
                     )}
