@@ -12,6 +12,8 @@ import HeartToggle from '../components/HeartToggle'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { CANCELLATION_POLICY } from '../lib/policy'
 import './EstablishmentPage.css'
+import DirectionsButton from '../components/DirectionsButton'
+import { directionsUrl } from '../lib/maps'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
@@ -170,9 +172,7 @@ export default function EstablishmentPage() {
         totalReviews
       : null
   const phoneNumber = establishment.establishmentPhone ? phoneDigits(establishment.establishmentPhone) : ''
-  const mapsUrl = establishment.establishmentAddress
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(establishment.establishmentAddress)}`
-    : null
+  const mapsUrl = directionsUrl(establishment.establishmentAddress)
 
   function clearFilters() {
     setSportFilter(null)
@@ -193,6 +193,7 @@ export default function EstablishmentPage() {
                 {establishment.establishmentAddress}
               </p>
             )}
+            <DirectionsButton address={establishment.establishmentAddress} variant="onBrand" />
           </div>
         </div>
 

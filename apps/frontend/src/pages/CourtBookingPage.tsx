@@ -25,6 +25,7 @@ import { shareOrCopy } from '../lib/share'
 import { showToast } from '../lib/toast'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './CourtBookingPage.css'
+import DirectionsButton from '../components/DirectionsButton'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
@@ -411,6 +412,7 @@ export default function CourtBookingPage() {
             )}
           </div>
           {establishmentName && <p className="booking-hero__establishment">{establishmentName}</p>}
+          <DirectionsButton address={court.owner.establishmentAddress} />
 
           <div className="booking-hero__tags">
             <span className="pill pill--info">{sportLabel(court.sport)}</span>

@@ -35,6 +35,10 @@
   color: color-mix(in srgb, var(--on-brand) 85%, transparent);
 }
 
+.establishment-hero__title .directions-button {
+  margin-top: 12px;
+}
+
 .establishment-hero__address svg {
   width: 16px;
   height: 16px;

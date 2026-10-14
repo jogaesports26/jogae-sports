@@ -100,6 +100,7 @@ export const PRIVACY: LegalDocument = {
       paragraphs: [
         'O estabelecimento em que você reserva recebe seu nome, telefone e dados da reserva, porque precisa deles para atender você.',
         'Usamos provedores para operar o serviço: hospedagem do site e da API, banco de dados e, no assistente virtual, um provedor de inteligência artificial que recebe o texto das mensagens que você digita no chat. Não envie dados sensíveis nesse chat.',
+        'O botão "Como chegar" só abre o Google Maps, em outra aba, quando você clica nele, levando o endereço do estabelecimento. Até o clique, nenhum serviço de mapas é carregado e nenhum dado seu vai para eles; depois do clique, valem os termos e a política de privacidade do Google.',
         'Não vendemos dados pessoais.',
       ],
     },

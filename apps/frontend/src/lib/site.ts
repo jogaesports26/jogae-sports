@@ -15,7 +15,7 @@ export const SITE = {
   whatsapp: ((env.VITE_WHATSAPP as string | undefined) || '').replace(/\D/g, '') || null,
   cnpj: (env.VITE_CNPJ as string | undefined) || null,
   showStats: env.VITE_SHOW_STATS === 'true',
-  legalUpdatedAt: '05/10/2026',
+  legalUpdatedAt: '13/10/2026',
 }
 
 export const whatsappLink = (message = 'Oi! Quero conhecer o Jogaê.') =>

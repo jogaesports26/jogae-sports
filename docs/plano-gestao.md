@@ -81,6 +81,8 @@ Tudo em CSS do projeto e tokens do `DESIGN.md`; nada de cor fixa.
 Ambiente de teste com histórico fictício; screenshots em 375, 768 e 1440 px; auditoria automática (rolagem horizontal, contraste, rótulos, foco do teclado, movimento reduzido); testes do projeto; `DESIGN.md` atualizado; CHANGELOG. Commit, deploy e push só quando o dono pedir.
 
 ## 9. Mapa do estabelecimento (decisões antes de começar)
+> **Decidido pelo dono em 2026-10-13:** só o botão "Como chegar" (abre o Google Maps, sem mapa incorporado, sem latitude/longitude, sem migração). O mapa completo com `mapcn.dev` fica como ideia futura; os pontos abaixo valem só se ele for retomado.
+
 - O `mapcn-rn.dev` é para app de celular (Expo/React Native). Para o site o certo é o **`mapcn.dev`** (React + MapLibre).
 - O mapa precisa das **coordenadas**: o CEP só dá o endereço. Melhor o gestor **posicionar o pino** no Configurar, sem serviço de geocodificação.
 - **Peso:** o MapLibre é grande; carregar só na página da lojinha, sob demanda. Alternativa leve: botão "Como chegar" abrindo o Google Maps.
