@@ -28,6 +28,7 @@ import { showToast } from '../lib/toast'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import './CourtBookingPage.css'
 import DirectionsButton from '../components/DirectionsButton'
+import WeatherCard from '../components/portal/WeatherCard'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
 const surfaceLabel = (value: string) =>
@@ -519,6 +520,8 @@ export default function CourtBookingPage() {
           </div>
         </section>
       )}
+
+      <WeatherCard date={toDateInputValue(selectedDay)} />
 
       <section className="booking-section">
         <h2 className="booking-section__title">Horários · {selectedDayLabel}</h2>

@@ -1,0 +1,12 @@
+.weather-card__now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.weather-card__temp { font-family: var(--font-heading); font-size: 1.75rem; font-weight: 700; color: var(--color-dark); }
+.weather-card__desc { color: var(--color-text-secondary); }
+.weather-card__facts { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; width: 100%; font-size: 0.875rem; color: var(--color-text-secondary); }
+.weather-card__note { margin: 10px 0; padding: 8px 12px; border-radius: 10px; font-size: 0.875rem; }
+.weather-card__note--good { background: var(--color-positive-bg); color: var(--color-positive-text); }
+.weather-card__note--attention { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.weather-card__hours { display: flex; gap: 8px; margin: 0; padding: 0 0 4px; list-style: none; overflow-x: auto; }
+.weather-card__hour { flex: 0 0 auto; display: grid; justify-items: center; gap: 2px; min-width: 52px; padding: 8px 6px; border-radius: 10px; border: var(--border-subtle); background: var(--color-surface); font-size: 0.75rem; color: var(--color-text-secondary); }
+.weather-card__hour strong { font-size: 0.9375rem; color: var(--color-dark); }
+.weather-card__hour--attention { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.weather-card__source { margin: 8px 0 0; font-size: 0.75rem; color: var(--color-text-muted); }
