@@ -4,7 +4,7 @@ Sistema SaaS de gestão para donos de quadras esportivas (agenda, reservas, CRM,
 
 **Sistema no ar:** https://jogae.razielhub.cloud (front em `/`, API em `/api`), hospedado numa VPS própria.
 
-Documentação completa (arquitetura, modelo de dados, funcionalidades): [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md). Checklists de entrega da disciplina: [ENTREGA-01.md](ENTREGA-01.md), [ENTREGA-02.md](ENTREGA-02.md).
+Documentação completa (arquitetura, modelo de dados, funcionalidades): [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md). Gestão de produção (escopo, processo, release, operação, riscos): [docs/gestao/](docs/gestao/README.md). Checklists de entrega da disciplina: [ENTREGA-01.md](ENTREGA-01.md), [ENTREGA-02.md](ENTREGA-02.md).
 
 ## Estrutura
 

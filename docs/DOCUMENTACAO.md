@@ -1,6 +1,7 @@
 # Documentação do Projeto — Jogaê Sports
 
 > Documentação técnica e de produto do Jogaê Sports. Para o documento voltado à 1ª entrega da disciplina, veja [ENTREGA-01.md](../ENTREGA-01.md).
+> **Gestão de produção** (processo, release, operação, riscos): [gestao/README.md](gestao/README.md). Onde este documento divergir (§3 GHCR/tag, §9 branches/PR), vale o pacote de gestão.
 
 ## Sumário
 
