@@ -32,6 +32,7 @@
 | Lojinha pública | Página por slug, tema por estabelecimento (OKLCH, contraste AA), reserva em 2 etapas, avaliações, favoritos, QR code, widget `<iframe>` |
 | IA | Chatbot do portal (API Anthropic) com limite diário por IP e global |
 | Integração | ViaCEP para endereço |
+| Clima (temporário) | Previsão do tempo do dia escolhido na página de reserva (Open-Meteo), para o trabalho de Clima; ver [9](09-clima-temporario.md) |
 | Marketing | Landing page do Jogaê |
 
 ### Fora do escopo [decisão da equipe, DOCUMENTACAO.md §10]

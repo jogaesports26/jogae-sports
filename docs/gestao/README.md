@@ -15,6 +15,7 @@ _Versão 1.0 · 2026-10-17 · Responsável: Raziel Rodrigues · Revisão a cada 
 | 5 | [Operação e continuidade](05-operacao-e-continuidade.md) | Operação, monitoramento, backup, incidentes | Como o sistema é mantido no ar e recuperado? |
 | 6 | [Riscos e pendências](06-riscos-e-pendencias.md) | Riscos, dívida técnica, roadmap | O que pode dar errado e o que falta fazer? |
 | 7 | [Glossário](07-glossario.md) | Comunicação | O que significam os termos? |
+| 9 | [Previsão do tempo (temporário)](09-clima-temporario.md) | Mudanças | O que foi ligado só para o trabalho de Clima e como remover? |
 
 ## Fontes de verdade (para não duplicar)
 
