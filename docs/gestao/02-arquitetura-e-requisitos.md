@@ -32,7 +32,7 @@ flowchart LR
 | D9 | `DESIGN.md` + `tokens.css` são a única fonte de cor | Consistência; `lint` falha com hex fora dos tokens | Valor novo exige justificativa no commit |
 | D10 | Fotos hoje em base64 no banco | Simplicidade inicial | Mover para objeto (R2) antes de escalar |
 
-Decisões novas devem virar um arquivo numerado em `docs/adr/` (modelo: contexto, alternativas, decisão, consequências). [pendente: a pasta ainda não existe; esta tabela é o registro provisório]
+Decisões novas devem virar um arquivo numerado em `docs/adr/` (modelo: contexto, alternativas, decisão, consequências). Já existem [os ADRs 0001 a 0003](../adr/README.md); D1 a D10 acima ainda serão convertidos.
 
 ## 2.3 Requisitos não funcionais e como são verificados
 
