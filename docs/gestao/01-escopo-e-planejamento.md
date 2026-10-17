@@ -35,6 +35,8 @@
 | Clima (temporário) | Previsão do tempo do dia escolhido na página de reserva (Open-Meteo), para o trabalho de Clima; ver [9](09-clima-temporario.md) |
 | Marketing | Landing page do Jogaê |
 
+> **Estado de validação:** o front-end e a aba da lojinha ainda estão em processo de validação. A aparência das telas pode mudar com as atualizações; o fluxo (escolher quadra, dia e horário, confirmar) deve se manter.
+
 ### Fora do escopo [decisão da equipe, DOCUMENTACAO.md §10]
 
 - Reserva recorrente automática tipo "aula fixa".
