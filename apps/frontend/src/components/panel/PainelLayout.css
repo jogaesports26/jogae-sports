@@ -293,8 +293,9 @@
   padding: 28px clamp(20px, 3vw, 44px) 64px;
 }
 
+/* Telas do painel ocupam toda a largura disponível (sem faixa vazia ao lado), em qualquer monitor. */
 .painel__content > * {
-  max-width: 1200px;
+  max-width: none;
 }
 
 .painel__area-tabs {

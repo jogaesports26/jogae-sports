@@ -414,7 +414,6 @@
   grid-template-columns: 210px minmax(0, 1fr);
   gap: 32px;
   align-items: start;
-  max-width: 1200px;
 }
 
 .config-area > * {
@@ -473,7 +472,7 @@
 }
 
 .config-area__content > * {
-  max-width: 880px;
+  max-width: none;
 }
 
 /* Lojinha: campos e prévia lado a lado */
