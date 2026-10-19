@@ -12,6 +12,8 @@ import {
   NO_SHOW_ALERT_THRESHOLD,
 } from '../lib/customers'
 import type { Customer, CustomerFilter, CustomersPage as CustomersPageData, CustomersSummary } from '../lib/customers'
+import { averageTicket, whatsappLink } from '../lib/customerInsights'
+import { formatPhone } from '../lib/phone'
 import './CustomersPage.css'
 
 const FILTERS: { key: CustomerFilter; label: string; count: keyof CustomersSummary }[] = [
@@ -31,6 +33,18 @@ function formatLastSeen(days: number | null, nextAt: string | null) {
   if (days === 0) return 'Hoje'
   if (days === 1) return 'Ontem'
   return `Há ${days} dias`
+}
+
+function formatShortDate(iso: string) {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+}
+
+function formatNext(nextAt: string | null, upcoming: number) {
+  if (!nextAt) return '—'
+  const date = new Date(nextAt)
+  const day = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return upcoming > 1 ? `${day} às ${time} (+${upcoming - 1})` : `${day} às ${time}`
 }
 
 function initials(name: string) {
@@ -158,7 +172,7 @@ export default function CustomersPage() {
           aria-label="Buscar cliente por nome ou telefone"
           value={search}
           onChange={(event) => handleSearch(event.target.value)}
-          placeholder="Buscar por nome ou telefone"
+          placeholder="Buscar nome ou telefone"
         />
 
         <button
@@ -209,8 +223,11 @@ export default function CustomersPage() {
                 <th scope="col">Cliente</th>
                 <th scope="col">Alertas</th>
                 <th scope="col" className="customers-page__num">Reservas</th>
+                <th scope="col" className="customers-page__num">Ticket médio</th>
                 <th scope="col" className="customers-page__num">Gasto total</th>
                 <th scope="col">Última reserva</th>
+                <th scope="col">Próxima</th>
+                <th scope="col"><span className="sr-only">Ações</span></th>
               </tr>
             </thead>
             <tbody>
@@ -220,13 +237,13 @@ export default function CustomersPage() {
                   customer.daysSinceLastReservation !== null &&
                   customer.daysSinceLastReservation >= INACTIVE_THRESHOLD_DAYS
                 return (
-                  <tr key={customer.phone}>
+                  <tr key={customer.phone} className="customers-page__row" onClick={() => setSelected(customer)}>
                     <td>
                       <button type="button" className="customers-page__who" onClick={() => setSelected(customer)}>
                         <span className="customers-page__avatar" aria-hidden="true">{initials(customer.name)}</span>
                         <span className="customers-page__who-text">
                           <strong>{customer.name}</strong>
-                          <small>{customer.phone}</small>
+                          <small>{formatPhone(customer.phone)}</small>
                         </span>
                       </button>
                     </td>
@@ -240,8 +257,33 @@ export default function CustomersPage() {
                       </span>
                     </td>
                     <td className="customers-page__num">{customer.totalReservations}</td>
+                    <td className="customers-page__num">
+                      {formatMoney(averageTicket(customer.totalSpent, customer.totalReservations))}
+                    </td>
                     <td className="customers-page__num">{formatMoney(customer.totalSpent)}</td>
-                    <td>{formatLastSeen(customer.daysSinceLastReservation, customer.nextReservationAt)}</td>
+                    <td>
+                      {customer.daysSinceLastReservation !== null
+                        ? formatLastSeen(customer.daysSinceLastReservation, null)
+                        : '—'}
+                      {customer.lastReservationAt && (
+                        <small className="customers-page__sub">{formatShortDate(customer.lastReservationAt)}</small>
+                      )}
+                    </td>
+                    <td>{formatNext(customer.nextReservationAt, customer.upcomingReservations)}</td>
+                    <td className="customers-page__actions">
+                      {whatsappLink(customer.phone) && (
+                        <a
+                          className="btn btn--outline btn--sm"
+                          href={whatsappLink(customer.phone) ?? undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          aria-label={`Chamar ${customer.name} no WhatsApp`}
+                        >
+                          WhatsApp
+                        </a>
+                      )}
+                    </td>
                   </tr>
                 )
               })}

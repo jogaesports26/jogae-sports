@@ -3,6 +3,8 @@ import { useEscapeToClose } from '../../hooks/useEscapeToClose'
 import { SessionExpiredError } from '../../lib/api'
 import type { Customer, CustomerReservation } from '../../lib/customers'
 import { fetchCustomerHistory, updateCustomerBirthDate } from '../../lib/customers'
+import { averageTicket, customerInsights, whatsappLink } from '../../lib/customerInsights'
+import { formatPhone } from '../../lib/phone'
 import './CustomerHistoryModal.css'
 
 const STATUS_LABELS: Record<CustomerReservation['status'], string> = {
@@ -10,6 +12,10 @@ const STATUS_LABELS: Record<CustomerReservation['status'], string> = {
   CANCELLED: 'Cancelada',
   COMPLETED: 'Concluída',
   NO_SHOW: 'Não compareceu',
+}
+
+function formatMoney(value: number) {
+  return `R$ ${value.toFixed(2).replace('.', ',')}`
 }
 
 function toDateInputValue(iso: string) {
@@ -34,6 +40,7 @@ export default function CustomerHistoryModal({
   const [error, setError] = useState('')
   const [birthDate, setBirthDate] = useState(customer.birthDate ? toDateInputValue(customer.birthDate) : '')
   const [savingBirthDate, setSavingBirthDate] = useState(false)
+  const insights = reservations ? customerInsights(reservations) : null
 
   useEffect(() => {
     fetchCustomerHistory(customer.phone)
@@ -74,21 +81,63 @@ export default function CustomerHistoryModal({
         </button>
 
         <h2>{customer.name}</h2>
-        <p className="customer-modal__phone">{customer.phone}</p>
-
-        <div className="customer-modal__summary">
-          <span>
-            <strong>{customer.totalReservations}</strong> {customer.totalReservations === 1 ? 'reserva' : 'reservas'}
-          </span>
-          <span>
-            <strong>R$ {customer.totalSpent.toFixed(2).replace('.', ',')}</strong> gastos
-          </span>
-          {customer.noShowCount > 0 && (
-            <span className="customer-modal__no-show">
-              <strong>{customer.noShowCount}</strong> {customer.noShowCount === 1 ? 'falta' : 'faltas'}
-            </span>
+        <p className="customer-modal__phone">
+          {formatPhone(customer.phone)}
+          {whatsappLink(customer.phone) && (
+            <a
+              className="btn btn--outline btn--sm customer-modal__whatsapp"
+              href={whatsappLink(customer.phone) ?? undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Chamar no WhatsApp
+            </a>
           )}
-        </div>
+        </p>
+
+        <dl className="customer-modal__stats">
+          <div>
+            <dt>Reservas</dt>
+            <dd>{customer.totalReservations}</dd>
+          </div>
+          <div>
+            <dt>Gasto total</dt>
+            <dd>{formatMoney(customer.totalSpent)}</dd>
+          </div>
+          <div>
+            <dt>Ticket médio</dt>
+            <dd>{formatMoney(averageTicket(customer.totalSpent, customer.totalReservations))}</dd>
+          </div>
+          <div className={customer.noShowCount > 0 ? 'customer-modal__stat--alert' : undefined}>
+            <dt>Faltas</dt>
+            <dd>{customer.noShowCount}</dd>
+          </div>
+          <div>
+            <dt>Cancelamentos</dt>
+            <dd>{insights ? insights.cancelled : '…'}</dd>
+          </div>
+          <div>
+            <dt>Cliente desde</dt>
+            <dd>{insights?.firstAt ? new Date(insights.firstAt).toLocaleDateString('pt-BR') : '—'}</dd>
+          </div>
+          <div>
+            <dt>Quadra favorita</dt>
+            <dd>{insights ? (insights.favoriteCourt ?? '—') : '…'}</dd>
+          </div>
+          <div>
+            <dt>Próxima reserva</dt>
+            <dd>
+              {customer.nextReservationAt
+                ? new Date(customer.nextReservationAt).toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '—'}
+            </dd>
+          </div>
+        </dl>
 
         {customer.playerId ? (
           <div className="customer-modal__birthdate">
@@ -128,7 +177,10 @@ export default function CustomerHistoryModal({
             {reservations.map((reservation) => (
               <div key={reservation.id} className="customer-modal__item">
                 <span className="customer-modal__item-date">
-                  {new Date(reservation.startsAt).toLocaleDateString('pt-BR')}
+                  {new Date(reservation.startsAt).toLocaleDateString('pt-BR')}{' '}
+                  <small>
+                    {new Date(reservation.startsAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </small>
                 </span>
                 <span className="customer-modal__item-court">{reservation.court.name}</span>
                 <span
