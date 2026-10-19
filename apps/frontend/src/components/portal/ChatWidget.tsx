@@ -45,6 +45,8 @@ interface ChatWidgetProps {
   /** Nome da arena: o assistente se apresenta como "Assistente {nome}" e usa a inicial (ou a logo) no avatar. */
   assistantName?: string | null
   logoUrl?: string | null
+  /** Estabelecimento da página: o servidor usa para o assistente responder com os dados reais da arena. */
+  slug?: string | null
 }
 
 /** Avatar do assistente: a logo da arena, ou a inicial do nome quando não há logo. */
@@ -65,6 +67,7 @@ export default function ChatWidget({
   hideToggleOnMobile = false,
   assistantName = null,
   logoUrl = null,
+  slug = null,
 }: ChatWidgetProps) {
   const displayName = assistantName?.trim() || 'Jogaê'
   const initial = displayName.charAt(0).toUpperCase()
@@ -126,7 +129,7 @@ export default function ChatWidget({
     setIsLoading(true)
 
     try {
-      const result = await sendChatMessage(clean, history)
+      const result = await sendChatMessage(clean, history, slug)
       setMessages((list) => [...list, makeMessage('assistant', result.reply)])
     } catch (error) {
       setMessages((list) => [

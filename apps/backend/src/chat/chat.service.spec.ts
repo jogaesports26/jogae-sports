@@ -64,4 +64,52 @@ describe('ChatService', () => {
       delete process.env.OPENAI_MODEL;
     }
   });
+  it('envia à IA os dados reais do estabelecimento da página (slug)', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    process.env.OPENAI_API_KEY = 'sk-test-openai';
+    const originalFetch = global.fetch;
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ choices: [{ message: { content: 'ok' } }] }),
+    });
+    global.fetch = fetchMock;
+    const prisma = {
+      user: {
+        findFirst: jest.fn().mockResolvedValue({
+          establishmentName: 'Arena Teste',
+          establishmentPhone: '85999990000',
+          establishmentAddress: 'Rua A, 10',
+          aboutDescription: null,
+          amenities: ['Vestiário'],
+          courts: [
+            {
+              name: 'Quadra 1',
+              sport: 'BEACH_TENNIS',
+              surfaceType: 'AREIA',
+              hasLighting: true,
+              priceRules: [{ pricePerHour: 80 }, { pricePerHour: 120 }],
+            },
+          ],
+        }),
+      },
+    };
+    try {
+      const service = new ChatService(prisma as never);
+      await service.sendMessage({
+        message: 'Quais quadras?',
+        slug: 'arena-teste',
+      });
+      const call = fetchMock.mock.calls[0] as [string, { body: string }];
+      const system = (
+        JSON.parse(call[1].body) as { messages: { content: string }[] }
+      ).messages[0].content;
+      expect(system).toContain('Arena Teste');
+      expect(system).toContain('Quadra 1');
+      expect(system).toContain('R$ 80.00 a R$ 120.00');
+    } finally {
+      global.fetch = originalFetch;
+      delete process.env.OPENAI_API_KEY;
+    }
+  });
 });

@@ -19,11 +19,15 @@ export class ChatError extends Error {
   }
 }
 
-export async function sendChatMessage(message: string, history: ChatMessage[]): Promise<ChatResponse> {
+export async function sendChatMessage(
+  message: string,
+  history: ChatMessage[],
+  slug?: string | null,
+): Promise<ChatResponse> {
   const response = await fetch(`${API_URL}/chat/message`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, history: trimHistory(history) }),
+    body: JSON.stringify({ message, history: trimHistory(history), slug: slug || undefined }),
   })
   if (!response.ok) {
     throw new ChatError(await parseApiError(response, 'Não foi possível falar com o assistente'), response.status)

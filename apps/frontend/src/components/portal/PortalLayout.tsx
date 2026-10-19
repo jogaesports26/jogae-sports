@@ -139,6 +139,7 @@ export default function PortalLayout() {
         hideToggleOnMobile={!showTabs}
         assistantName={storeName}
         logoUrl={theme?.logoUrl ?? null}
+        slug={homeSlug}
       />
 
       {showTabs && (

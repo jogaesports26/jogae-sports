@@ -5,6 +5,7 @@ import {
   IsIn,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
   ValidateNested,
@@ -24,6 +25,12 @@ export class SendMessageDto {
   @MinLength(1)
   @MaxLength(2000)
   message: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  @Matches(/^[a-z0-9-]+$/)
+  slug?: string;
 
   // Mantém em sincronia com MAX_HISTORY_MESSAGES em chat.service.ts — endpoint
   // é público e sem autenticação, então rejeita payloads grandes já na validação.
