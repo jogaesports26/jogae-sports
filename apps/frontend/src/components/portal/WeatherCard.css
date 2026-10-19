@@ -5,7 +5,8 @@
 .weather-card__note { margin: 10px 0; padding: 8px 12px; border-radius: 10px; font-size: 0.875rem; }
 .weather-card__note--good { background: var(--color-positive-bg); color: var(--color-positive-text); }
 .weather-card__note--attention { background: var(--color-warning-bg); color: var(--color-warning-text); }
-.weather-card__hours { display: flex; gap: 8px; margin: 0; padding: 0 0 4px; list-style: none; overflow-x: auto; }
+.weather-card__hours { display: flex; gap: 8px; margin: 0; padding: 0 0 4px; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.weather-card__hours::-webkit-scrollbar { display: none; }
 .weather-card__hour { flex: 0 0 auto; display: grid; justify-items: center; gap: 2px; min-width: 52px; padding: 8px 6px; border-radius: 10px; border: var(--border-subtle); background: var(--color-surface); font-size: 0.75rem; color: var(--color-text-secondary); }
 .weather-card__hour strong { font-size: 0.9375rem; color: var(--color-dark); }
 .weather-card__hour--attention { background: var(--color-warning-bg); color: var(--color-warning-text); }

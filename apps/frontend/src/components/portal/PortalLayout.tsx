@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Outlet, useMatch, useParams } from 'react-router-dom'
+import { Link, Outlet, useLocation, useMatch, useParams } from 'react-router-dom'
 import { clearPlayerSession, getPlayerUser } from '../../lib/player'
 import { formatPhone } from '../../lib/phone'
 import ChatWidget from './ChatWidget'
@@ -21,6 +21,12 @@ function readLastSlug() {
 export default function PortalLayout() {
   const player = getPlayerUser()
   const { slug } = useParams<{ slug?: string }>()
+  const { pathname } = useLocation()
+
+  // Ao trocar de tela (ex.: da lista para uma quadra) a página abre no topo, não no ponto onde estava a rolagem.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
   const courtMatch = useMatch('/:slug/:courtId')
   // /:slug/termos e /:slug/privacidade usam o mesmo formato de endereço, mas não são a tela de uma quadra.
   const isCourtPage = Boolean(courtMatch) && !['termos', 'privacidade'].includes(courtMatch?.params.courtId ?? '')
