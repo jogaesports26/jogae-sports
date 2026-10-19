@@ -39,11 +39,9 @@ export class PublicEstablishmentController {
     ).toString();
     const etag = `W/"theme-${slug}-${theme.rev}-${variant}"`;
     res.setHeader('ETag', etag);
-    // Cache curto no navegador/CDN; a revalidação por ETag é barata (304).
-    res.setHeader(
-      'Cache-Control',
-      'public, max-age=60, stale-while-revalidate=300',
-    );
+    // Sempre revalida (ETag, resposta 304 barata): quando o dono muda a aparência, a lojinha
+    // mostra a mudança no próximo carregamento, sem ficar minutos com a cor antiga em cache.
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     if (req.headers['if-none-match'] === etag) {
       res.status(304);
       return;
