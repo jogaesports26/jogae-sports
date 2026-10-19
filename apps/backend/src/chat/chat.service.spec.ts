@@ -41,4 +41,27 @@ describe('ChatService', () => {
     ).resolves.toMatchObject({ reply: 'oi' });
     delete process.env.CHAT_DAILY_LIMIT_PER_IP;
   });
+  it('usa a OpenAI quando OPENAI_API_KEY existe, com o modelo configurado', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    process.env.OPENAI_API_KEY = 'sk-test-openai';
+    process.env.OPENAI_MODEL = 'modelo-teste';
+    const originalFetch = global.fetch;
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ choices: [{ message: { content: ' Oi! ' } }] }),
+    });
+    global.fetch = fetchMock;
+    try {
+      const result = await new ChatService().sendMessage({ message: 'Oi' });
+      expect(result).toEqual({ reply: 'Oi!', configured: true });
+      const call = fetchMock.mock.calls[0] as [string, { body: string }];
+      expect(call[0]).toBe('https://api.openai.com/v1/chat/completions');
+      expect(JSON.parse(call[1].body)).toMatchObject({ model: 'modelo-teste' });
+    } finally {
+      global.fetch = originalFetch;
+      delete process.env.OPENAI_API_KEY;
+      delete process.env.OPENAI_MODEL;
+    }
+  });
 });

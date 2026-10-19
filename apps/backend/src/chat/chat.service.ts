@@ -6,6 +6,7 @@ import { AttemptLimiter } from '../common/rate-limit/attempt-limiter';
 // Trocar por 'claude-haiku-4-5' se o custo por mensagem for uma preocupação —
 // é um chatbot de suporte simples, não precisa do modelo mais capaz pra isso.
 const MODEL = 'claude-opus-5';
+const OPENAI_DEFAULT_MODEL = 'gpt-4o-mini-2024-07-18';
 const MAX_HISTORY_MESSAGES = 20;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -42,9 +43,46 @@ export class ChatService {
     this.client = apiKey ? new Anthropic({ apiKey }) : null;
   }
 
+  // OpenAI tem prioridade quando OPENAI_API_KEY existe; sem ela, vale a Anthropic.
+  private get openAiKey(): string | undefined {
+    return process.env.OPENAI_API_KEY || undefined;
+  }
+
+  private async askOpenAi(
+    apiKey: string,
+    history: { role: string; content: string }[],
+    message: string,
+  ): Promise<string> {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL || OPENAI_DEFAULT_MODEL,
+        max_completion_tokens: 1024,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...history.map((m) => ({ role: m.role, content: m.content })),
+          { role: 'user', content: message },
+        ],
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!response.ok) throw new Error(`OpenAI HTTP ${response.status}`);
+    const data = (await response.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    return (
+      data.choices?.[0]?.message?.content?.trim() ||
+      'Desculpa, não consegui gerar uma resposta agora.'
+    );
+  }
+
   async sendMessage(dto: SendMessageDto, ip = 'unknown') {
-    if (!this.client) {
-      // Sem ANTHROPIC_API_KEY configurada ainda (ver card "Integração com IA
+    if (!this.client && !this.openAiKey) {
+      // Sem chave de IA (OPENAI_API_KEY ou ANTHROPIC_API_KEY configurada ainda (ver card "Integração com IA
       // Generativa + Chatbot Inteligente" do Trello) — degrada de forma
       // previsível em vez de dar 500, mesmo padrão do OTP/e-mail em dev.
       return {
@@ -63,13 +101,29 @@ export class ChatService {
 
     const history = (dto.history ?? []).slice(-MAX_HISTORY_MESSAGES);
 
+    const openAiKey = this.openAiKey;
+    if (openAiKey) {
+      try {
+        return {
+          reply: await this.askOpenAi(openAiKey, history, dto.message),
+          configured: true,
+        };
+      } catch (error) {
+        this.logger.error('Erro ao chamar a API da OpenAI', error as Error);
+        return {
+          reply: 'Não consegui responder agora, tenta de novo em instantes.',
+          configured: true,
+        };
+      }
+    }
+
     const messages: Anthropic.MessageParam[] = [
       ...history.map((m) => ({ role: m.role, content: m.content })),
       { role: 'user' as const, content: dto.message },
     ];
 
     try {
-      const response = await this.client.messages.create({
+      const response = await this.client!.messages.create({
         model: MODEL,
         max_tokens: 1024,
         system: SYSTEM_PROMPT,
