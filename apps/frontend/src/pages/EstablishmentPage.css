@@ -198,7 +198,10 @@
   display: flex;
   gap: 14px;
   overflow-x: auto;
+  /* Margem negativa devolve os 2px de folga da sombra: o 1º círculo fica rente à borda das outras seções. */
+  margin: 0 -2px;
   padding: 2px 2px 6px;
+  scroll-padding-left: 2px;
   scrollbar-width: none;
 }
 
@@ -226,7 +229,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-width: 64px;
+  min-width: 56px;
   padding: 0;
   border: none;
   background: none;
