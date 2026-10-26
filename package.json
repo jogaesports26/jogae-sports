@@ -8,5 +8,9 @@
   "scripts": {
     "dev:backend": "npm run start:dev --workspace=apps/backend",
     "dev:frontend": "npm run dev --workspace=apps/frontend"
+  },
+  "overrides": {
+    "multer": "^2.5.0",
+    "deepmerge-ts": "^8.0.2"
   }
 }

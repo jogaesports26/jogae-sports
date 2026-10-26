@@ -6,6 +6,7 @@
  * /:slug/manifest.webmanifest e /:slug/icon.svg e libera o iframe em /:slug/embed.
  * Sem dependências: só Node. Variáveis: PORT (8080), API_INTERNAL_URL (http://jogae-api:3000), DIST_DIR.
  */
+import { createHash } from 'node:crypto'
 import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, normalize, resolve, sep } from 'node:path'
@@ -206,7 +207,33 @@ async function handle(method: string, rawUrl: string, shell: string): Promise<Re
   if (isStoreRoute && embed && parts.length <= 3 && (third === undefined || COURT_ID.test(third))) {
     reply.headers['content-security-policy'] = 'frame-ancestors *;'
   }
+  if (typeof reply.body === 'string' && reply.headers['content-type']?.startsWith('text/html')) {
+    const embedded = reply.headers['content-security-policy'] !== undefined
+    reply.headers['content-security-policy'] = contentSecurityPolicy(reply.body, embedded ? '*' : "'self'")
+  }
   return reply
+}
+
+/**
+ * Content-Security-Policy das páginas HTML. Os <script> inline (modo escuro e tema) são liberados
+ * por hash calculado sobre o HTML já reescrito; qualquer outro script injetado é bloqueado.
+ */
+function contentSecurityPolicy(html: string, frameAncestors: string): string {
+  const hashes = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(
+    (m) => `'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`,
+  )
+  return [
+    "default-src 'self'",
+    `script-src 'self' ${hashes.join(' ')}`.trim(),
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self' https://api.qrserver.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    `frame-ancestors ${frameAncestors}`,
+  ].join('; ')
 }
 
 const shell = await readFile(join(DIST, 'index.html'), 'utf8')

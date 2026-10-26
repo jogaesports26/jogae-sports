@@ -84,6 +84,17 @@ describe('server do frontend', () => {
     assert.match(html, /https:\/\/img\.test\/q1\.jpg/)
   })
 
+  it('envia CSP com hash dos scripts inline e sem unsafe-eval', async () => {
+    const response = await fetch(`${base}/arena`)
+    const html = await response.text()
+    const csp = response.headers.get('content-security-policy') ?? ''
+    assert.match(csp, /script-src 'self' 'sha256-/)
+    assert.match(csp, /frame-ancestors 'self'/)
+    assert.match(csp, /object-src 'none'/)
+    assert.doesNotMatch(csp, /unsafe-eval/)
+    assert.ok(html.includes('__JOGAE_THEME__'))
+  })
+
   it('slug inexistente responde 404 com o shell do SPA', async () => {
     const response = await fetch(`${base}/naoexiste`)
     assert.equal(response.status, 404)
@@ -99,10 +110,10 @@ describe('server do frontend', () => {
   })
 
   it('libera o iframe só em /:slug/embed', async () => {
-    const embed = await fetch(`${base}/arena/embed`)
-    assert.equal(embed.headers.get('content-security-policy'), 'frame-ancestors *;')
-    assert.equal((await fetch(`${base}/arena/embed/quadra1`)).headers.get('content-security-policy'), 'frame-ancestors *;')
-    assert.equal((await fetch(`${base}/arena`)).headers.get('content-security-policy'), null)
+    const csp = async (path: string) => (await fetch(`${base}${path}`)).headers.get('content-security-policy') ?? ''
+    assert.match(await csp('/arena/embed'), /frame-ancestors \*$/)
+    assert.match(await csp('/arena/embed/quadra1'), /frame-ancestors \*$/)
+    assert.match(await csp('/arena'), /frame-ancestors 'self'$/)
   })
 
   it('rotas reservadas e desconhecidas caem no shell sem consultar a API', async () => {
