@@ -34,6 +34,7 @@ describe('CepService', () => {
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://viacep.com.br/ws/60000000/json/',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(result.cidade).toBe('Fortaleza');
   });

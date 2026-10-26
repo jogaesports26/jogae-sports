@@ -25,7 +25,9 @@ export class CepService {
 
     let response: Response;
     try {
-      response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+        signal: AbortSignal.timeout(5000),
+      });
     } catch {
       throw new ServiceUnavailableException(
         'Não foi possível consultar o CEP agora, tente de novo',

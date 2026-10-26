@@ -1,8 +1,12 @@
+// Células que começam com estes caracteres viram fórmula no Excel/Sheets; o apóstrofo as neutraliza.
+const FORMULA_START = /^[=+\-@\t\r]/;
+
 export function csvEscape(value: string): string {
-  if (/[",\n;]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  const safe = FORMULA_START.test(value) ? `'${value}` : value;
+  if (/[",\n;]/.test(safe)) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return value;
+  return safe;
 }
 
 export function toCsv(header: string[], rows: string[][]): string {

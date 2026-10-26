@@ -62,7 +62,7 @@ function courtPhotoUrls(sport: string, surfaceType: string): [string, string] {
 }
 
 async function hash(plain: string): Promise<string> {
-  return bcrypt.hash(plain, 10);
+  return bcrypt.hash(plain, 12);
 }
 
 interface PlayerSeed {

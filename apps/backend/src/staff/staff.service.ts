@@ -8,6 +8,7 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
+import { BCRYPT_ROUNDS } from '../common/bcrypt';
 
 @Injectable()
 export class StaffService {
@@ -30,7 +31,7 @@ export class StaffService {
   }
 
   async create(ownerId: string, dto: CreateStaffDto) {
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
 
     try {
       const staff = await this.prisma.staffMember.create({
@@ -64,7 +65,7 @@ export class StaffService {
         permission: dto.permission,
         active: dto.active,
         password: dto.password
-          ? await bcrypt.hash(dto.password, 10)
+          ? await bcrypt.hash(dto.password, BCRYPT_ROUNDS)
           : undefined,
       },
     });

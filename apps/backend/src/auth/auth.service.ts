@@ -13,6 +13,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { RESERVED_SLUGS } from '../common/reserved-slugs';
+import { BCRYPT_ROUNDS } from '../common/bcrypt';
 import {
   buildStoredTheme,
   resolveTheme,
@@ -40,7 +41,7 @@ export class AuthService {
       throw new ConflictException('Já existe uma conta com esse e-mail');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
 
     const user = await this.prisma.user.create({
       data: {
@@ -209,7 +210,7 @@ export class AuthService {
       throw new BadRequestException('Link inválido ou expirado');
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
     await this.prisma.$transaction([
       this.prisma.user.update({
