@@ -5,179 +5,152 @@
 .court-list__toolbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-bottom: 24px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 16px;
 }
 
+.court-list__count {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.court-list__toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--brand-text);
+  cursor: pointer;
+}
+
+.court-list__toggle:hover {
+  text-decoration: underline;
+}
+
+/* Um botão lima por tela: nova quadra */
 .court-list__new-button {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--brand-action);
+  color: var(--on-action);
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
-  color: var(--color-dark-navy);
-  background: var(--color-accent-green);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 10px 20px;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: var(--shadow-soft-sm);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: filter 0.15s ease;
 }
 
 .court-list__new-button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
+  filter: brightness(0.95);
 }
 
 .court-list__empty {
+  padding: 56px 20px;
   text-align: center;
-  padding: 60px 20px;
   background: var(--color-surface);
-  border: none;
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
 }
 
 .court-list__empty p {
+  margin: 0 0 16px;
   font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.65;
-  margin-bottom: 20px;
+  color: var(--color-text-secondary);
 }
 
 .court-list__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
+/* Cartão plano: um degrau acima do painel, sem sombra e sem levantar ao passar o mouse */
 .court-card {
   position: relative;
-  padding: 20px;
-  background: var(--color-surface);
-  border: none;
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
-  font-family: var(--font-body);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
   display: flex;
   flex-direction: column;
-}
-
-.court-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-soft-lg);
+  overflow: hidden;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  font-family: var(--font-body);
 }
 
 .court-card--inactive {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
-.court-card__edit-trigger {
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 20px 20px 0;
-  cursor: pointer;
-  font-family: var(--font-body);
-  width: 100%;
-}
-
-.court-card__agenda-link {
-  display: block;
-  text-align: right;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--brand-text);
-  text-decoration: none;
-  padding: 10px 20px 16px;
-}
-
-.court-card__agenda-link:hover {
-  text-decoration: underline;
-}
-
-.court-card__header {
+.court-card__cover {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  background: var(--color-info-bg);
+}
+
+.court-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .court-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: var(--color-info-bg);
-  flex-shrink: 0;
 }
 
 .court-card__icon svg {
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
+}
+
+.court-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.court-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .court-card__header h3 {
-  font-family: var(--font-heading);
-  font-size: 17px;
-  color: var(--color-dark);
   flex: 1;
   min-width: 0;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-dark);
 }
 
 .court-card__meta {
+  margin: 4px 0 0;
   font-size: 13px;
-  color: var(--color-dark);
-  opacity: 0.7;
-  margin-bottom: 6px;
+  color: var(--color-text-secondary);
 }
 
 .court-card__prices {
-  font-size: 13px;
-  color: var(--brand-text);
+  margin: 12px 0 0;
+  font-size: 15px;
   font-weight: 600;
-}
-
-.court-list__error,
-.court-list__loading {
-  font-family: var(--font-body);
-  color: var(--color-dark);
-  opacity: 0.7;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .court-list__new-button,
-  .court-card {
-    transition: none;
-  }
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-text);
 }
 
 .court-card__hint {
-  font-size: 12px;
+  margin: 12px 0 0;
+  font-size: 13px;
   color: var(--color-warning-text);
-  margin-top: 6px;
-}
-
-/* Card inteiro clicável: o link do nome cobre o card; o botão Editar fica por cima dele */
-.court-card__link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.court-card__link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-card);
-}
-
-.court-card__link:focus-visible::after {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
 }
 
 .court-card__week {
@@ -187,16 +160,13 @@
 }
 
 .court-card__week p {
-  margin: 0 0 6px;
-}
-
-.court-card__week strong {
-  color: var(--color-dark);
+  margin: 6px 0 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .court-card__bar {
   display: block;
-  height: 6px;
+  height: 4px;
   border-radius: var(--radius-pill);
   background: var(--color-surface-raised);
   overflow: hidden;
@@ -209,35 +179,68 @@
   background: var(--brand-primary);
 }
 
+/* Card inteiro clicável: o link do nome cobre o card; os botões do rodapé ficam por cima dele */
+.court-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.court-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.court-card__link:focus-visible::after {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-card);
+}
+
 .court-card__footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 14px;
+  gap: 4px;
+  margin: auto -8px -8px;
+  padding-top: 12px;
 }
 
-.court-card__agenda-hint {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--brand-text);
-}
-
-.court-card__edit {
+.court-card__action {
   position: relative;
   z-index: 1;
-  min-height: 32px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border);
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
   border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-dark);
+  background: transparent;
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
   cursor: pointer;
 }
 
-.court-card__edit:hover {
-  border-color: var(--brand-primary);
+.court-card__action:hover {
+  background: var(--color-info-bg);
+}
+
+.court-list__error,
+.court-list__loading {
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .court-list__new-button {
+    transition: none;
+  }
+}
+
+/* Celular: capa mais baixa para caberem mais quadras na tela */
+@media (max-width: 640px) {
+  .court-card__cover {
+    aspect-ratio: 2 / 1;
+  }
 }

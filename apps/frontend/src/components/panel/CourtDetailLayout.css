@@ -7,21 +7,45 @@
   font-weight: 600;
   color: var(--brand-text);
   text-decoration: none;
-  margin-bottom: 16px;
+}
+
+.court-detail__topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 8px;
+}
+
+.court-detail__switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.court-detail__switch select {
+  min-height: 36px;
+  min-width: 200px;
 }
 
 .court-detail__header h1 {
   font-family: var(--font-heading);
-  font-size: 26px;
+  font-size: 24px;
   color: var(--color-dark);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .court-detail__meta {
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .court-detail__error,

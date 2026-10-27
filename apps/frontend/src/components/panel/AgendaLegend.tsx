@@ -1,34 +1,22 @@
 import { Link } from 'react-router-dom'
+import './DayGrid.css'
 
 interface AgendaLegendProps {
   pricingHref?: string
 }
 
+/** Mesmas amostras da grade do dia: cada uma repete o estilo da célula que representa. */
 export default function AgendaLegend({ pricingHref }: AgendaLegendProps) {
   return (
-    <div className="agenda-page__legend">
-      <span className="agenda-page__legend-item">
-        <span className="agenda-page__legend-swatch agenda-grid__cell--available" />
-        Disponível
-      </span>
-      <span className="agenda-page__legend-item">
-        <span className="agenda-page__legend-swatch agenda-grid__cell--reserved" />
-        Reservado
-      </span>
-      <span className="agenda-page__legend-item">
-        <span className="agenda-page__legend-swatch agenda-grid__cell--blocked" />
-        Bloqueado/manutenção
-      </span>
-      <span className="agenda-page__legend-item">
-        <span className="agenda-page__legend-swatch agenda-grid__cell--off" />
-        Sem preço definido
-        {pricingHref && (
-          <>
-            {' — '}
-            <Link to={pricingHref}>configurar</Link>
-          </>
-        )}
-      </span>
-    </div>
+    <ul className="day-grid__legend agenda-page__legend" aria-label="Legenda">
+      <li><i className="day-grid__swatch day-grid__swatch--reserved" />Reservado</li>
+      <li><i className="day-grid__swatch day-grid__swatch--free" />Livre</li>
+      <li><i className="day-grid__swatch day-grid__swatch--blocked" />Manutenção</li>
+      <li>
+        <i className="day-grid__swatch day-grid__swatch--off" />
+        Sem preço
+        {pricingHref && <Link to={pricingHref}>configurar</Link>}
+      </li>
+    </ul>
   )
 }

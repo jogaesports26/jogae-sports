@@ -115,7 +115,7 @@ export async function createCourt(input: CourtInput): Promise<Court> {
 
 export async function updateCourt(
   id: string,
-  input: Partial<CourtInput & CourtBookingSettingsInput>,
+  input: Partial<CourtInput & CourtBookingSettingsInput & { active: boolean }>,
 ): Promise<Court> {
   const response = await authFetch(`/courts/${id}`, { method: 'PATCH', body: JSON.stringify(input) })
   if (!response.ok) {

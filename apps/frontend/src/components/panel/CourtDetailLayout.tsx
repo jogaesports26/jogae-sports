@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useOutletContext, useParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { usePainelContext } from './PainelLayout'
 import { SessionExpiredError } from '../../lib/api'
-import { fetchCourt, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
+import { fetchCourt, fetchCourts, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
 import type { Court } from '../../lib/courts'
 import './CourtDetailLayout.css'
 
@@ -33,6 +33,9 @@ export default function CourtDetailLayout() {
   const tabs = TABS.filter((tab) => !tab.ownerOnly || user.role !== 'STAFF')
   const [court, setCourt] = useState<Court | null>(null)
   const [error, setError] = useState('')
+  const [allCourts, setAllCourts] = useState<Court[]>([])
+  const navigate = useNavigate()
+  const location = useLocation()
 
   function load() {
     if (!courtId) return
@@ -52,14 +55,40 @@ export default function CourtDetailLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courtId])
 
+  // O seletor de quadra é um extra: se a lista falhar, a tela segue sem ele.
+  useEffect(() => {
+    fetchCourts().then(setAllCourts).catch(() => setAllCourts([]))
+  }, [])
+
+  // Trocar de quadra mantém a aba em que a pessoa está (agenda, preços, fila, manutenção).
+  function switchCourt(id: string) {
+    const tab = location.pathname.split('/').pop() || 'agenda'
+    navigate(`/painel/quadras/${id}/${tab}`)
+  }
+
   if (error) return <p className="court-detail__error">{error}</p>
   if (!court) return <p className="court-detail__loading">Carregando quadra...</p>
 
   return (
     <div className="court-detail">
-      <Link to="/painel/quadras" className="court-detail__back">
-        ← Voltar pras quadras
-      </Link>
+      <div className="court-detail__topline">
+        <Link to="/painel/quadras" className="court-detail__back">
+          ← Quadras
+        </Link>
+        {allCourts.length > 1 && (
+          <label className="court-detail__switch">
+            <span>Trocar de quadra</span>
+            <select className="input" value={court.id} onChange={(event) => switchCourt(event.target.value)}>
+              {allCourts.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                  {item.active ? '' : ' (inativa)'}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
 
       <div className="court-detail__header">
         <h1>{court.name}</h1>

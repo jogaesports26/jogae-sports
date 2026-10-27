@@ -1,7 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
 import { SessionExpiredError } from '../lib/api'
+import { buildLaneItems } from '../lib/dayGridRuns'
 import { fetchAgenda } from '../lib/reservations'
 import type { AgendaResponse, Reservation } from '../lib/reservations'
 import {
@@ -19,6 +21,13 @@ import AgendaLegend from '../components/panel/AgendaLegend'
 import ReservationModal from '../components/panel/ReservationModal'
 import ReservationActionsModal from '../components/panel/ReservationActionsModal'
 import './AgendaPage.css'
+
+const STATUS_LABEL: Record<Reservation['status'], string> = {
+  CONFIRMED: 'confirmada',
+  CANCELLED: 'cancelada',
+  COMPLETED: 'concluída',
+  NO_SHOW: 'não compareceu',
+}
 
 interface SlotSelection {
   dayDate: Date
@@ -43,6 +52,7 @@ export default function AgendaPage() {
     return () => clearInterval(id)
   }, [])
   const latestRequestRef = useRef(0)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
 
   async function load() {
     if (!courtId) return
@@ -70,6 +80,15 @@ export default function AgendaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courtId, weekStart])
 
+  // No celular a grade rola de lado: ao abrir (ou trocar de semana) leva a vista até a coluna de hoje.
+  const hasAgenda = agenda !== null
+  useEffect(() => {
+    const wrap = wrapRef.current
+    if (!wrap) return
+    const today = wrap.querySelector<HTMLElement>('.agenda-grid__day-header--today')
+    wrap.scrollLeft = today && wrap.scrollWidth > wrap.clientWidth ? Math.max(0, today.offsetLeft - 60) : 0
+  }, [hasAgenda, weekStart])
+
   function handleChanged() {
     setSelection(null)
     setActiveReservation(null)
@@ -81,16 +100,54 @@ export default function AgendaPage() {
 
   const rows = buildAgendaGridRows(agenda.priceRules, agenda.recurringMaintenanceBlocks)
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
-  const today = now
+  const todayIndex = days.findIndex((day) => day.toDateString() === now.toDateString())
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  const firstMinute = rows[0].startMinute
+  const lastMinute = rows[rows.length - 1].endMinute
+  const nowFraction =
+    todayIndex >= 0 && nowMinutes >= firstMinute && nowMinutes <= lastMinute
+      ? (nowMinutes - firstMinute) / (lastMinute - firstMinute)
+      : null
+  const isCurrentWeek = todayIndex >= 0
+
+  // Um bloco por reserva ou manutenção (horas seguidas viram uma peça só), igual à grade do dia.
+  const columns = days.map((day) => {
+    const dayOfWeek = day.getDay()
+    const states = rows.map((row) =>
+      getAgendaCellState(
+        dayOfWeek,
+        row,
+        agenda.priceRules,
+        day,
+        agenda.reservations,
+        agenda.maintenanceBlocks,
+        agenda.recurringMaintenanceBlocks,
+      ),
+    )
+    return { day, dayOfWeek, items: buildLaneItems(states) }
+  })
+  const clock = (iso: string) => {
+    const d = new Date(iso)
+    return formatMinutes(d.getHours() * 60 + d.getMinutes())
+  }
+  const rangeLabel = `${days[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} a ${days[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`
 
   return (
     <div className="agenda-page">
-      <p className="agenda-page__subtitle">Clique num horário livre pra criar uma reserva. Horários que já passaram ficam apagados.</p>
-
-      <div className="agenda-page__week-nav">
-        <button onClick={() => setWeekStart((d) => addDays(d, -7))}>← Semana anterior</button>
-        <button onClick={() => setWeekStart(startOfWeek(new Date()))}>Hoje</button>
-        <button onClick={() => setWeekStart((d) => addDays(d, 7))}>Próxima semana →</button>
+      <div className="agenda-page__toolbar">
+        <div className="agenda-page__week-nav">
+          <button type="button" onClick={() => setWeekStart((d) => addDays(d, -7))} aria-label="Semana anterior">
+            ‹
+          </button>
+          <button type="button" onClick={() => setWeekStart(startOfWeek(new Date()))} disabled={isCurrentWeek}>
+            Esta semana
+          </button>
+          <button type="button" onClick={() => setWeekStart((d) => addDays(d, 7))} aria-label="Próxima semana">
+            ›
+          </button>
+          <strong className="agenda-page__range">{rangeLabel}</strong>
+        </div>
+        <AgendaLegend pricingHref={`/painel/quadras/${courtId}/precos`} />
       </div>
 
       {agenda.priceRules.length === 0 && (
@@ -102,15 +159,19 @@ export default function AgendaPage() {
         </div>
       )}
 
-      <AgendaLegend pricingHref={`/painel/quadras/${courtId}/precos`} />
-      <div className="agenda-grid__wrap">
-        <div className="agenda-grid" style={{ gridTemplateColumns: `88px repeat(7, 1fr)` }}>
-          <div className="agenda-grid__corner" />
-          {days.map((day) => {
-            const isToday = day.toDateString() === today.toDateString()
+      <div className="agenda-grid__wrap" ref={wrapRef}>
+        <div
+          className="agenda-grid"
+          role="group"
+          aria-label="Agenda da semana"
+          style={{ '--rows': rows.length } as CSSProperties}
+        >
+          {days.map((day, index) => {
+            const isToday = index === todayIndex
             return (
               <div
                 className={`agenda-grid__day-header${isToday ? ' agenda-grid__day-header--today' : ''}`}
+                style={{ gridColumn: index + 2, gridRow: 1 }}
                 key={day.toISOString()}
               >
                 <span>{WEEKDAY_SHORT[day.getDay()]}</span>
@@ -119,63 +180,84 @@ export default function AgendaPage() {
             )
           })}
 
-          {rows.map((row) => (
-            <Fragment key={row.startMinute}>
-              <div className="agenda-grid__time">{formatMinutes(row.startMinute)}</div>
-              {days.map((day) => {
-                const dayOfWeek = day.getDay()
-                const cellKey = `${row.startMinute}-${dayOfWeek}`
-                const state = getAgendaCellState(
-                  dayOfWeek,
-                  row,
-                  agenda.priceRules,
-                  day,
-                  agenda.reservations,
-                  agenda.maintenanceBlocks,
-                  agenda.recurringMaintenanceBlocks,
-                )
+          {rows.map((row, index) => (
+            <div
+              className={`agenda-grid__time${todayIndex >= 0 && nowMinutes >= row.startMinute && nowMinutes < row.endMinute ? ' is-now' : ''}`}
+              style={{ gridColumn: 1, gridRow: index + 2 }}
+              key={row.startMinute}
+            >
+              {formatMinutes(row.startMinute)}
+            </div>
+          ))}
 
-                if (state.kind === 'reserved') {
-                  return (
-                    <button
-                      className="agenda-grid__cell agenda-grid__cell--reserved"
-                      key={cellKey}
-                      onClick={() => setActiveReservation(state.reservation)}
-                    >
-                      {state.isLabelRow ? state.reservation.guestName || 'Reservado' : ''}
-                    </button>
-                  )
-                }
+          {columns.map(({ day, dayOfWeek, items }, dayIndex) =>
+            items.map((item) => {
+              const placement = { gridColumn: dayIndex + 2, gridRow: `${item.start + 2} / span ${item.span}` }
+              const key = `${dayIndex}-${item.start}-${item.kind}`
 
-                if (state.kind === 'blocked') {
-                  return (
-                    <div className="agenda-grid__cell agenda-grid__cell--blocked" key={cellKey}>
-                      Manutenção
-                    </div>
-                  )
-                }
-
-                if (state.kind === 'available' && isSlotInPast(day, row.startMinute, now)) {
-                  // Horário livre que já começou: sem botão. Reservas e bloqueios antigos continuam abrindo normalmente (ramos acima).
-                  return <div className="agenda-grid__cell agenda-grid__cell--past" key={cellKey} aria-hidden="true" />
-                }
-
-                if (state.kind === 'noPrice') {
-                  return <div className="agenda-grid__cell agenda-grid__cell--off" key={cellKey} />
-                }
-
+              if (item.kind === 'reserved') {
+                const { reservation } = item
+                const name = reservation.guestName || 'Reservado'
+                const range = `${clock(reservation.startsAt)}–${clock(reservation.endsAt)}`
                 return (
                   <button
-                    className="agenda-grid__cell agenda-grid__cell--available"
-                    key={cellKey}
-                    onClick={() => setSelection({ dayDate: day, dayOfWeek, startMinute: row.startMinute })}
+                    type="button"
+                    key={key}
+                    className={`agenda-grid__block agenda-grid__block--${reservation.status.toLowerCase()}`}
+                    style={placement}
+                    onClick={() => setActiveReservation(reservation)}
+                    aria-label={`${name}, ${range}, ${STATUS_LABEL[reservation.status]}`}
                   >
-                    +
+                    <strong>
+                      {reservation.status === 'COMPLETED' && <span aria-hidden="true">✓ </span>}
+                      {reservation.status === 'NO_SHOW' && <span aria-hidden="true">✕ </span>}
+                      {name}
+                    </strong>
+                    <span>{range}</span>
                   </button>
                 )
-              })}
-            </Fragment>
-          ))}
+              }
+
+              if (item.kind === 'blocked') {
+                return (
+                  <div className="agenda-grid__block agenda-grid__block--blocked" style={placement} key={key}>
+                    Manutenção
+                  </div>
+                )
+              }
+
+              if (item.kind === 'noPrice') {
+                return <div className="agenda-grid__cell agenda-grid__cell--off" style={placement} key={key} aria-hidden="true" />
+              }
+
+              const startMinute = rows[item.start].startMinute
+              if (isSlotInPast(day, startMinute, now)) {
+                // Horário livre que já começou: sem botão. Reservas e bloqueios antigos continuam abrindo normalmente.
+                return <div className="agenda-grid__cell agenda-grid__cell--past" style={placement} key={key} aria-hidden="true" />
+              }
+
+              return (
+                <button
+                  type="button"
+                  className="agenda-grid__cell agenda-grid__cell--available"
+                  style={placement}
+                  key={key}
+                  onClick={() => setSelection({ dayDate: day, dayOfWeek, startMinute })}
+                  aria-label={`Reservar ${WEEKDAY_SHORT[dayOfWeek]} ${day.getDate()} às ${formatMinutes(startMinute)}`}
+                >
+                  +
+                </button>
+              )
+            }),
+          )}
+
+          {nowFraction !== null && (
+            <div className="agenda-grid__now-track" style={{ gridColumn: todayIndex + 2, gridRow: '2 / -1' }} aria-hidden="true">
+              <span className="agenda-grid__now" style={{ top: `${nowFraction * 100}%` }}>
+                {formatMinutes(nowMinutes)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
