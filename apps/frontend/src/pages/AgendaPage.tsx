@@ -86,6 +86,7 @@ export default function AgendaPage() {
     const wrap = wrapRef.current
     if (!wrap) return
     const today = wrap.querySelector<HTMLElement>('.agenda-grid__day-header--today')
+    wrap.scrollTop = 0
     wrap.scrollLeft = today && wrap.scrollWidth > wrap.clientWidth ? Math.max(0, today.offsetLeft - 60) : 0
   }, [hasAgenda, weekStart])
 
@@ -166,6 +167,7 @@ export default function AgendaPage() {
           aria-label="Agenda da semana"
           style={{ '--rows': rows.length } as CSSProperties}
         >
+          <div className="agenda-grid__corner" aria-hidden="true" />
           {days.map((day, index) => {
             const isToday = index === todayIndex
             return (

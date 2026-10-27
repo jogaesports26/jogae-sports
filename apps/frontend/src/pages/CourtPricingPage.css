@@ -7,7 +7,8 @@
 
 .court-pricing-page__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr));
+  /* No máximo 2 colunas: com 3 os campos dos bloqueios ficavam espremidos e cortados */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(520px, calc((100% - 20px) / 2))), 1fr));
   gap: 20px;
   align-items: start;
 }
@@ -121,14 +122,30 @@
   color: var(--color-text-secondary);
 }
 
+/* Regras de reserva: título e explicação em linha cheia, os três campos lado a lado e o botão embaixo */
 .court-pricing-page__settings {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: start;
   gap: 12px;
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: var(--border-subtle);
-  flex-wrap: wrap;
+}
+
+.court-pricing-page__settings > .court-pricing-page__section-head,
+.court-pricing-page__settings > .court-pricing-page__hint,
+.court-pricing-page__settings > .court-pricing-page__settings-save {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.court-pricing-page__settings > .court-pricing-page__settings-save {
+  margin-top: 4px;
+}
+
+.court-pricing-page__settings .field--sm span {
+  min-height: 2.6em;
 }
 
 .court-pricing-page__day-group {

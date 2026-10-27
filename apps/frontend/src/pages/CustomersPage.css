@@ -102,6 +102,7 @@
 }
 
 .customers-page__table-wrap {
+  position: relative; /* contém o texto só para leitor de tela, que senão alarga a página */
   background: var(--color-surface);
   border: var(--border-subtle);
   border-radius: var(--radius-md);

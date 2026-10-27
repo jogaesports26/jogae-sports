@@ -463,15 +463,17 @@ export default function CourtPricingPage() {
               ))}
             </select>
           </label>
-          <button
-            type="button"
-            className="btn btn--primary btn--sm"
-            onClick={handleSaveSettings}
-            disabled={settingsStatus.state === 'saving' || !settingsDirty}
-          >
-            Salvar regras de reserva
-          </button>
-          <SaveStatus state={settingsStatus.state} message={settingsStatus.message} />
+          <div className="court-pricing-page__save-row court-pricing-page__settings-save">
+            <button
+              type="button"
+              className="btn btn--primary btn--sm"
+              onClick={handleSaveSettings}
+              disabled={settingsStatus.state === 'saving' || !settingsDirty}
+            >
+              Salvar regras de reserva
+            </button>
+            <SaveStatus state={settingsStatus.state} message={settingsStatus.message} />
+          </div>
         </div>
       </section>
 
