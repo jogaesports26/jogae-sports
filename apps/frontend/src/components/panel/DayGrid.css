@@ -3,7 +3,7 @@
    Reservado = lima (traço do produto); concluída, faltou e manutenção têm borda, e o sentido também vem em texto/símbolo (✓, ✕,
    hachura), nunca só em cor. */
 .day-grid {
-  --label-w: 132px;
+  --label-w: 148px;
   --cell-h: 40px;
 }
 
@@ -49,11 +49,13 @@
 }
 
 .day-grid__label strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: 13px;
   font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
 }
 
 .day-grid__label small {

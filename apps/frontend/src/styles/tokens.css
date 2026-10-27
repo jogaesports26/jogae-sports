@@ -124,12 +124,13 @@
 }
 
 /*
- * Painel do dono ("Jogaê Gestão"): tema escuro azul-navy. Só neutros e semântica mudam; a marca (--brand-*) fica.
+ * Painel do dono ("Jogaê Gestão"): o claro usa os neutros do :root; o escuro (padrão, `data-scheme="dark"` no
+ * .painel, escolha salva em lib/panelTheme.ts) é azul-navy. Só neutros e semântica mudam; a marca (--brand-*) fica.
  * Regras: fundo < card < superfície elevada (cada degrau um pouco mais claro); a lima fica SÓ no botão principal;
  * o item ativo do menu e a seleção são azul (--brand-primary). Contrastes conferidos (AA): texto 14,1:1,
  * secundário 7,4:1, mudo 5,5:1, azul-texto 7,0:1 sobre o card.
  */
-.painel {
+.painel[data-scheme='dark'] {
   color-scheme: dark;
   --color-background: #061626;
   --color-surface: #0c2036;
@@ -157,6 +158,13 @@
   --shadow-soft-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-soft-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Claro: cartões planos como no escuro, só com uma sombra bem leve para separar do fundo */
+.painel[data-scheme='light'] {
+  --shadow-soft-sm: 0 1px 2px rgba(0, 24, 46, 0.06);
+  --shadow-soft: 0 1px 2px rgba(0, 24, 46, 0.06);
+  --shadow-soft-lg: 0 16px 40px rgba(0, 24, 46, 0.14);
 }
 
 /*

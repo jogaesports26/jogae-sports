@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import type { AuthUser } from '../../lib/api'
 import { clearSession } from '../../lib/api'
+import { usePanelScheme } from '../../lib/panelTheme'
 import { fetchTodayReservations } from '../../lib/reservations'
 import './PainelLayout.css'
 import './panel-kit.css'
@@ -187,6 +188,8 @@ export default function PainelLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [todayCount, setTodayCount] = useState<number | null>(null)
   const drawerRef = useRef<HTMLDialogElement | null>(null)
+  const themeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const { scheme, toggle: toggleScheme } = usePanelScheme()
 
   useEffect(() => {
     const raw = localStorage.getItem('jogae_user')
@@ -380,7 +383,7 @@ export default function PainelLayout() {
   )
 
   return (
-    <div className={`painel${collapsed ? ' painel--collapsed' : ''}`}>
+    <div className={`painel${collapsed ? ' painel--collapsed' : ''}`} data-scheme={scheme}>
       <aside className="painel__sidebar">
         <span className="painel__brand">
           Jogaê <small>Gestão</small>
@@ -455,6 +458,25 @@ export default function PainelLayout() {
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" />
             </svg>
+          </button>
+          <button
+            ref={themeButtonRef}
+            type="button"
+            className="painel__icon-button"
+            onClick={() => toggleScheme(themeButtonRef.current)}
+            aria-label={scheme === 'dark' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'}
+            title={scheme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+          >
+            {scheme === 'dark' ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+              </svg>
+            )}
           </button>
         </div>
 

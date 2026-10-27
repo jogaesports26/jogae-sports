@@ -128,12 +128,16 @@
   background: var(--brand-primary);
 }
 
-/* Reservas de hoje + atenção */
+/* Reservas de hoje + atenção (sem a coluna de atenção, as reservas ocupam a largura toda) */
 .overview-page__columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 24px;
   align-items: start;
+}
+
+.overview-page__columns--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .overview-page__error {

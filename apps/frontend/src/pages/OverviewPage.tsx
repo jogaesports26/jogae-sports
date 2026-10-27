@@ -222,7 +222,7 @@ export default function OverviewPage() {
 
       <DayGridCard />
 
-      <div className="overview-page__columns">
+      <div className={`overview-page__columns${birthdaysCount > 0 || inactiveCount > 0 ? '' : ' overview-page__columns--single'}`}>
         <section className="panel-card">
           <div className="panel-card__head">
             <h2>Próximas reservas de hoje</h2>

@@ -18,15 +18,21 @@
   outline-offset: 2px;
 }
 
-.painel input[type='date'],
-.painel input[type='datetime-local'],
-.painel select {
+.painel[data-scheme='dark'] input[type='date'],
+.painel[data-scheme='dark'] input[type='datetime-local'],
+.painel[data-scheme='dark'] select {
   color-scheme: dark;
 }
 
 .painel input[type='date']::-webkit-calendar-picker-indicator,
 .painel input[type='datetime-local']::-webkit-calendar-picker-indicator {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239db0c8' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+}
+
+.painel[data-scheme='light'] input[type='date']::-webkit-calendar-picker-indicator,
+.painel[data-scheme='light'] input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6472' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E")
     center / 16px no-repeat;
 }
 
@@ -314,7 +320,7 @@
   margin-top: 8px;
 }
 
-/* Links sem classe própria usam o azul claro (o azul da marca puro some no fundo escuro) */
+/* Links sem classe própria usam o azul de texto (no escuro, o azul da marca puro some no fundo) */
 .painel a:not([class]) {
   color: var(--brand-text);
 }
