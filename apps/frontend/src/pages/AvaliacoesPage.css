@@ -70,7 +70,8 @@
 .avaliacoes-page__empty {
   text-align: center;
   font-family: var(--font-body);
-  max-width: 420px;
+  max-width: none;
+  padding: 40px 24px;
 }
 
 .avaliacoes-page__empty p {

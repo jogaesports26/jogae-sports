@@ -331,3 +331,16 @@
   height: 18px;
   accent-color: var(--brand-primary);
 }
+
+/* Faixas que rolam de lado no celular (abas, menu de Configurar): rolam com o dedo, sem a barra grossa do sistema */
+.painel .tabs,
+.painel .config-nav,
+.painel .segmented {
+  scrollbar-width: none;
+}
+
+.painel .tabs::-webkit-scrollbar,
+.painel .config-nav::-webkit-scrollbar,
+.painel .segmented::-webkit-scrollbar {
+  display: none;
+}
