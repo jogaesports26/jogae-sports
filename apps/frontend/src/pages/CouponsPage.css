@@ -65,12 +65,13 @@
 
 .coupons-page__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 12px;
   align-content: start;
 }
 
 .coupons-page__item {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -114,6 +115,7 @@
 
 .coupons-page__item-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;

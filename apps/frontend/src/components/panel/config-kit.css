@@ -446,7 +446,7 @@
   color: var(--color-text-muted);
 }
 
-.config-nav a {
+.painel .config-nav a:not([class]) {
   display: block;
   padding: 9px 12px;
   border-radius: 8px;
@@ -456,12 +456,12 @@
   text-decoration: none;
 }
 
-.config-nav a:hover {
+.painel .config-nav a:not([class]):hover {
   background: var(--color-surface);
   color: var(--color-dark);
 }
 
-.config-nav a[aria-current='page'] {
+.painel .config-nav a:not([class])[aria-current='page'] {
   background: var(--color-surface-raised);
   color: var(--color-dark);
   font-weight: 600;
@@ -660,7 +660,7 @@
     display: none;
   }
 
-  .config-nav a {
+  .painel .config-nav a:not([class]) {
     white-space: nowrap;
     border: var(--border-subtle);
   }

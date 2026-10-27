@@ -134,6 +134,7 @@
 }
 
 .court-card__meta {
+  min-height: 2.5em; /* duas linhas reservadas: o preço fica alinhado entre os cartões */
   margin: 4px 0 0;
   font-size: 13px;
   color: var(--color-text-secondary);
