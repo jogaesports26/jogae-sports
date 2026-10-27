@@ -83,13 +83,20 @@
 }
 
 /* Grade da semana: horas em linhas, dias em colunas; reservas e manutenções são uma peça só por período. */
+/* Telas largas: a grade mostra todas as horas e a página rola (sem rolagem dentro da rolagem); o cabeçalho dos dias fica fixo no topo.
+   Telas estreitas: a grade rola de lado e de cima dentro do cartão. */
 .agenda-grid__wrap {
-  overflow: auto;
-  max-height: max(360px, calc(100dvh - 340px));
   background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
   padding: 8px;
+}
+
+@media (max-width: 899px) {
+  .agenda-grid__wrap {
+    overflow: auto;
+    max-height: max(360px, calc(100dvh - 340px));
+  }
 }
 
 .agenda-grid {

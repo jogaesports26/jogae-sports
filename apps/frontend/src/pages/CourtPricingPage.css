@@ -5,12 +5,41 @@
   margin-bottom: 16px;
 }
 
+/* Duas colunas: gerar horários e bloqueios empilhados à esquerda, a lista de preços (a mais alta) à direita.
+   A linha de baixo da esquerda absorve a sobra de altura, então não sobra buraco entre os cartões. */
 .court-pricing-page__grid {
   display: grid;
-  /* No máximo 2 colunas: com 3 os campos dos bloqueios ficavam espremidos e cortados */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(520px, calc((100% - 20px) / 2))), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto 1fr;
   gap: 20px;
   align-items: start;
+}
+
+.court-pricing-page__grid > .court-pricing-page__section:nth-child(1) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.court-pricing-page__grid > .court-pricing-page__section:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.court-pricing-page__grid > .court-pricing-page__section:nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+@media (max-width: 1000px) {
+  .court-pricing-page__grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .court-pricing-page__grid > .court-pricing-page__section:nth-child(n) {
+    grid-column: 1;
+    grid-row: auto;
+  }
 }
 
 .court-pricing-page__section {
