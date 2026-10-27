@@ -344,3 +344,18 @@
 .painel .segmented::-webkit-scrollbar {
   display: none;
 }
+
+/* Padrão único de cartão em todas as telas do painel: superfície, borda fina, raio 16, sem sombra */
+.painel .court-pricing-page__section,
+.painel .court-card,
+.painel .court-list__empty,
+.painel .coupons-page__item,
+.painel .equipment-page__item,
+.painel .instructors-page__item,
+.painel .staff-page__item,
+.painel .reports-page__stat {
+  background: var(--color-surface);
+  border: var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: none;
+}

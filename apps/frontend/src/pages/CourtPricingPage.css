@@ -12,7 +12,22 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: auto 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
+}
+
+/* Cartões da mesma altura por linha; o botão de salvar fica sempre no pé do cartão */
+.court-pricing-page__grid > .court-pricing-page__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.court-pricing-page__grid > .court-pricing-page__section > button {
+  align-self: flex-start;
+}
+
+.court-pricing-page__grid > .court-pricing-page__section > .court-pricing-page__save-row {
+  margin-top: auto;
+  padding-top: 20px;
 }
 
 .court-pricing-page__grid > .court-pricing-page__section:nth-child(1) {
@@ -154,7 +169,7 @@
 /* Regras de reserva: título e explicação em linha cheia, os três campos lado a lado e o botão embaixo */
 .court-pricing-page__settings {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   align-items: start;
   gap: 12px;
   margin-top: 20px;
