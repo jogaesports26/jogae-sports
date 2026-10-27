@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import ChipToggle from '../components/panel/ChipToggle'
 import CopyButton from '../components/panel/CopyButton'
@@ -7,7 +7,6 @@ import PageHeader from '../components/panel/PageHeader'
 import SaveStatus from '../components/panel/SaveStatus'
 import SettingRow from '../components/panel/SettingRow'
 import SetupProgress from '../components/panel/SetupProgress'
-import SimplePricing from '../components/panel/SimplePricing'
 import StorePreview from '../components/panel/StorePreview'
 import ThemeSettings from '../components/panel/ThemeSettings'
 import ImageDropzone from '../components/ImageDropzone'
@@ -24,14 +23,12 @@ import { PHONE_EXAMPLE } from '../lib/phone'
 
 const SHARED_KEY = 'jogae_lojinha_compartilhada'
 
-type Section = 'arena' | 'lojinha' | 'aparencia' | 'precos' | 'metas'
+type Section = 'arena' | 'lojinha' | 'aparencia'
 
 const SECTIONS: Record<Section, { title: string; description: string }> = {
   arena: { title: 'Arena', description: 'Os dados básicos do seu espaço. Aparecem para os clientes na hora de reservar.' },
-  lojinha: { title: 'Lojinha pública', description: 'A página onde seus clientes reservam. Cada mudança é salva na hora.' },
-  aparencia: { title: 'Aparência', description: 'Cores e estilo da sua lojinha.' },
-  precos: { title: 'Preços', description: 'Defina o preço por hora em três campos e aplique em várias quadras de uma vez.' },
-  metas: { title: 'Metas', description: 'Sua meta ajuda a acompanhar o mês na tela Hoje e no Financeiro.' },
+  lojinha: { title: 'Lojinha', description: 'A página onde seus clientes reservam. Cada mudança é salva na hora.' },
+  aparencia: { title: 'Lojinha', description: 'Cores e estilo da sua lojinha.' },
 }
 
 function slugify(value: string) {
@@ -53,7 +50,16 @@ function readShared() {
   }
 }
 
+/** Preços e metas saíram do Configurar: links antigos levam para onde essas telas moram agora. */
 export default function SettingsPage() {
+  const [searchParams] = useSearchParams()
+  const aba = searchParams.get('aba')
+  if (aba === 'precos') return <Navigate to="/painel/quadras?precos=lote" replace />
+  if (aba === 'metas') return <Navigate to="/painel/relatorios?meta=editar" replace />
+  return <SettingsContent />
+}
+
+function SettingsContent() {
   const { onSessionExpired } = usePainelContext()
   const [searchParams] = useSearchParams()
   const requested = searchParams.get('aba')
@@ -120,7 +126,7 @@ export default function SettingsPage() {
 
   const steps = [
     { label: 'Cadastrar uma quadra', done: courts.length > 0, to: '/painel/quadras' },
-    { label: 'Definir os preços', done: courts.some((court) => court.priceRules.length > 0), to: '/painel/configuracoes?aba=precos' },
+    { label: 'Definir os preços', done: courts.some((court) => court.priceRules.length > 0), to: '/painel/quadras?precos=lote' },
     { label: 'Escolher o link da lojinha', done: Boolean(slug), to: '/painel/configuracoes?aba=lojinha' },
     { label: 'Compartilhar a lojinha', done: shared, to: '/painel/configuracoes?aba=lojinha' },
   ]
@@ -167,6 +173,25 @@ export default function SettingsPage() {
     <div className="settings-page">
       <PageHeader title={SECTIONS[section].title} subtitle={SECTIONS[section].description} />
 
+      {(section === 'lojinha' || section === 'aparencia') && (
+        <nav className="segmented" aria-label="Partes da lojinha">
+          <Link
+            to="/painel/configuracoes?aba=lojinha"
+            aria-current={section === 'lojinha' ? 'page' : undefined}
+            className={`segmented__item${section === 'lojinha' ? ' segmented__item--active' : ''}`}
+          >
+            Página
+          </Link>
+          <Link
+            to="/painel/configuracoes?aba=aparencia"
+            aria-current={section === 'aparencia' ? 'page' : undefined}
+            className={`segmented__item${section === 'aparencia' ? ' segmented__item--active' : ''}`}
+          >
+            Aparência
+          </Link>
+        </nav>
+      )}
+
       {section === 'arena' && (
         <>
           <SetupProgress steps={steps} />
@@ -206,7 +231,7 @@ export default function SettingsPage() {
                 <span className="setting-row__hint">Vem dos horários com preço das suas quadras, por isso muda quando você muda os preços.</span>
               </div>
               <div className="setting-row__actions">
-                <Link to="/painel/configuracoes?aba=precos" className="btn btn--outline btn--sm">
+                <Link to="/painel/quadras?precos=lote" className="btn btn--outline btn--sm">
                   Ajustar nos preços
                 </Link>
               </div>
@@ -322,35 +347,6 @@ export default function SettingsPage() {
           fromPrice={fromPrice}
           onSessionExpired={onSessionExpired}
         />
-      )}
-
-      {section === 'precos' &&
-        (activeCourts.length === 0 ? (
-          <div className="panel-card empty-state">
-            <p>Cadastre uma quadra primeiro para definir os preços.</p>
-            <a href="/painel/quadras">Ir para as quadras</a>
-          </div>
-        ) : (
-          <SimplePricing courts={activeCourts} onApplied={load} onSessionExpired={onSessionExpired} />
-        ))}
-
-      {section === 'metas' && (
-        <div className="setting-list">
-          <SettingRow
-            label="Meta de faturamento do mês"
-            prefix="R$"
-            value={profile.monthlyRevenueGoal !== null ? String(profile.monthlyRevenueGoal) : ''}
-            display={profile.monthlyRevenueGoal !== null ? `R$ ${profile.monthlyRevenueGoal.toLocaleString('pt-BR')}` : undefined}
-            inputMode="decimal"
-            placeholder="5000"
-            hint="Usada para mostrar o progresso do mês."
-            validate={(value) => {
-              const parsed = Number(value.replace(',', '.').trim())
-              return Number.isFinite(parsed) && parsed >= 0 && value.trim() !== '' ? null : 'Informe um valor em reais, como 5000.'
-            }}
-            onSave={(value) => save({ monthlyRevenueGoal: Number(value.replace(',', '.').trim()) })}
-          />
-        </div>
       )}
     </div>
   )

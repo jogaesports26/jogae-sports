@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { usePainelContext } from '../components/panel/PainelLayout'
+import SettingRow from '../components/panel/SettingRow'
 import { IconCalendar, IconCourtOccupancy, IconWallet } from '../components/panel/KpiIcons'
 import { SessionExpiredError } from '../lib/api'
 import { fetchCourts } from '../lib/courts'
 import type { Court } from '../lib/courts'
-import { fetchProfile } from '../lib/profile'
+import { fetchProfile, updateProfile } from '../lib/profile'
 import { downloadReportsCsv, fetchCommercialReport, fetchReports } from '../lib/reports'
 import type { CommercialReport, FinancialReport } from '../lib/reports'
 import AreaChart from '../components/panel/charts/AreaChart'
@@ -84,6 +85,9 @@ export default function ReportsPage() {
   const [commercialReport, setCommercialReport] = useState<CommercialReport | null>(null)
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null)
   const [monthRevenue, setMonthRevenue] = useState<number | null>(null)
+  // A meta mora aqui: "Editar meta" (ou o link ?meta=editar, que era a antiga tela Metas do Configurar) abre o campo.
+  const [searchParams] = useSearchParams()
+  const [editingGoal, setEditingGoal] = useState(() => searchParams.get('meta') === 'editar')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [exporting, setExporting] = useState(false)
@@ -194,12 +198,37 @@ export default function ReportsPage() {
             <strong className="reports-page__goal-value">
               {formatCurrency(monthRevenue ?? 0)} <span>de {formatCurrency(monthlyGoal)}</span>
             </strong>
-          ) : (
-            <Link to="/painel/configuracoes?aba=metas" className="reports-page__goal-cta">
-              Definir meta nas configurações
-            </Link>
-          )}
+          ) : null}
+          <button
+            type="button"
+            className="reports-page__goal-cta"
+            onClick={() => setEditingGoal((open) => !open)}
+            aria-expanded={editingGoal}
+          >
+            {monthlyGoal ? 'Editar meta' : 'Definir meta'}
+          </button>
         </div>
+        {editingGoal && (
+          <div className="setting-list reports-page__goal-editor">
+            <SettingRow
+              label="Meta de faturamento do mês"
+              prefix="R$"
+              value={monthlyGoal !== null ? String(monthlyGoal) : ''}
+              display={monthlyGoal !== null ? formatCurrency(monthlyGoal) : undefined}
+              inputMode="decimal"
+              placeholder="5000"
+              hint="Usada para mostrar o progresso do mês aqui e na tela Hoje."
+              validate={(value) => {
+                const parsed = Number(value.replace(',', '.').trim())
+                return Number.isFinite(parsed) && parsed >= 0 && value.trim() !== '' ? null : 'Informe um valor em reais, como 5000.'
+              }}
+              onSave={async (value) => {
+                const saved = await updateProfile({ monthlyRevenueGoal: Number(value.replace(',', '.').trim()) })
+                setMonthlyGoal(saved.monthlyRevenueGoal)
+              }}
+            />
+          </div>
+        )}
         {goalProgress !== null && (
           <div className="reports-page__goal-bar">
             <div

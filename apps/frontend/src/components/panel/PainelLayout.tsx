@@ -111,8 +111,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: 'Dia a dia',
     items: [
       { to: '/painel', label: 'Hoje', Icon: IconOverview, end: true, ownerOnly: false },
-      { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, also: ['/painel/agenda-semanal'], ownerOnly: false },
-      { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, also: ['/painel/avaliacoes'], ownerOnly: true },
+      { to: '/painel/quadras', label: 'Quadras', Icon: IconCourts, also: ['/painel/agenda-semanal', '/painel/equipamentos'], ownerOnly: false },
+      { to: '/painel/clientes', label: 'Clientes', Icon: IconCustomers, also: ['/painel/avaliacoes', '/painel/cupons'], ownerOnly: true },
     ],
   },
   {
@@ -123,7 +123,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
         to: '/painel/configuracoes',
         label: 'Configurar',
         Icon: IconSettings,
-        also: ['/painel/equipe', '/painel/cupons', '/painel/equipamentos'],
+        also: ['/painel/equipe'],
         ownerOnly: true,
       },
     ],
@@ -131,37 +131,36 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 ]
 
 /** Abas das telas que moram dentro de uma área (aparecem no topo do conteúdo). */
-const AREA_TABS: { prefixes: string[]; tabs: { to: string; label: string }[]; exact?: boolean }[] = [
+const AREA_TABS: { prefixes: string[]; tabs: { to: string; label: string; ownerOnly?: boolean }[]; exact?: boolean }[] = [
   {
     // "exact": as abas só aparecem nestas duas telas, não dentro de uma quadra (que tem as suas abas).
-    prefixes: ['/painel/quadras', '/painel/agenda-semanal'],
+    prefixes: ['/painel/quadras', '/painel/agenda-semanal', '/painel/equipamentos'],
     exact: true,
     tabs: [
       { to: '/painel/quadras', label: 'Quadras' },
       { to: '/painel/agenda-semanal', label: 'Agenda da semana' },
+      { to: '/painel/equipamentos', label: 'Equipamentos', ownerOnly: true },
     ],
   },
   {
-    prefixes: ['/painel/clientes', '/painel/avaliacoes'],
+    prefixes: ['/painel/clientes', '/painel/avaliacoes', '/painel/cupons'],
     tabs: [
       { to: '/painel/clientes', label: 'Clientes' },
       { to: '/painel/avaliacoes', label: 'Avaliações' },
+      { to: '/painel/cupons', label: 'Cupons' },
     ],
   },
 ]
 
-/** Área Configurar: telas que moram dentro dela e o menu de seções à esquerda. */
-const CONFIG_PREFIXES = ['/painel/configuracoes', '/painel/equipe', '/painel/cupons', '/painel/equipamentos']
+/** Área Configurar: só o cadastro da arena, a lojinha (página e aparência) e a equipe. O resto mora nas áreas onde é usado. */
+const CONFIG_PREFIXES = ['/painel/configuracoes', '/painel/equipe']
 
-const CONFIG_NAV: { to: string; label: string; aba?: string; path: string; group: string }[] = [
-  { to: '/painel/configuracoes', label: 'Arena', path: '/painel/configuracoes', group: 'Sua arena' },
-  { to: '/painel/configuracoes?aba=precos', label: 'Preços', aba: 'precos', path: '/painel/configuracoes', group: 'Sua arena' },
-  { to: '/painel/configuracoes?aba=metas', label: 'Metas', aba: 'metas', path: '/painel/configuracoes', group: 'Sua arena' },
-  { to: '/painel/configuracoes?aba=lojinha', label: 'Lojinha pública', aba: 'lojinha', path: '/painel/configuracoes', group: 'Lojinha do cliente' },
-  { to: '/painel/configuracoes?aba=aparencia', label: 'Aparência', aba: 'aparencia', path: '/painel/configuracoes', group: 'Lojinha do cliente' },
-  { to: '/painel/equipe', label: 'Equipe', path: '/painel/equipe', group: 'No dia a dia' },
-  { to: '/painel/cupons', label: 'Cupons', path: '/painel/cupons', group: 'No dia a dia' },
-  { to: '/painel/equipamentos', label: 'Equipamentos', path: '/painel/equipamentos', group: 'No dia a dia' },
+const LOJINHA_ABAS = ['lojinha', 'aparencia']
+
+const CONFIG_NAV: { to: string; label: string; path: string; abas?: string[] }[] = [
+  { to: '/painel/configuracoes', label: 'Arena', path: '/painel/configuracoes' },
+  { to: '/painel/configuracoes?aba=lojinha', label: 'Lojinha', path: '/painel/configuracoes', abas: LOJINHA_ABAS },
+  { to: '/painel/equipe', label: 'Equipe', path: '/painel/equipe' },
 ]
 
 const COLLAPSED_KEY = 'jogae_painel_collapsed'
@@ -289,7 +288,9 @@ export default function PainelLayout() {
   const currentAba = new URLSearchParams(search).get('aba')
   const isConfigNavActive = (item: (typeof CONFIG_NAV)[number]) => {
     if (item.path === '/painel/configuracoes') {
-      return pathname === '/painel/configuracoes' && (item.aba ?? null) === (CONFIG_NAV.some((n) => n.aba === currentAba) ? currentAba : null)
+      if (pathname !== '/painel/configuracoes') return false
+      const inLojinha = LOJINHA_ABAS.includes(currentAba ?? '')
+      return item.abas ? inLojinha : !inLojinha
     }
     return pathname === item.path || pathname.startsWith(`${item.path}/`)
   }
@@ -300,15 +301,12 @@ export default function PainelLayout() {
   // Apelidos para a busca rápida (Ctrl+K): quem digita "desconto" ou "cor" também chega na tela certa.
   const SCREEN_KEYWORDS: Record<string, string[]> = {
     '/painel': ['agenda', 'grade', 'reservas', 'hoje', 'nova reserva', 'visao geral'],
-    '/painel/quadras': ['quadra', 'cadastrar', 'precos'],
+    '/painel/quadras': ['quadra', 'cadastrar', 'precos', 'preco em lote', 'todas as quadras'],
     '/painel/agenda-semanal': ['agenda', 'semana', 'reservas', 'todas as quadras'],
     '/painel/clientes': ['cliente', 'aniversario', 'inativo', 'faltas', 'telefone'],
     '/painel/relatorios': ['financeiro', 'faturamento', 'receita', 'relatorio', 'meta', 'grafico'],
     '/painel/configuracoes': ['arena', 'endereco', 'telefone', 'nome', 'horario de funcionamento'],
-    '/painel/configuracoes?aba=lojinha': ['site', 'link', 'qr', 'capa', 'comodidades', 'compartilhar'],
-    '/painel/configuracoes?aba=aparencia': ['cor', 'logo', 'tema', 'visual', 'fonte'],
-    '/painel/configuracoes?aba=precos': ['preco', 'valor', 'hora', 'tabela', 'noite', 'fim de semana'],
-    '/painel/configuracoes?aba=metas': ['meta', 'objetivo', 'faturamento'],
+    '/painel/configuracoes?aba=lojinha': ['site', 'link', 'qr', 'capa', 'comodidades', 'compartilhar', 'cor', 'logo', 'tema', 'visual', 'fonte', 'aparencia'],
     '/painel/equipe': ['funcionario', 'instrutor', 'acesso', 'senha', 'permissao'],
     '/painel/cupons': ['cupom', 'desconto', 'promocao', 'codigo'],
     '/painel/equipamentos': ['bola', 'colete', 'aluguel', 'item'],
@@ -324,6 +322,8 @@ export default function PainelLayout() {
       { label: 'Agenda da semana', to: '/painel/agenda-semanal', keywords: SCREEN_KEYWORDS['/painel/agenda-semanal'] },
       ...CONFIG_NAV.map((item) => ({ label: `Configurar · ${item.label}`, to: item.to, keywords: SCREEN_KEYWORDS[item.to] })),
       { label: 'Avaliações', to: '/painel/avaliacoes', keywords: SCREEN_KEYWORDS['/painel/avaliacoes'] },
+      { label: 'Clientes · Cupons', to: '/painel/cupons', keywords: SCREEN_KEYWORDS['/painel/cupons'] },
+      { label: 'Quadras · Equipamentos', to: '/painel/equipamentos', keywords: SCREEN_KEYWORDS['/painel/equipamentos'] },
       { label: 'Equipe · Instrutores', to: '/painel/equipe/instrutores', keywords: SCREEN_KEYWORDS['/painel/equipe'] },
       { label: 'Equipe · Acesso dos funcionários', to: '/painel/equipe/acesso', keywords: SCREEN_KEYWORDS['/painel/equipe'] },
     ]
@@ -483,7 +483,7 @@ export default function PainelLayout() {
         <div className="painel__content">
           {areaTabs && (
             <nav className="segmented painel__area-tabs" aria-label="Seções da área">
-              {areaTabs.tabs.map((tab) => {
+              {areaTabs.tabs.filter((tab) => !tab.ownerOnly || user.role !== 'STAFF').map((tab) => {
                 const active = pathname === tab.to || pathname.startsWith(`${tab.to}/`)
                 return (
                   <NavLink
@@ -502,16 +502,13 @@ export default function PainelLayout() {
             <div className="config-area">
               <nav className="config-nav" aria-label="Seções do Configurar">
                 <p className="config-nav__title">Configurar</p>
-                {[...new Set(CONFIG_NAV.map((item) => item.group))].map((group) => (
-                  <div key={group} role="group" aria-label={group}>
-                    <p className="config-nav__group">{group}</p>
-                    {CONFIG_NAV.filter((item) => item.group === group).map((item) => (
-                      <Link key={item.to} to={item.to} aria-current={isConfigNavActive(item) ? 'page' : undefined}>
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
+                <div>
+                  {CONFIG_NAV.map((item) => (
+                    <Link key={item.to} to={item.to} aria-current={isConfigNavActive(item) ? 'page' : undefined}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </nav>
               <div className="config-area__content">
                 <Outlet context={{ user, onSessionExpired: handleSessionExpired } satisfies PainelContext} />

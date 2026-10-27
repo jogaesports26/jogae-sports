@@ -38,7 +38,15 @@
   color: var(--color-text-secondary);
 }
 
+.reports-page__goal-editor {
+  margin-top: 14px;
+}
+
 .reports-page__goal-cta {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;

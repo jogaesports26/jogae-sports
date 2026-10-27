@@ -208,7 +208,7 @@ export default function OverviewPage() {
         </div>
 
         {goalProgress !== null && monthlyGoal && (
-          <Link to="/painel/configuracoes?aba=metas" className="kpi-strip__goal">
+          <Link to="/painel/relatorios" className="kpi-strip__goal">
             <span>Meta do mês</span>
             <span className="kpi-strip__goal-bar" role="progressbar" aria-valuenow={Math.round(goalProgress * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso da meta do mês">
               <span style={{ width: `${Math.round(goalProgress * 100)}%` }} />

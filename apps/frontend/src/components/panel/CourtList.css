@@ -32,6 +32,48 @@
   text-decoration: underline;
 }
 
+.court-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.court-list__bulk-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.court-list__bulk-button:hover,
+.court-list__bulk-button[aria-expanded='true'] {
+  background: var(--color-surface);
+}
+
+.court-list__bulk {
+  margin-bottom: 24px;
+}
+
+.court-list__bulk h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  color: var(--color-dark);
+}
+
+.court-list__bulk p {
+  margin: 0 0 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
 /* Um botão lima por tela: nova quadra */
 .court-list__new-button {
   min-height: 44px;

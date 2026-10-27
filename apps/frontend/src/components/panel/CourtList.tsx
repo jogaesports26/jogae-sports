@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { SessionExpiredError } from '../../lib/api'
 import { fetchCourts, SPORT_OPTIONS, SURFACE_OPTIONS } from '../../lib/courts'
 import { fetchCourtsWeekSummary } from '../../lib/reservations'
@@ -7,6 +7,7 @@ import type { CourtWeekSummary } from '../../lib/reservations'
 import type { Court } from '../../lib/courts'
 import SportIcon from '../SportIcon'
 import CourtFormModal from './CourtFormModal'
+import SimplePricing from './SimplePricing'
 import './CourtList.css'
 
 const sportLabel = (value: string) => SPORT_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -33,6 +34,9 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
   const [editingCourt, setEditingCourt] = useState<Court | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [showInactive, setShowInactive] = useState(false)
+  // Preços em lote moram aqui (antes eram uma aba do Configurar); ?precos=lote abre o painel direto.
+  const [searchParams] = useSearchParams()
+  const [bulkOpen, setBulkOpen] = useState(() => searchParams.get('precos') === 'lote')
 
   async function load() {
     // O resumo da semana é um extra: se falhar, os cards aparecem sem ele.
@@ -91,10 +95,30 @@ export default function CourtList({ onSessionExpired }: CourtListProps) {
             </>
           )}
         </p>
-        <button className="court-list__new-button" onClick={() => setIsCreating(true)}>
-          Nova quadra
-        </button>
+        <div className="court-list__actions">
+          {courts.some((court) => court.active) && (
+            <button
+              type="button"
+              className="court-list__bulk-button"
+              onClick={() => setBulkOpen((open) => !open)}
+              aria-expanded={bulkOpen}
+            >
+              Preços em lote
+            </button>
+          )}
+          <button className="court-list__new-button" onClick={() => setIsCreating(true)}>
+            Nova quadra
+          </button>
+        </div>
       </div>
+
+      {bulkOpen && courts.some((court) => court.active) && (
+        <section className="court-list__bulk" aria-labelledby="bulk-pricing-title">
+          <h2 id="bulk-pricing-title">Preços em lote</h2>
+          <p>Defina o preço por hora em três campos e aplique em várias quadras de uma vez.</p>
+          <SimplePricing courts={courts.filter((court) => court.active)} onApplied={load} onSessionExpired={onSessionExpired} />
+        </section>
+      )}
 
       {courts.length === 0 ? (
         <div className="court-list__empty">
