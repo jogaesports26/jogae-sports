@@ -70,6 +70,7 @@ export function renderHead(html: string, data: HeadData): string {
 
   const injected: string[] = []
   if (data.manifestHref) {
+    out = out.replace(/<link rel="manifest"[^>]*>\s*/i, '')
     injected.push(`<link rel="manifest" href="${escapeHtml(data.manifestHref)}" />`)
     injected.push(`<meta name="apple-mobile-web-app-title" content="${escapeHtml(truncate(data.title.split(' · ')[0], 24))}" />`)
   }
@@ -80,7 +81,13 @@ export function renderHead(html: string, data: HeadData): string {
   // Antes da primeira pintura: aplica o modo escuro salvo (ou do sistema) e evita o flash de tela clara.
   injected.push(`<script>${SCHEME_SCRIPT}</script>`)
   if (data.bootstrap !== undefined) {
-    const json = JSON.stringify(data.bootstrap).replace(/</g, '\\u003c').replace(LINE_SEPARATORS, '')
+    // JSON em <script>: escapa < > & (impede fechar a tag ou abrir comentário HTML) e remove U+2028/2029.
+    const json = JSON.stringify(data.bootstrap)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026')
+      .replace(LINE_SEPARATORS, '')
+    // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag -- valor serializado e escapado acima; o CSP só libera o script por hash.
     injected.push(`<script>window.__JOGAE_THEME__=${json}</script>`)
   }
   return injected.length ? out.replace('</head>', `    ${injected.join('\n    ')}\n  </head>`) : out

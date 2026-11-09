@@ -167,7 +167,12 @@ async function readStatic(pathname: string): Promise<Reply | null> {
       status: 200,
       headers: {
         'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
-        'cache-control': immutable ? 'public, max-age=31536000, immutable' : 'public, max-age=3600',
+        // O service worker precisa ser revalidado sempre, senão a atualização do PWA demora a chegar.
+        'cache-control': immutable
+          ? 'public, max-age=31536000, immutable'
+          : decoded === '/sw.js'
+            ? 'no-cache'
+            : 'public, max-age=3600',
       },
       body: await readFile(file),
     }
