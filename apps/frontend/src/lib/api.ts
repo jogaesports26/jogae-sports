@@ -19,6 +19,14 @@ export function saveSession(auth: AuthResponse) {
   localStorage.setItem('jogae_user', JSON.stringify(auth.user))
 }
 
+export function hasSession(): boolean {
+  try {
+    return Boolean(localStorage.getItem('jogae_token') && localStorage.getItem('jogae_user'))
+  } catch {
+    return false
+  }
+}
+
 export function clearSession() {
   localStorage.removeItem('jogae_token')
   localStorage.removeItem('jogae_user')

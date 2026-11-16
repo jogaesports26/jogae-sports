@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, Navigate } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
 import PasswordInput from '../components/PasswordInput'
-import { API_URL, parseApiError, saveSession, staffLogin, type AuthResponse } from '../lib/api'
+import { API_URL, hasSession, parseApiError, saveSession, staffLogin, type AuthResponse } from '../lib/api'
 
 type LoginAs = 'owner' | 'staff'
 
@@ -31,12 +31,16 @@ function validate(email: string, password: string): FormErrors {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [jaLogado] = useState(hasSession)
   const [loginAs, setLoginAs] = useState<LoginAs>('owner')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Quem já tem sessão (ex.: abriu o app instalado) vai direto para o painel.
+  if (jaLogado) return <Navigate to="/painel" replace />
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
