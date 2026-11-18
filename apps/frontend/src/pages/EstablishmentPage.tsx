@@ -186,6 +186,9 @@ export default function EstablishmentPage() {
     <div className="establishment-page">
       <header className="establishment-hero">
         <div className="establishment-hero__top">
+          {establishment.theme?.logoUrl && (
+            <img src={establishment.theme.logoUrl} alt="" className="establishment-hero__logo" />
+          )}
           <div className="establishment-hero__title">
             <h1>{establishment.establishmentName ?? 'Reserve sua quadra'}</h1>
             {establishment.establishmentAddress && (

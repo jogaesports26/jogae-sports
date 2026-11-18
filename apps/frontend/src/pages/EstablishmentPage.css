@@ -17,6 +17,29 @@
   box-shadow: var(--shadow-soft);
 }
 
+.establishment-hero__top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.establishment-hero__logo {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft-sm);
+}
+
+@media (max-width: 480px) {
+  .establishment-hero__logo {
+    width: 56px;
+    height: 56px;
+  }
+}
+
 .establishment-hero__title h1 {
   font-family: var(--font-heading);
   font-size: 26px;
