@@ -17,6 +17,7 @@ const PLANS: Plan[] = [
   {
     id: 'essencial',
     name: 'Essencial',
+    price: 'R$ 49',
     pitch: 'Para largar o caderno e o WhatsApp e organizar as reservas.',
     features: [
       'Quadras ilimitadas',
@@ -29,6 +30,7 @@ const PLANS: Plan[] = [
   {
     id: 'profissional',
     name: 'Profissional',
+    price: 'R$ 99',
     pitch: 'Para encher a agenda e saber quanto a arena rende.',
     includes: 'Tudo do Essencial, mais:',
     features: [
@@ -43,6 +45,7 @@ const PLANS: Plan[] = [
   {
     id: 'completo',
     name: 'Completo',
+    price: 'R$ 149',
     pitch: 'Para arenas com equipe e com o site da própria marca.',
     includes: 'Tudo do Profissional, mais:',
     features: [
@@ -109,7 +112,7 @@ export default function Pricing() {
           ))}
         </ul>
         <p className="pricing__note">
-          Durante o piloto, todas as funcionalidades estão liberadas e não há cobrança. Em breve: pagamento online com Pix
+          Valores de lançamento. Durante o piloto, todas as funcionalidades estão liberadas e não há cobrança. Em breve: pagamento online com Pix
           na hora da reserva.
         </p>
         {contactHref && (
