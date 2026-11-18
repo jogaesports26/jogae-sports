@@ -1,4 +1,4 @@
-# Jogaê Sports
+# Jogaê
 
 Sistema SaaS de gestão para donos de quadras esportivas (agenda, reservas, CRM, portal público do jogador). Monorepo do projeto da disciplina de Programação Web.
 

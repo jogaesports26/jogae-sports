@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { ConfirmDialog } from '../components/panel/ConfirmDialog'
 import { usePainelContext } from '../components/panel/PainelLayout'
 import { SessionExpiredError } from '../lib/api'
 import { createCoupon, fetchCoupons, removeCoupon, updateCoupon } from '../lib/coupons'
@@ -22,6 +23,7 @@ function isExpired(coupon: Coupon): boolean {
 export default function CouponsPage() {
   const { onSessionExpired } = usePainelContext()
   const [coupons, setCoupons] = useState<Coupon[] | null>(null)
+  const [couponToRemove, setCouponToRemove] = useState<Coupon | null>(null)
   const [code, setCode] = useState('')
   const [discountType, setDiscountType] = useState<CouponDiscountType>('PERCENT')
   const [discountValue, setDiscountValue] = useState('')
@@ -297,9 +299,7 @@ export default function CouponsPage() {
                         <button
                           type="button"
                           className="btn btn--ghost btn--sm coupons-page__remove"
-                          onClick={() => {
-                            if (window.confirm(`Remover o cupom ${coupon.code}? Isso não pode ser desfeito.`)) handleRemove(coupon.id)
-                          }}
+                          onClick={() => setCouponToRemove(coupon)}
                           disabled={coupon.usageCount > 0}
                           title={coupon.usageCount > 0 ? 'Cupons já usados só podem ser desativados' : undefined}
                         >
@@ -313,6 +313,18 @@ export default function CouponsPage() {
             </div>
           )}
         </div>
+      )}
+      {couponToRemove && (
+        <ConfirmDialog
+          title="Remover cupom"
+          message={`Remover o cupom ${couponToRemove.code}? Isso não pode ser desfeito.`}
+          confirmLabel="Remover"
+          onConfirm={() => {
+            handleRemove(couponToRemove.id)
+            setCouponToRemove(null)
+          }}
+          onCancel={() => setCouponToRemove(null)}
+        />
       )}
     </div>
   )

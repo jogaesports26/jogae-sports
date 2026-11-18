@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ConfirmDialog } from './ConfirmDialog'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEscapeToClose } from '../../hooks/useEscapeToClose'
@@ -53,8 +54,14 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
       photos.join('|') !== court.photoUrls.join('|')
     : name !== '' || photos.length > 0
 
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false)
+
   function requestClose() {
-    if (isDirty && !window.confirm('Descartar as alterações que você ainda não salvou?')) return
+    if (confirmingDiscard) return
+    if (isDirty) {
+      setConfirmingDiscard(true)
+      return
+    }
     onClose()
   }
   useEscapeToClose(requestClose)
@@ -230,6 +237,16 @@ export default function CourtFormModal({ court, onClose, onSaved, onSessionExpir
           </footer>
         </form>
       </div>
+      {confirmingDiscard && (
+        <ConfirmDialog
+          title="Descartar alterações?"
+          message="Você tem alterações que ainda não salvou."
+          confirmLabel="Descartar"
+          cancelLabel="Continuar editando"
+          onConfirm={onClose}
+          onCancel={() => setConfirmingDiscard(false)}
+        />
+      )}
     </div>
   )
 }

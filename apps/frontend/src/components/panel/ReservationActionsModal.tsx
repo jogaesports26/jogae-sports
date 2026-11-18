@@ -87,10 +87,11 @@ export default function ReservationActionsModal({
     }
   }
 
+  const [openedAt] = useState(() => Date.now())
   const startsAt = new Date(reservation.startsAt)
   const endsAt = new Date(reservation.endsAt)
   const canCancel = reservation.status === 'CONFIRMED'
-  const hoursUntilStart = (startsAt.getTime() - Date.now()) / 3_600_000
+  const hoursUntilStart = (startsAt.getTime() - openedAt) / 3_600_000
 
   return (
     <div className="reservation-modal__overlay" onClick={onClose}>
