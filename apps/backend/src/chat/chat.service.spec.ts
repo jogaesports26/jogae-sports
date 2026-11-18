@@ -112,4 +112,64 @@ describe('ChatService', () => {
       delete process.env.OPENAI_API_KEY;
     }
   });
+
+  it('informa horário de funcionamento, faixas de preço e instrutores', async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+    process.env.OPENAI_API_KEY = 'sk-test-openai';
+    const originalFetch = global.fetch;
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({ choices: [{ message: { content: 'ok' } }] }),
+    });
+    global.fetch = fetchMock;
+    const rule = (d: number, s: number, e: number, p: number) => ({
+      dayOfWeek: d,
+      startMinute: s * 60,
+      endMinute: e * 60,
+      pricePerHour: p,
+    });
+    const prisma = {
+      user: {
+        findFirst: jest.fn().mockResolvedValue({
+          establishmentName: 'Arena Teste',
+          establishmentPhone: null,
+          establishmentAddress: null,
+          aboutDescription: null,
+          amenities: [],
+          instructors: [{ name: 'Carlos' }],
+          equipment: [{ name: 'Raquete', pricePerUnit: 10 }],
+          courts: [
+            {
+              name: 'Quadra 1',
+              sport: 'AREIA',
+              surfaceType: 'AREIA',
+              hasLighting: false,
+              priceRules: [
+                ...[1, 2, 3, 4, 5, 6].map((d) => rule(d, 8, 17, 60)),
+                ...[1, 2, 3, 4, 5, 6].map((d) => rule(d, 17, 22, 80)),
+                rule(0, 8, 18, 60),
+              ],
+            },
+          ],
+        }),
+      },
+    };
+    try {
+      const service = new ChatService(prisma as never);
+      await service.sendMessage({ message: 'Horário?', slug: 'arena-teste' });
+      const call = fetchMock.mock.calls[0] as [string, { body: string }];
+      const system = (
+        JSON.parse(call[1].body) as { messages: { content: string }[] }
+      ).messages[0].content;
+      expect(system).toContain('seg a sáb: das 8h às 22h');
+      expect(system).toContain('dom: das 8h às 18h');
+      expect(system).toContain('seg a sáb 17h-22h R$ 80.00');
+      expect(system).toContain('Carlos');
+      expect(system).toContain('Raquete (R$ 10.00)');
+    } finally {
+      global.fetch = originalFetch;
+      delete process.env.OPENAI_API_KEY;
+    }
+  });
 });

@@ -22,6 +22,73 @@ function readLimit(name: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+const DAY_NAMES = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+function hourLabel(minute: number): string {
+  const h = Math.floor(minute / 60);
+  const m = minute % 60;
+  return m ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`;
+}
+
+/** [1,2,3,4,5,6] -> "seg a sáb"; [0] -> "dom"; [1,3] -> "seg, qua". */
+function dayRange(days: number[]): string {
+  const sorted = [...new Set(days)].sort((a, b) => a - b);
+  const consecutive = sorted.every(
+    (d, i) => i === 0 || d === sorted[i - 1] + 1,
+  );
+  if (sorted.length >= 3 && consecutive) {
+    return `${DAY_NAMES[sorted[0]]} a ${DAY_NAMES[sorted[sorted.length - 1]]}`;
+  }
+  return sorted.map((d) => DAY_NAMES[d]).join(', ');
+}
+
+type RuleLike = {
+  dayOfWeek?: number;
+  startMinute?: number;
+  endMinute?: number;
+  pricePerHour: unknown;
+};
+
+/** Horário de funcionamento (derivado das regras de preço de todas as quadras ativas). */
+function openingHoursLines(rules: RuleLike[]): string[] {
+  const perDay = new Map<number, [number, number]>();
+  for (const r of rules) {
+    if (r.dayOfWeek == null || r.startMinute == null || r.endMinute == null)
+      continue;
+    const cur = perDay.get(r.dayOfWeek);
+    perDay.set(
+      r.dayOfWeek,
+      cur
+        ? [Math.min(cur[0], r.startMinute), Math.max(cur[1], r.endMinute)]
+        : [r.startMinute, r.endMinute],
+    );
+  }
+  const byWindow = new Map<string, number[]>();
+  for (const [day, [start, end]] of perDay) {
+    const key = `${start}-${end}`;
+    byWindow.set(key, [...(byWindow.get(key) ?? []), day]);
+  }
+  return [...byWindow.entries()].map(([key, days]) => {
+    const [start, end] = key.split('-').map(Number);
+    return `${dayRange(days)}: das ${hourLabel(start)} às ${hourLabel(end)}`;
+  });
+}
+
+/** Faixas de preço de uma quadra: "seg a sáb 8h-17h R$ 60,00". */
+function priceTierLines(rules: RuleLike[]): string[] {
+  const groups = new Map<string, number[]>();
+  for (const r of rules) {
+    if (r.dayOfWeek == null || r.startMinute == null || r.endMinute == null)
+      continue;
+    const key = `${r.startMinute}|${r.endMinute}|${Number(r.pricePerHour)}`;
+    groups.set(key, [...(groups.get(key) ?? []), r.dayOfWeek]);
+  }
+  return [...groups.entries()].map(([key, days]) => {
+    const [start, end, price] = key.split('|').map(Number);
+    return `${dayRange(days)} ${hourLabel(start)}-${hourLabel(end)} R$ ${price.toFixed(2)}`;
+  });
+}
+
 const SYSTEM_PROMPT = `Você é o assistente virtual do Jogaê, um sistema de reserva de quadras esportivas. Você atende JOGADORES na página pública de um estabelecimento (arena, clube ou quadra).
 
 COMO RESERVAR (o passo a passo real, na página do estabelecimento):
@@ -78,6 +145,11 @@ export class ChatService {
           establishmentAddress: true,
           aboutDescription: true,
           amenities: true,
+          instructors: { where: { active: true }, select: { name: true } },
+          equipment: {
+            where: { active: true },
+            select: { name: true, pricePerUnit: true },
+          },
           courts: {
             where: { active: true },
             select: {
@@ -85,7 +157,14 @@ export class ChatService {
               sport: true,
               surfaceType: true,
               hasLighting: true,
-              priceRules: { select: { pricePerHour: true } },
+              priceRules: {
+                select: {
+                  dayOfWeek: true,
+                  startMinute: true,
+                  endMinute: true,
+                  pricePerHour: true,
+                },
+              },
             },
           },
         },
@@ -100,8 +179,18 @@ export class ChatService {
                 : ''
             } por hora`
           : '';
-        return `- ${c.name} | ${c.sport} | piso ${c.surfaceType}${c.hasLighting ? ' | com iluminação' : ''}${price}`;
+        const tiers = priceTierLines(c.priceRules);
+        return `- ${c.name} | ${c.sport} | piso ${c.surfaceType}${c.hasLighting ? ' | com iluminação' : ''}${price}${
+          tiers.length ? ` (faixas: ${tiers.join('; ')})` : ''
+        }`;
       });
+      const hours = openingHoursLines(
+        store.courts.flatMap((c) => c.priceRules),
+      );
+      const instructors = (store.instructors ?? []).map((i) => i.name);
+      const equipment = (store.equipment ?? []).map(
+        (e) => `${e.name} (R$ ${Number(e.pricePerUnit).toFixed(2)})`,
+      );
       return [
         '',
         'DADOS DO ESTABELECIMENTO (única fonte para quadras, preços e contato):',
@@ -111,6 +200,15 @@ export class ChatService {
         store.aboutDescription ? `Sobre: ${store.aboutDescription}` : '',
         store.amenities.length
           ? `Comodidades: ${store.amenities.join(', ')}`
+          : '',
+        hours.length
+          ? `Horário de funcionamento (quadras):\n${hours.join('\n')}`
+          : '',
+        instructors.length
+          ? `Instrutores disponíveis para aula: ${instructors.join(', ')}`
+          : '',
+        equipment.length
+          ? `Equipamentos para alugar: ${equipment.join(', ')}`
           : '',
         courts.length
           ? `Quadras:\n${courts.join('\n')}`
