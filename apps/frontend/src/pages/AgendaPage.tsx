@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useCourtDetailContext } from '../components/panel/CourtDetailLayout'
 import { SessionExpiredError } from '../lib/api'
 import { buildLaneItems } from '../lib/dayGridRuns'
@@ -39,7 +39,13 @@ export default function AgendaPage() {
   const { courtId } = useParams<{ courtId: string }>()
   const { court, onSessionExpired } = useCourtDetailContext()
 
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [weekStart, setWeekStart] = useState(() => {
+    // Vindo da busca por código: abre a semana da reserva.
+    const target = searchParams.get('semana')
+    const parsed = target && /^\d{4}-\d{2}-\d{2}$/.test(target) ? new Date(`${target}T00:00:00`) : null
+    return startOfWeek(parsed && !Number.isNaN(parsed.getTime()) ? parsed : new Date())
+  })
   const [agenda, setAgenda] = useState<AgendaResponse | null>(null)
   const [error, setError] = useState('')
   const [selection, setSelection] = useState<SlotSelection | null>(null)
@@ -89,6 +95,15 @@ export default function AgendaPage() {
     wrap.scrollTop = 0
     wrap.scrollLeft = today && wrap.scrollWidth > wrap.clientWidth ? Math.max(0, today.offsetLeft - 60) : 0
   }, [hasAgenda, weekStart])
+
+  // Vindo da busca por código: abre a reserva quando a agenda da semana carrega.
+  const targetReservationId = searchParams.get('reserva')
+  useEffect(() => {
+    if (!targetReservationId || !agenda) return
+    const found = agenda.reservations.find((reservation) => reservation.id === targetReservationId)
+    if (found) setActiveReservation(found)
+    setSearchParams({}, { replace: true })
+  }, [targetReservationId, agenda, setSearchParams])
 
   function handleChanged() {
     setSelection(null)

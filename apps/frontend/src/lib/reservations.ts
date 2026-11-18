@@ -199,3 +199,21 @@ export async function fetchCourtsWeekSummary(): Promise<CourtWeekSummary[]> {
   }
   return response.json()
 }
+
+export interface ReservationByCode {
+  id: string
+  courtId: string
+  courtName: string
+  startsAt: string
+  endsAt: string
+  status: Reservation['status']
+  customerName: string | null
+}
+
+/** Busca pelo código curto do comprovante (8 caracteres). */
+export async function fetchReservationByCode(code: string): Promise<ReservationByCode | null> {
+  const response = await authFetch(`/reservations/by-code/${encodeURIComponent(code)}`)
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(await parseApiError(response, 'Não foi possível buscar a reserva'))
+  return response.json()
+}

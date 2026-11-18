@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchCourts } from '../../lib/courts'
 import type { Court } from '../../lib/courts'
+import { fetchReservationByCode } from '../../lib/reservations'
+import type { ReservationByCode } from '../../lib/reservations'
+import { toDateInputValue } from '../../lib/weekGrid'
 import { fetchCustomers } from '../../lib/customers'
 import type { Customer } from '../../lib/customers'
 import './CommandPalette.css'
@@ -33,6 +36,7 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
   const [customers, setCustomers] = useState<Customer[]>([])
   const [courts, setCourts] = useState<Court[]>([])
   const [active, setActive] = useState(0)
+  const [byCode, setByCode] = useState<ReservationByCode | null>(null)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -67,6 +71,19 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
       window.clearTimeout(timer)
     }
   }, [query, open, canSearchCustomers])
+
+  // Código do comprovante (8 caracteres): leva direto à reserva na agenda.
+  const code = /^[0-9a-f]{8}$/i.test(query.trim()) ? query.trim() : ''
+  useEffect(() => {
+    if (!open || !code) return
+    let cancelled = false
+    fetchReservationByCode(code)
+      .then((result) => !cancelled && setByCode(result))
+      .catch(() => !cancelled && setByCode(null))
+    return () => {
+      cancelled = true
+    }
+  }, [code, open])
 
   const items = useMemo<PaletteItem[]>(() => {
     const term = normalize(query.trim())
@@ -103,12 +120,26 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
             to: `/painel/clientes?busca=${encodeURIComponent(c.phone)}`,
           }))
         : []
-    return [...screens, ...people]
-  }, [query, destinations, customers, courts])
+    const reservation =
+      code && byCode && byCode.id.toLowerCase().startsWith(code.toLowerCase())
+        ? [
+            {
+              id: `r-${byCode.id}`,
+              label: `Reserva ${code.toUpperCase()} · ${byCode.courtName}`,
+              hint: `${new Date(byCode.startsAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}${
+                byCode.customerName ? ` · ${byCode.customerName}` : ''
+              }`,
+              to: `/painel/quadras/${byCode.courtId}/agenda?reserva=${byCode.id}&semana=${toDateInputValue(new Date(byCode.startsAt))}`,
+            },
+          ]
+        : []
+    return [...reservation, ...screens, ...people]
+  }, [query, destinations, customers, courts, code, byCode])
 
   function close() {
     setQuery('')
     setCustomers([])
+    setByCode(null)
     setActive(0)
     onClose()
   }
@@ -149,8 +180,8 @@ export default function CommandPalette({ open, onClose, destinations, canSearchC
         aria-expanded="true"
         aria-controls="palette-list"
         aria-activedescendant={items[active] ? `palette-${active}` : undefined}
-        aria-label="Buscar tela ou cliente"
-        placeholder={canSearchCustomers ? 'Buscar tela ou cliente...' : 'Buscar tela...'}
+        aria-label="Buscar tela, cliente ou código da reserva"
+        placeholder={canSearchCustomers ? 'Buscar tela, cliente ou código da reserva...' : 'Buscar tela ou código da reserva...'}
         value={query}
         onChange={(event) => {
           setQuery(event.target.value)

@@ -1120,4 +1120,42 @@ describe('ReservationsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('busca por código do comprovante', () => {
+    it('rejeita código fora do formato', async () => {
+      await expect(service.findByCode('owner-1', 'abc')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('busca só nas quadras do dono, pelo prefixo do id em minúsculas', async () => {
+      const findFirst = jest.fn().mockResolvedValue({
+        id: 'abcdef12-0000-0000-0000-000000000000',
+        courtId: 'court-1',
+        startsAt: new Date('2026-11-20T21:00:00Z'),
+        endsAt: new Date('2026-11-20T22:00:00Z'),
+        status: 'CONFIRMED',
+        guestName: 'Lucas',
+        player: null,
+        court: { name: 'Quadra 1' },
+      });
+      (prisma as any).reservation.findFirst = findFirst;
+      const result = await service.findByCode('owner-1', 'ABCDEF12');
+      expect(findFirst.mock.calls[0][0].where).toEqual({
+        id: { startsWith: 'abcdef12' },
+        court: { ownerId: 'owner-1' },
+      });
+      expect(result).toMatchObject({
+        courtName: 'Quadra 1',
+        customerName: 'Lucas',
+      });
+    });
+
+    it('devolve 404 quando não existe', async () => {
+      (prisma as any).reservation.findFirst = jest.fn().mockResolvedValue(null);
+      await expect(service.findByCode('owner-1', 'abcdef12')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
 });

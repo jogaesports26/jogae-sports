@@ -498,6 +498,38 @@ export class ReservationsService {
     });
   }
 
+  /** Localiza a reserva pelo código curto do comprovante (8 primeiros caracteres do id), só entre as quadras do dono. */
+  async findByCode(ownerId: string, code: string) {
+    if (!/^[0-9a-f]{8}$/i.test(code)) {
+      throw new BadRequestException(
+        'Código inválido: use os 8 caracteres do comprovante',
+      );
+    }
+    const reservation = await this.prisma.reservation.findFirst({
+      where: { id: { startsWith: code.toLowerCase() }, court: { ownerId } },
+      select: {
+        id: true,
+        courtId: true,
+        startsAt: true,
+        endsAt: true,
+        status: true,
+        guestName: true,
+        player: { select: { name: true } },
+        court: { select: { name: true } },
+      },
+    });
+    if (!reservation) throw new NotFoundException('Reserva não encontrada');
+    return {
+      id: reservation.id,
+      courtId: reservation.courtId,
+      courtName: reservation.court.name,
+      startsAt: reservation.startsAt,
+      endsAt: reservation.endsAt,
+      status: reservation.status,
+      customerName: reservation.player?.name ?? reservation.guestName ?? null,
+    };
+  }
+
   async getReports(
     ownerId: string,
     from: string,

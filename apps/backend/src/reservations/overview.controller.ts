@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import {
   JwtAuthGuard,
@@ -29,6 +29,12 @@ export class OverviewController {
   @Roles('COURT_OWNER', 'STAFF')
   getToday(@CurrentOwnerId() ownerId: string) {
     return this.reservationsService.getTodayReservations(ownerId);
+  }
+
+  @Get('by-code/:code')
+  @Roles('COURT_OWNER', 'STAFF')
+  findByCode(@CurrentOwnerId() ownerId: string, @Param('code') code: string) {
+    return this.reservationsService.findByCode(ownerId, code);
   }
 
   @Get('courts-week-summary')
