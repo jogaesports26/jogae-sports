@@ -9,6 +9,8 @@ interface ReceiptModalProps {
   courtName: string
   establishmentName: string | null
   dateLabel: string
+  /** Código curto da reserva, para a arena localizar no painel. */
+  code?: string
   price: number
   shareUrl: string
   onClose: () => void
@@ -18,6 +20,7 @@ export default function ReceiptModal({
   courtName,
   establishmentName,
   dateLabel,
+  code,
   price,
   shareUrl,
   onClose,
@@ -46,6 +49,11 @@ export default function ReceiptModal({
         {establishmentName && <p className="booking-modal__slot">{establishmentName}</p>}
         <p className="receipt-modal__date">{dateLabel}</p>
         <p className="receipt-modal__price">R$ {price.toFixed(2).replace('.', ',')}</p>
+        {code && (
+          <p className="receipt-modal__code">
+            Código da reserva <strong>{code}</strong>
+          </p>
+        )}
 
         <img
           className="receipt-modal__qr"
@@ -63,6 +71,7 @@ export default function ReceiptModal({
             Imprimir
           </button>
         </div>
+        <p className="receipt-modal__hint">Mostre este comprovante na arena se precisar.</p>
         <p className="receipt-modal__powered">Emitido por Jogaê</p>
         {shareResult === 'copied' && (
           <p className="booking-modal__hint receipt-modal__no-print">Link copiado! Cole numa conversa.</p>

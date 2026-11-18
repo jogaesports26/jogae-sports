@@ -342,6 +342,7 @@ export default function PlayerReservationsPage() {
           courtName={receiptReservation.court.name}
           establishmentName={receiptReservation.court.owner.establishmentName}
           dateLabel={formatReservationRange(receiptReservation)}
+          code={receiptReservation.id.slice(0, 8).toUpperCase()}
           price={Number(receiptReservation.priceSnapshot)}
           shareUrl={
             receiptReservation.court.owner.establishmentSlug
