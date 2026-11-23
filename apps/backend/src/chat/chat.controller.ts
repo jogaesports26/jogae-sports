@@ -17,7 +17,7 @@ export class ChatController {
 
   @Post('message')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 6, ttl: 60_000 } })
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   sendMessage(@Body() dto: SendMessageDto, @Req() req: Request) {
     return this.chatService.sendMessage(dto, req.ip);
   }

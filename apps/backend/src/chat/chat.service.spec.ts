@@ -172,4 +172,157 @@ describe('ChatService', () => {
       delete process.env.OPENAI_API_KEY;
     }
   });
+
+  describe('consulta de horários livres (ferramenta da IA)', () => {
+    function courtFor(date: string) {
+      const day = new Date(`${date}T00:00:00`).getDay();
+      return {
+        id: 'c1',
+        name: 'Quadra Beach 1',
+        sport: 'BEACH_TENNIS',
+        minBookingMinutes: 60,
+        priceRules: [{ startMinute: 480, endMinute: 1320, pricePerHour: 70 }],
+        recurringMaintenanceBlocks: [],
+        reservations: [
+          {
+            startsAt: new Date(`${date}T19:00:00`),
+            endsAt: new Date(`${date}T20:00:00`),
+          },
+        ],
+        maintenanceBlocks: [],
+        day,
+      };
+    }
+    function dayFromNow(n: number) {
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      const p = (x: number) => String(x).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+
+    it('devolve as janelas livres descontando a reserva', async () => {
+      const date = dayFromNow(2);
+      const prisma = {
+        court: { findMany: jest.fn().mockResolvedValue([courtFor(date)]) },
+      };
+      const text = await new ChatService(prisma as never).freeSlots(
+        'arena-teste',
+        date,
+      );
+      expect(text).toContain('das 8h às 19h');
+      expect(text).toContain('das 20h às 22h');
+      expect(text).not.toContain('19h às 20h');
+    });
+
+    it('recusa data inválida, passada e além da janela de reservas', async () => {
+      const service = new ChatService({
+        court: { findMany: jest.fn() },
+      } as never);
+      await expect(service.freeSlots('a', 'amanhã')).resolves.toContain(
+        'inválida',
+      );
+      await expect(service.freeSlots('a', dayFromNow(-2))).resolves.toContain(
+        'passou',
+      );
+      await expect(service.freeSlots('a', dayFromNow(30))).resolves.toContain(
+        'Só é possível',
+      );
+    });
+
+    it('a IA pede a ferramenta, o servidor consulta a agenda e a IA responde com o resultado', async () => {
+      delete process.env.ANTHROPIC_API_KEY;
+      process.env.OPENAI_API_KEY = 'sk-test-openai';
+      const date = dayFromNow(1);
+      const originalFetch = global.fetch;
+      const fetchMock = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              choices: [
+                {
+                  message: {
+                    content: null,
+                    tool_calls: [
+                      {
+                        id: 'call_1',
+                        function: {
+                          name: 'consultar_horarios_livres',
+                          arguments: JSON.stringify({ data: date }),
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              choices: [{ message: { content: 'Tem das 20h às 22h.' } }],
+            }),
+        });
+      global.fetch = fetchMock;
+      const prisma = {
+        user: { findFirst: jest.fn().mockResolvedValue(null) },
+        court: { findMany: jest.fn().mockResolvedValue([courtFor(date)]) },
+      };
+      try {
+        const result = await new ChatService(prisma as never).sendMessage({
+          message: 'Tem horário amanhã?',
+          slug: 'arena-teste',
+        });
+        expect(result.reply).toBe('Tem das 20h às 22h.');
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+        const second = JSON.parse(
+          (fetchMock.mock.calls[1] as [string, { body: string }])[1].body,
+        ) as { messages: { role: string; content: string }[] };
+        const toolMsg = second.messages.find((m) => m.role === 'tool');
+        expect(toolMsg?.content).toContain('das 20h às 22h');
+      } finally {
+        global.fetch = originalFetch;
+        delete process.env.OPENAI_API_KEY;
+      }
+    });
+  });
+
+  describe('previsão do tempo (ferramenta da IA)', () => {
+    it('resume a previsão do dia e detalha a hora pedida', async () => {
+      const hours = Array.from({ length: 24 }, (_, hour) => ({
+        hour,
+        temperature: 24 + (hour > 12 ? 6 : 0),
+        rainChance: hour === 19 ? 70 : 10,
+        wind: 15,
+        uv: hour === 12 ? 9 : 2,
+        code: 0,
+        rating: hour === 19 ? 'attention' : 'good',
+      }));
+      const weather = {
+        enabled: true,
+        forecast: jest.fn().mockResolvedValue({
+          enabled: true,
+          days: [{ date: '2026-11-25', hours }],
+        }),
+      };
+      const service = new ChatService(undefined, weather as never);
+      const text = await service.weatherSummary('2026-11-25', 19);
+      expect(text).toContain('Open-Meteo');
+      expect(text).toContain('chance máxima de chuva 70%');
+      expect(text).toContain('Às 19h');
+      expect(text).toContain('atenção');
+      await expect(service.weatherSummary('2026-12-30')).resolves.toContain(
+        'Sem previsão',
+      );
+    });
+
+    it('sem a previsão ligada, a ferramenta não existe', async () => {
+      const service = new ChatService(undefined, { enabled: false } as never);
+      await expect(service.weatherSummary('2026-11-25')).resolves.toContain(
+        'indisponível',
+      );
+    });
+  });
 });
