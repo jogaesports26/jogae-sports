@@ -351,7 +351,13 @@ export class ChatService {
       'sexta-feira',
       'sábado',
     ];
-    return `\n\nHOJE: ${dayNames[now.getDay()]}, ${iso}, agora são ${pad(now.getHours())}h${pad(now.getMinutes())}. Dá para reservar de hoje até ${BOOKING_WINDOW_DAYS} dias à frente.`;
+    // O modelo erra ao calcular datas ("segunda" virava sábado): o calendário vai pronto.
+    const calendar = Array.from({ length: BOOKING_WINDOW_DAYS + 1 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+      const label = i === 0 ? ' (hoje)' : i === 1 ? ' (amanhã)' : '';
+      return `${dayNames[d.getDay()]}${label}: ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    });
+    return `\n\nHOJE: ${dayNames[now.getDay()]}, ${iso}, agora são ${pad(now.getHours())}h${pad(now.getMinutes())}. Dá para reservar de hoje até ${BOOKING_WINDOW_DAYS} dias à frente.\nCALENDÁRIO (use somente estas datas para converter dias da semana):\n${calendar.join('\n')}`;
   }
 
   /** Fatos que mudam com a configuração do servidor. */
