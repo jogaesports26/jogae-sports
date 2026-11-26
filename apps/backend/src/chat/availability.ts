@@ -86,3 +86,27 @@ export function priceForWindow(
     .map((r) => r.pricePerHour);
   return prices.length ? Math.min(...prices) : null;
 }
+
+/**
+ * Valor de um período, trecho a trecho das faixas de preço (mesma conta da reserva).
+ * `null` quando alguma parte do período está fora do funcionamento.
+ */
+export function quoteRange(
+  rules: DayRule[],
+  period: MinuteRange,
+): { total: number; parts: (MinuteRange & { pricePerHour: number })[] } | null {
+  const parts: (MinuteRange & { pricePerHour: number })[] = [];
+  let cursor = period.start;
+  let total = 0;
+  while (cursor < period.end) {
+    const rule = rules.find(
+      (r) => r.startMinute <= cursor && r.endMinute > cursor,
+    );
+    if (!rule) return null;
+    const end = Math.min(rule.endMinute, period.end);
+    total += (rule.pricePerHour * (end - cursor)) / 60;
+    parts.push({ start: cursor, end, pricePerHour: rule.pricePerHour });
+    cursor = end;
+  }
+  return { total: Math.round(total * 100) / 100, parts };
+}

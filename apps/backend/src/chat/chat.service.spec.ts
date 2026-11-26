@@ -289,6 +289,47 @@ describe('ChatService', () => {
     });
   });
 
+  describe('cálculo de preço (ferramenta da IA)', () => {
+    it('soma as faixas quando o preço muda no meio do período e avisa se está ocupado', async () => {
+      const d = new Date();
+      d.setDate(d.getDate() + 2);
+      const p = (x: number) => String(x).padStart(2, '0');
+      const date = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+      const court = {
+        name: 'Quadra 1',
+        sport: 'BEACH_TENNIS',
+        minBookingMinutes: 60,
+        priceRules: [
+          { startMinute: 480, endMinute: 1020, pricePerHour: 60 },
+          { startMinute: 1020, endMinute: 1320, pricePerHour: 80 },
+        ],
+        recurringMaintenanceBlocks: [],
+        reservations: [
+          {
+            startsAt: new Date(`${date}T20:00:00`),
+            endsAt: new Date(`${date}T21:00:00`),
+          },
+        ],
+        maintenanceBlocks: [],
+      };
+      const service = new ChatService({
+        court: { findMany: jest.fn().mockResolvedValue([court]) },
+      } as never);
+      const split = await service.priceQuote('a', date, '16:00', 120);
+      expect(split).toContain('total R$ 140,00');
+      expect(split).toContain('livre');
+      await expect(
+        service.priceQuote('a', date, '20:00', 60, 'beach tennis'),
+      ).resolves.toContain('indisponível');
+      await expect(
+        service.priceQuote('a', date, '21:00', 120),
+      ).resolves.toContain('fechada');
+      await expect(
+        service.priceQuote('a', date, 'noite', 60),
+      ).resolves.toContain('inválido');
+    });
+  });
+
   describe('previsão do tempo (ferramenta da IA)', () => {
     it('resume a previsão do dia e detalha a hora pedida', async () => {
       const hours = Array.from({ length: 24 }, (_, hour) => ({
